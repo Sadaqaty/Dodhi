@@ -32,4 +32,8 @@
     <string name="rate_per_liter">ریٹ فی لیٹر</string>
     <string name="save_payment">رقم محفوظ کریں</string>
     <string name="total_deliveries">کل ڈلیوریز</string>
+    <string name="baqaya">بقایا</string>
+    <string name="morning">صبح</string>
+    <string name="evening">شام</string>
+    <string name="search_hint">تلاش کریں...</string>
 </resources>

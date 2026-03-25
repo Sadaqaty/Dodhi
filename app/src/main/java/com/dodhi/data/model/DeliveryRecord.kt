@@ -7,8 +7,10 @@ import androidx.room.PrimaryKey
 data class DeliveryRecord(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val customerId: Long,
-    val date: Long, // timestamp
+    val date: Long,
     val quantity: Double,
-    val type: String, // Delivered, Extra, Naga
+    val type: String, // Delivered, Naga, etc.
+    val shift: String = "Morning", // Morning or Evening
+    val isExtra: Boolean = false,
     val amount: Double
 )

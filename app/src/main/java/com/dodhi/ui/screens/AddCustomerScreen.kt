@@ -1,22 +1,20 @@
 package com.dodhi.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.background
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dodhi.R
 import com.dodhi.ui.theme.DeepBlue
 import com.dodhi.ui.theme.GoldPrimary
-import com.dodhi.ui.theme.GoldDark
 import com.dodhi.ui.viewmodel.DashboardViewModel
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.ui.text.input.KeyboardType
+import com.dodhi.ui.components.PremiumTextField
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -24,6 +22,7 @@ fun AddCustomerScreen(viewModel: DashboardViewModel, onDismiss: () -> Unit) {
     var name by remember { mutableStateOf("") }
     var rate by remember { mutableStateOf("") }
     var quantity by remember { mutableStateOf("") }
+    var locality by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -42,6 +41,13 @@ fun AddCustomerScreen(viewModel: DashboardViewModel, onDismiss: () -> Unit) {
             value = name,
             onValueChange = { name = it },
             label = stringResource(R.string.customer_name)
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        
+        PremiumTextField(
+            value = locality,
+            onValueChange = { locality = it },
+            label = "گلی / محلہ (Street/Mohalla)"
         )
         Spacer(modifier = Modifier.height(16.dp))
         
@@ -85,7 +91,7 @@ fun AddCustomerScreen(viewModel: DashboardViewModel, onDismiss: () -> Unit) {
         
         Button(
             onClick = {
-                viewModel.addCustomer(name, rate.toDoubleOrNull() ?: 0.0, quantity.toDoubleOrNull() ?: 0.0, selectedUnit)
+                viewModel.addCustomer(name, rate.toDoubleOrNull() ?: 0.0, quantity.toDoubleOrNull() ?: 0.0, selectedUnit, locality)
                 onDismiss()
             },
             modifier = Modifier.fillMaxWidth().height(64.dp),
@@ -96,21 +102,4 @@ fun AddCustomerScreen(viewModel: DashboardViewModel, onDismiss: () -> Unit) {
             Text(stringResource(R.string.save), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.Black)
         }
     }
-}
-
-@Composable
-fun PremiumTextField(value: String, onValueChange: (String) -> Unit, label: String, isNumber: Boolean = false) {
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        label = { Text(label) },
-        modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.medium,
-        keyboardOptions = if (isNumber) KeyboardOptions(keyboardType = KeyboardType.Number) else KeyboardOptions.Default,
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = GoldPrimary,
-            unfocusedBorderColor = GoldDark.copy(alpha = 0.5f),
-            focusedLabelColor = GoldDark
-        )
-    )
 }

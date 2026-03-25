@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import java.io.File
 import java.util.*
+import java.text.SimpleDateFormat
 
 import com.dodhi.data.model.Payment
 import com.dodhi.data.model.MilkSource
@@ -42,7 +43,14 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
     private val _selectedDate = MutableStateFlow(Calendar.getInstance())
     val selectedDate: StateFlow<Calendar> = _selectedDate.asStateFlow()
 
-    val dailyRecords: StateFlow<List<DeliveryRecord>> = selectedDate.flatMapLatest { date ->
+    private val _selectedShift = MutableStateFlow("Morning") // Morning or Evening
+    val selectedShift: StateFlow<String> = _selectedShift.asStateFlow()
+
+    fun setShift(shift: String) {
+        _selectedShift.value = shift
+    }
+
+    val dailyRecords: StateFlow<List<DeliveryRecord>> = combine(selectedDate, selectedShift) { date, shift ->
         val start = (date.clone() as Calendar).apply {
             set(Calendar.HOUR_OF_DAY, 0)
             set(Calendar.MINUTE, 0)
@@ -53,8 +61,33 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
             set(Calendar.MINUTE, 59)
             set(Calendar.SECOND, 59)
         }.timeInMillis
-        dao.getRecordsInPeriod(start, end)
+        // We filter by shift in the ViewModel for now, or update DAO to filter by shift
+        dao.getRecordsInPeriod(start, end).first().filter { it.shift == shift }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    val customersByLocality: Flow<Map<String, List<Customer>>> = customers.map { list ->
+        list.groupBy { it.locality }.toSortedMap()
+    }
+
+    fun getShiftProgress(shift: String): Flow<ShiftProgress> {
+        val date = (_selectedDate.value.clone() as Calendar).apply {
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }.timeInMillis
+        
+        return combine(customers, dao.getRecordsInPeriod(date, date + 86400000)) { customers: List<Customer>, records: List<DeliveryRecord> ->
+            val shiftRecords = records.filter { it.shift == shift }
+            val deliveredLiters = shiftRecords.filter { it.type == "Delivered" }.sumOf { it.quantity }
+            val expectedLiters = customers.sumOf { c: Customer -> if (shift == "Morning") c.morningReq else c.eveningReq }
+            
+            ShiftProgress(deliveredLiters, expectedLiters)
+        }
+    }
+
+    data class ShiftProgress(val delivered: Double, val expected: Double)
+
 
     fun setSelectedDate(calendar: Calendar) {
         _selectedDate.value = calendar
@@ -98,27 +131,74 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
-    suspend fun generateParchiText(customerId: Long): String {
-        val customer = dao.getCustomerById(customerId).firstOrNull() ?: return ""
-        val startOfMonth = getStartOfCurrentMonth()
-        val endOfMonth = Calendar.getInstance().timeInMillis
-        // We use first() here because we want a snapshot for the parchi
-        val records = dao.getRecordsInPeriod(startOfMonth, endOfMonth).first()
-            .filter { it.customerId == customerId }
-        
-        val total = records.filter { it.type != "Naga" }.sumOf { it.amount }
-        val liters = records.filter { it.type != "Naga" }.sumOf { it.quantity }
-        
-        val sb = StringBuilder()
-        sb.append("*-- ڈیجیٹل پرچی (Dodhi App) --*\n\n")
-        sb.append("گاہک: ${customer.name}\n")
-        sb.append("ریٹ: ${customer.rate}\n")
-        sb.append("کل مقدار: $liters لیٹر\n")
-        sb.append("کل رقم: $total روپے\n")
-        sb.append("-----------------------------\n")
-        sb.append("تاریخ: ${SimpleDateFormat("dd-MM-yyyy").format(Date())}")
-        return sb.toString()
+    fun generateParchiText(customerId: Long): Flow<String> {
+        return combine(
+            getCustomer(customerId),
+            getMonthlyTotal(customerId),
+            getCustomerBalance(customerId)
+        ) { customer, totalMonth, balance ->
+            if (customer == null) return@combine ""
+            
+            val sdf = SimpleDateFormat("MMMM yyyy", Locale("ur"))
+            val month = sdf.format(Date())
+            
+            """
+            *حساب پرچی (Hisaab Parchi)*
+            --------------------------
+            *گاہک:* ${customer.name}
+            *مہینہ:* $month
+            
+            *اس مہینے کا بل:* $totalMonth PKR
+            *پچھلا بقایا:* ${balance - totalMonth} PKR
+            *کل واجب الادا:* $balance PKR
+            --------------------------
+            *دودهی ایپ (Dodhi App)*
+            """.trimIndent()
+        }
     }
+
+    fun getDailyVolumeInRange(): Flow<List<DayVolume>> {
+        val start = getStartOfCurrentMonth()
+        val end = Calendar.getInstance().timeInMillis
+        return dao.getRecordsInPeriod(start, end).map { records ->
+            records.groupBy { it.date }
+                .map { (date, dailyRecs) ->
+                    DayVolume(date, dailyRecs.filter { it.type != "Naga" }.sumOf { it.quantity })
+                }.sortedBy { it.date }
+        }
+    }
+
+    data class DayVolume(val date: Long, val volume: Double)
+
+    fun getCollectionSummary(): Flow<CollectionSummary> {
+        val start = getStartOfCurrentMonth()
+        val end = Calendar.getInstance().timeInMillis
+        
+        return combine(
+            dao.getRecordsInPeriod(start, end),
+            dao.getPaymentsForCustomerInRange(start, end), // Need to add this to DAO
+            dao.getMilkSourcesInPeriod(start, end)
+        ) { records, payments, sources ->
+            val marketValue = records.filter { it.type != "Naga" }.sumOf { it.amount }
+            val cashCollected = payments.sumOf { it.amount }
+            val totalSourced = sources.sumOf { it.quantity }
+            val totalSold = records.filter { it.type != "Naga" }.sumOf { it.quantity }
+            
+            CollectionSummary(
+                marketValue = marketValue,
+                cashCollected = cashCollected,
+                outstanding = marketValue - cashCollected, // This is simplified for the month
+                waste = totalSourced - totalSold
+            )
+        }
+    }
+
+    data class CollectionSummary(
+        val marketValue: Double,
+        val cashCollected: Double,
+        val outstanding: Double,
+        val waste: Double
+    )
 
     private fun getStartOfCurrentMonth(): Long {
         return Calendar.getInstance().apply {
@@ -141,9 +221,22 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
-    fun addCustomer(name: String, rate: Double, quantity: Double, unit: String = "Liter") {
+    fun addCustomer(name: String, rate: Double, quantity: Double, unit: String = "Liter", locality: String = "") {
         viewModelScope.launch {
-            dao.insertCustomer(Customer(name = name, rate = rate, defaultQuantity = quantity, unit = unit))
+            dao.insertCustomer(Customer(
+                name = name, 
+                rate = rate, 
+                defaultQuantity = quantity, 
+                unit = unit,
+                locality = locality,
+                morningReq = quantity // Default to morning
+            ))
+        }
+    }
+
+    fun updateCustomerSettings(customer: Customer, morning: Double, evening: Double, rate: Double?) {
+        viewModelScope.launch {
+            dao.insertCustomer(customer.copy(morningReq = morning, eveningReq = evening, customRate = rate))
         }
     }
 
@@ -154,27 +247,30 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun markDelivered(customer: Customer, type: String, quantity: Double) {
+        markDeliveredWithDate(customer, type, quantity, _selectedDate.value, _selectedShift.value)
+    }
+
+    fun markDeliveredWithDate(customer: Customer, type: String, quantity: Double, calendar: Calendar, shift: String) {
         viewModelScope.launch {
-            val calendar = (_selectedDate.value.clone() as Calendar).apply {
+            val dateCal = (calendar.clone() as Calendar).apply {
                 set(Calendar.HOUR_OF_DAY, 0)
                 set(Calendar.MINUTE, 0)
                 set(Calendar.SECOND, 0)
                 set(Calendar.MILLISECOND, 0)
             }
-            val date = calendar.timeInMillis
+            val date = dateCal.timeInMillis
             
-            // For Delivered/Naga, we replace any existing record for that day
-            // For Extra, we might want to handle it differently, but for now we'll also replace
-            // to keep the UI predictable.
-            val existing = dailyRecords.value.find { it.customerId == customer.id }
+            val allRecords = dao.getRecordsInPeriod(date, date + 86400000).first()
+            val existing = allRecords.find { it.customerId == customer.id && it.shift == shift }
             
             var targetQuantity = quantity
             var targetType = type
+            var isExtra = false
             
             if (type == "Extra" && existing != null && existing.type != "Naga") {
-                // If adding extra to an existing delivery, we add the quantities
                 targetQuantity = existing.quantity + quantity
-                targetType = "Delivered" // Still a delivery, just with extra
+                targetType = "Delivered"
+                isExtra = true
             } else if (type == "Naga") {
                 targetQuantity = 0.0
             }
@@ -185,7 +281,9 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
                 date = date,
                 quantity = targetQuantity,
                 type = targetType,
-                amount = targetQuantity * customer.rate
+                shift = shift,
+                isExtra = isExtra,
+                amount = targetQuantity * (customer.customRate ?: customer.rate)
             )
             dao.insertRecord(record)
         }

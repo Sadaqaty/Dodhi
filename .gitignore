@@ -24,3 +24,5 @@ Thumbs.db
 app/build/
 app/*.iml
 google-services.json
+
+build_log.txt

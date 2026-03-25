@@ -24,6 +24,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Place
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -42,11 +43,17 @@ import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DashboardScreen(viewModel: DashboardViewModel, onCustomerClick: (Long) -> Unit) {
+fun DashboardScreen(viewModel: DashboardViewModel, onCustomerClick: (Long) -> Unit, onMorningRunClick: () -> Unit) {
     val customers by viewModel.customers.collectAsState()
     val selectedDate by viewModel.selectedDate.collectAsState()
+    val selectedShift by viewModel.selectedShift.collectAsState()
     val dailyRecords by viewModel.dailyRecords.collectAsState()
+    var searchQuery by remember { mutableStateOf("") }
     var showMilkSourceDialog by remember { mutableStateOf(false) }
+
+    val filteredCustomers = remember(customers, searchQuery) {
+        customers.filter { it.name.contains(searchQuery, ignoreCase = true) || it.locality.contains(searchQuery, ignoreCase = true) }
+    }
 
     if (showMilkSourceDialog) {
         MilkSourceDialog(
@@ -71,6 +78,15 @@ fun DashboardScreen(viewModel: DashboardViewModel, onCustomerClick: (Long) -> Un
         topBar = {
             CenterAlignedTopAppBar(
                 title = { Text(stringResource(R.string.app_name), fontWeight = FontWeight.Bold) },
+                actions = {
+                    IconButton(onClick = onMorningRunClick) {
+                        Icon(
+                            imageVector = Icons.Default.Place,
+                            contentDescription = "Morning Run",
+                            tint = Color.Black
+                        )
+                    }
+                },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = GoldPrimary,
                     titleContentColor = Color.Black
@@ -84,11 +100,43 @@ fun DashboardScreen(viewModel: DashboardViewModel, onCustomerClick: (Long) -> Un
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
         ) {
+            // Search Bar
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                placeholder = { Text(stringResource(R.string.search_hint)) },
+                shape = MaterialTheme.shapes.large,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = Color.White,
+                    unfocusedContainerColor = Color.White
+                )
+            )
+
             HorizontalCalendarHeader(selectedDate) { viewModel.setSelectedDate(it) }
             
+            // Shift Toggle
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                FilterChip(
+                    selected = selectedShift == "Morning",
+                    onClick = { viewModel.setShift("Morning") },
+                    label = { Text(stringResource(R.string.morning)) },
+                    modifier = Modifier.weight(1f)
+                )
+                FilterChip(
+                    selected = selectedShift == "Evening",
+                    onClick = { viewModel.setShift("Evening") },
+                    label = { Text(stringResource(R.string.evening)) },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
             SummarySection(viewModel)
             
-            if (customers.isEmpty()) {
+            if (filteredCustomers.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text(
                         text = stringResource(R.string.no_customers),
@@ -103,15 +151,19 @@ fun DashboardScreen(viewModel: DashboardViewModel, onCustomerClick: (Long) -> Un
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    items(customers) { customer ->
+                    items(filteredCustomers) { customer ->
                         val record = dailyRecords.find { it.customerId == customer.id }
+                        val balance by viewModel.getCustomerBalance(customer.id).collectAsState(initial = 0.0)
+                        
                         PremiumCustomerCard(
                             customer = customer,
+                            balance = balance,
                             activeType = record?.type,
-                            currentQuantity = record?.quantity ?: customer.defaultQuantity,
+                            currentQuantity = record?.quantity ?: (if (selectedShift == "Morning") customer.morningReq else customer.eveningReq),
                             onClick = { onCustomerClick(customer.id) },
                             onAction = { type ->
-                                viewModel.markDelivered(customer, type, customer.defaultQuantity)
+                                val qty = if (selectedShift == "Morning") customer.morningReq else customer.eveningReq
+                                viewModel.markDelivered(customer, type, qty)
                             }
                         )
                     }
@@ -168,7 +220,7 @@ fun HorizontalCalendarHeader(selectedDate: Calendar, onDateSelected: (Calendar) 
 }
 
 @Composable
-fun PremiumCustomerCard(customer: Customer, activeType: String?, currentQuantity: Double, onClick: () -> Unit, onAction: (String) -> Unit) {
+fun PremiumCustomerCard(customer: Customer, balance: Double, activeType: String?, currentQuantity: Double, onClick: () -> Unit, onAction: (String) -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
         shape = MaterialTheme.shapes.large,
@@ -181,7 +233,26 @@ fun PremiumCustomerCard(customer: Customer, activeType: String?, currentQuantity
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = customer.name, fontSize = 22.sp, fontWeight = FontWeight.Bold, color = DeepBlue)
+                Column {
+                    Text(text = customer.name, fontSize = 22.sp, fontWeight = FontWeight.Bold, color = DeepBlue)
+                    if (customer.locality.isNotEmpty()) {
+                        Text(text = customer.locality, fontSize = 14.sp, color = Color.Gray)
+                    }
+                }
+                Column(horizontalAlignment = Alignment.End) {
+                    Text(text = stringResource(R.string.baqaya), fontSize = 12.sp, color = Color.Gray)
+                    Text(
+                        text = "$balance ${stringResource(R.string.rupees)}",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = if (balance > 0) Color(0xFFF44336) else Color(0xFF4CAF50)
+                    )
+                }
+            }
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Surface(
                     color = SoftBlue,
                     shape = MaterialTheme.shapes.small

@@ -43,4 +43,9 @@ interface DodhiDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMilkSource(source: MilkSource)
+    @Query("SELECT * FROM payments WHERE date BETWEEN :start AND :end")
+    fun getPaymentsForCustomerInRange(start: Long, end: Long): Flow<List<Payment>>
+
+    @Query("SELECT * FROM milk_sources WHERE date BETWEEN :start AND :end")
+    fun getMilkSourcesInPeriod(start: Long, end: Long): Flow<List<MilkSource>>
 }

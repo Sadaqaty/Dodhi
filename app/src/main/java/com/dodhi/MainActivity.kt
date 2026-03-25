@@ -37,6 +37,7 @@ import com.dodhi.ui.screens.DashboardScreen
 import com.dodhi.ui.screens.AddCustomerScreen
 import com.dodhi.ui.screens.ReportScreen
 import com.dodhi.ui.screens.CustomerDetailScreen
+import com.dodhi.ui.screens.MorningRunScreen
 import com.dodhi.ui.viewmodel.DashboardViewModel
 
 class MainActivity : ComponentActivity() {
@@ -81,9 +82,10 @@ class MainActivity : ComponentActivity() {
                     }
                 ) { innerPadding ->
                     NavHost(navController, startDestination = "dashboard", Modifier.padding(innerPadding)) {
-                        composable("dashboard") { DashboardScreen(viewModel) { customerId -> navController.navigate("customer_detail/$customerId") } }
+                        composable("dashboard") { DashboardScreen(viewModel, onCustomerClick = { customerId -> navController.navigate("customer_detail/$customerId") }, onMorningRunClick = { navController.navigate("morning_run") }) }
                         composable("add_customer") { AddCustomerScreen(viewModel) { navController.popBackStack() } }
                         composable("report") { ReportScreen(viewModel) { customerId -> navController.navigate("customer_detail/$customerId") } }
+                        composable("morning_run") { MorningRunScreen(viewModel) { navController.popBackStack() } }
                         composable(
                             "customer_detail/{customerId}",
                             arguments = listOf(navArgument("customerId") { type = NavType.LongType })

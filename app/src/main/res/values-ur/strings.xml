@@ -29,4 +29,10 @@
     <string name="add_to_ledger">لیجر میں شامل کریں</string>
     <string name="rate_per_liter">ریٹ فی لیٹر</string>
     <string name="default_quantity">طے شدہ مقدار</string>
+    <string name="search_hint">نام یا محلہ تلاش کریں...</string>
+    <string name="morning">صبح</string>
+    <string name="evening">شام</string>
+    <string name="baqaya">بقایا</string>
+    <string name="no_customers">کوئی گاہک نہیں ملا</string>
+    <string name="add_milk_source">دودھ کا اندراج</string>
 </resources>

@@ -11,7 +11,11 @@ data class Customer(
     val address: String = "",
     val defaultQuantity: Double,
     val rate: Double,
-    val unit: String = "Liter", // Liter or Ser
-    val peshgi: Double = 0.0, // Advance
-    val udhaar: Double = 0.0  // Debt
+    val unit: String = "Liter",
+    val locality: String = "", // Street/Mohalla
+    val morningReq: Double = 0.0, // Auto-fill quantity for morning
+    val eveningReq: Double = 0.0, // Auto-fill quantity for evening
+    val customRate: Double? = null, // Specific rate for this customer
+    val peshgi: Double = 0.0,
+    val udhaar: Double = 0.0
 )
