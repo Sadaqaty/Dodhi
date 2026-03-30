@@ -1,3 +1,9 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+    id 'kotlin-kapt'
+}
+
 def versionPropsFile = file('../version.properties')
 def versionProps = new Properties()
 if (versionPropsFile.exists()) {

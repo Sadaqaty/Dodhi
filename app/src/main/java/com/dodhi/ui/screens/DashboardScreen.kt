@@ -27,7 +27,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.clickable
-import androidx.compose.material.icons.filled.Translate
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Check
@@ -77,64 +77,67 @@ fun DashboardScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        // 1. Hero Header
-        Box(modifier = Modifier.fillMaxWidth().height(260.dp)) {
-            Image(
-                painter = painterResource(id = R.drawable.village_heritage_header),
-                contentDescription = null,
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop
-            )
-            
-            // Header Overlay content
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.3f))
-                    .padding(24.dp),
-                verticalArrangement = Arrangement.Bottom
-            ) {
-                Text(
-                    text = "DODHI",
-                    fontSize = 32.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    color = Color.White,
-                    letterSpacing = 4.sp
-                )
-                Text(
-                    text = "DAIRY MANAGEMENT",
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White.copy(alpha = 0.8f),
-                    letterSpacing = 2.sp
-                )
-            }
-            
-            // Top Action Bar
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.End
-            ) {
-                IconButton(onClick = { showLanguageSheet = true }) {
-                    Icon(Icons.Default.Translate, contentDescription = null, tint = Color.White)
-                }
-            }
-        }
-
-        // 2. Action Grid with Filter Tabs
+        // 1. Scrollable Content
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(bottom = 24.dp)
         ) {
+            item {
+                // Hero Header
+                Box(modifier = Modifier.fillMaxWidth().height(260.dp)) {
+                    Image(
+                        painter = painterResource(id = R.drawable.village_heritage_header),
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                    
+                    // Header Overlay content
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.Black.copy(alpha = 0.3f))
+                            .padding(24.dp),
+                        verticalArrangement = Arrangement.Bottom
+                    ) {
+                        Text(
+                            text = "DODHI",
+                            fontSize = 32.sp,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = Color.White,
+                            letterSpacing = 4.sp
+                        )
+                        Text(
+                            text = "DAIRY MANAGEMENT",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White.copy(alpha = 0.8f),
+                            letterSpacing = 2.sp
+                        )
+                    }
+                    
+                    // Top Action Bar
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        IconButton(onClick = { showLanguageSheet = true }) {
+                            Icon(Icons.Default.Settings, contentDescription = null, tint = Color.White)
+                        }
+                    }
+                }
+            }
+
             item {
                 Column(modifier = Modifier.padding(24.dp).fillMaxWidth()) {
                     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                         ActionCard(
                             title = stringResource(R.string.milk_collection),
                             subtitle = "Quick Entries",
-                            icon = R.drawable.clay_pot_icon,
+                            description = stringResource(R.string.milk_collection_desc),
+                            icon = R.drawable.ic_milk_collection_premium,
                             color = PastelGreen,
                             modifier = Modifier.weight(1f),
                             onClick = onMilkCollectionClick
@@ -142,7 +145,8 @@ fun DashboardScreen(
                         ActionCard(
                             title = stringResource(R.string.reports),
                             subtitle = "Hisaab Reports",
-                            icon = R.drawable.reports_icon,
+                            description = stringResource(R.string.reports_desc),
+                            icon = R.drawable.ic_reports_premium,
                             color = PastelBlue,
                             modifier = Modifier.weight(1f),
                             onClick = onReportsClick
@@ -153,7 +157,8 @@ fun DashboardScreen(
                         ActionCard(
                             title = stringResource(R.string.add_customer),
                             subtitle = "Add New Member",
-                            icon = R.drawable.add_customer_icon,
+                            description = stringResource(R.string.add_customer_desc),
+                            icon = R.drawable.ic_add_customer_premium,
                             color = PastelYellow,
                             modifier = Modifier.weight(1f),
                             onClick = onAddMemberClick
@@ -161,6 +166,7 @@ fun DashboardScreen(
                         ActionCard(
                             title = stringResource(R.string.daily_run),
                             subtitle = "Start Delivery",
+                            description = stringResource(R.string.daily_run_desc),
                             icon = R.drawable.cow_illustration,
                             color = PastelOrange,
                             modifier = Modifier.weight(1f),
@@ -249,30 +255,46 @@ fun PremiumCustomerSummaryCard(customer: Customer, viewModel: DashboardViewModel
 }
 
 @Composable
-fun ActionCard(title: String, subtitle: String, icon: Int, color: Color, modifier: Modifier, onClick: () -> Unit) {
+fun ActionCard(
+    title: String, 
+    subtitle: String, 
+    description: String,
+    icon: Int, 
+    color: Color, 
+    modifier: Modifier, 
+    onClick: () -> Unit
+) {
     Card(
         modifier = modifier
-            .aspectRatio(1.3f)
+            .aspectRatio(0.85f)
             .clickable(onClick = onClick)
-            .shadow(2.dp, MaterialTheme.shapes.medium),
+            .shadow(4.dp, MaterialTheme.shapes.large),
         colors = CardDefaults.cardColors(containerColor = ParchiPaper),
-        shape = MaterialTheme.shapes.medium,
-        border = BorderStroke(1.dp, ClayTerracotta.copy(alpha = 0.2f))
+        shape = MaterialTheme.shapes.large,
+        border = BorderStroke(1.dp, ClayTerracotta.copy(alpha = 0.15f))
     ) {
         Column(
-            modifier = Modifier.fillMaxSize().padding(16.dp),
+            modifier = Modifier.fillMaxSize().padding(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Image(
-                painter = painterResource(id = icon),
-                contentDescription = null,
-                modifier = Modifier.size(64.dp)
-            )
+            Box(
+                modifier = Modifier
+                    .size(80.dp)
+                    .background(color.copy(alpha = 0.1f), CircleShape)
+                    .padding(8.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = painterResource(id = icon),
+                    contentDescription = null,
+                    modifier = Modifier.size(64.dp)
+                )
+            }
             Spacer(modifier = Modifier.height(12.dp))
             Text(
                 text = title,
-                fontSize = 15.sp,
+                fontSize = 16.sp,
                 fontWeight = FontWeight.ExtraBold,
                 color = EarthBrown,
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center
@@ -280,9 +302,18 @@ fun ActionCard(title: String, subtitle: String, icon: Int, color: Color, modifie
             Text(
                 text = subtitle,
                 fontSize = 11.sp,
-                fontWeight = FontWeight.Medium,
-                color = EarthBrown.copy(alpha = 0.6f),
+                fontWeight = FontWeight.Bold,
+                color = color,
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = description,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Medium,
+                color = EarthBrown.copy(alpha = 0.5f),
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                lineHeight = 12.sp
             )
         }
     }

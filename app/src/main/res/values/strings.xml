@@ -84,4 +84,10 @@
     <string name="enter_quantity">Enter Quantity (Liters)</string>
     <string name="confirm">Confirm</string>
     <string name="no_records">No records found (Hisaab is clear)</string>
+    
+    <!-- Action Descriptions -->
+    <string name="milk_collection_desc">Enter quick daily milk records</string>
+    <string name="reports_desc">View and share detailed ledgers</string>
+    <string name="add_customer_desc">Register a new source or consumer</string>
+    <string name="daily_run_desc">Start route with custom quantities</string>
 </resources>
