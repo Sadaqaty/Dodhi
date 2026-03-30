@@ -37,7 +37,7 @@ fun ReportScreen(viewModel: DashboardViewModel, onCustomerClick: (Long) -> Unit)
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("بزنس ڈیش بورڈ (Business)", fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(R.string.reports), fontWeight = FontWeight.Bold) },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = GoldPrimary,
                     titleContentColor = Color.Black
@@ -60,14 +60,14 @@ fun ReportScreen(viewModel: DashboardViewModel, onCustomerClick: (Long) -> Unit)
             
             // 2. Volume Chart
             item {
-                Text("ڈیلیوری والیم (Daily Volume)", style = MaterialTheme.typography.titleMedium, color = DeepBlue)
+                Text(stringResource(R.string.delivery_volume), style = MaterialTheme.typography.titleMedium, color = DeepBlue)
                 Spacer(modifier = Modifier.height(8.dp))
                 VolumeBarChart(dailyVolume)
             }
             
             // 3. Customer Reports
             item {
-                Text("کسٹمر رپورٹس (Customer Ledger)", style = MaterialTheme.typography.titleMedium, color = DeepBlue)
+                Text(stringResource(R.string.reports), style = MaterialTheme.typography.titleMedium, color = DeepBlue)
                 Spacer(modifier = Modifier.height(8.dp))
             }
             
@@ -89,12 +89,12 @@ fun ReportScreen(viewModel: DashboardViewModel, onCustomerClick: (Long) -> Unit)
 fun BusinessSummaryCards(summary: DashboardViewModel.CollectionSummary?) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            SummaryCard("کل فروخت", "${summary?.marketValue ?: 0.0} PKR", DeepBlue, Modifier.weight(1f))
-            SummaryCard("وصول شدہ", "${summary?.cashCollected ?: 0.0} PKR", Color(0xFF4CAF50), Modifier.weight(1f))
+            SummaryCard(stringResource(R.string.market_value), "${summary?.marketValue ?: 0.0} ${stringResource(R.string.rupees)}", DeepBlue, Modifier.weight(1f))
+            SummaryCard(stringResource(R.string.collected), "${summary?.cashCollected ?: 0.0} ${stringResource(R.string.rupees)}", Color(0xFF4CAF50), Modifier.weight(1f))
         }
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            SummaryCard("بقایا رقم", "${summary?.outstanding ?: 0.0} PKR", Color(0xFFF44336), Modifier.weight(1f))
-            SummaryCard("ضیاع (Loss)", "${summary?.waste ?: 0.0} L", Color(0xFF9C27B0), Modifier.weight(1f))
+            SummaryCard(stringResource(R.string.outstanding), "${summary?.outstanding ?: 0.0} ${stringResource(R.string.rupees)}", Color(0xFFF44336), Modifier.weight(1f))
+            SummaryCard(stringResource(R.string.waste), "${summary?.waste ?: 0.0} ${stringResource(R.string.liters)}", Color(0xFF9C27B0), Modifier.weight(1f))
         }
     }
 }
@@ -154,9 +154,9 @@ fun PremiumReportCard(customer: com.dodhi.data.model.Customer, total: Double, ba
                 Text(text = customer.locality, fontSize = 12.sp, color = Color.Gray)
             }
             Column(horizontalAlignment = Alignment.End) {
-                Text(text = "${total} PKR", fontWeight = FontWeight.Bold, color = GoldDark)
+                Text(text = "${total} ${stringResource(R.string.rupees)}", fontWeight = FontWeight.Bold, color = GoldDark)
                 Text(
-                    text = "${balance} PKR",
+                    text = "${balance} ${stringResource(R.string.rupees)}",
                     fontSize = 12.sp,
                     color = if (balance > 0) Color(0xFFF44336) else Color(0xFF4CAF50)
                 )

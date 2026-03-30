@@ -15,6 +15,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.dodhi.R
 import com.dodhi.ui.theme.DeepBlue
 import com.dodhi.ui.theme.GoldPrimary
 import com.dodhi.ui.viewmodel.DashboardViewModel
@@ -29,7 +31,7 @@ fun MorningRunScreen(viewModel: DashboardViewModel, onBack: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("مارننگ رن (Morning Run)", fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(R.string.morning_run), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = null)
@@ -47,7 +49,7 @@ fun MorningRunScreen(viewModel: DashboardViewModel, onBack: () -> Unit) {
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("ڈیلیوری رپورٹ", fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.delivery_report), fontWeight = FontWeight.Bold)
                         Text("${progress.delivered.toInt()} / ${progress.expected.toInt()} L", color = DeepBlue, fontWeight = FontWeight.Bold)
                     }
                     Spacer(modifier = Modifier.height(8.dp))
@@ -71,7 +73,7 @@ fun MorningRunScreen(viewModel: DashboardViewModel, onBack: () -> Unit) {
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Text(
-                                text = locality.ifEmpty { "متفرق" },
+                                text = locality.ifEmpty { stringResource(R.string.miscellaneous) },
                                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                                 fontWeight = FontWeight.Bold,
                                 color = DeepBlue,
@@ -105,7 +107,7 @@ fun RouteCustomerRow(customer: Customer, viewModel: DashboardViewModel) {
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(customer.name, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                Text("${customer.morningReq} L", color = Color.Gray)
+                Text("${customer.morningReq} ${stringResource(R.string.liters)}", color = Color.Gray)
             }
             
             IconButton(

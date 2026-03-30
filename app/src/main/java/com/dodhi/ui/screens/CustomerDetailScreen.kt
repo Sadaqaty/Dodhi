@@ -51,7 +51,7 @@ fun CustomerDetailScreen(viewModel: DashboardViewModel, customerId: Long, onBack
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var selectedTab by remember { mutableStateOf(0) }
-    val tabs = listOf("حساب کتاب", "ادائیگی", "سیٹنگز") // Hisaab, Pay, Settings
+    val tabs = listOf(stringResource(R.string.hisaab), stringResource(R.string.payment), stringResource(R.string.settings))
 
     Scaffold(
         topBar = {
@@ -66,7 +66,7 @@ fun CustomerDetailScreen(viewModel: DashboardViewModel, customerId: Long, onBack
                     actions = {
                         var showParchi by remember { mutableStateOf(false) }
                         IconButton(onClick = { showParchi = true }) {
-                            Icon(Icons.Default.Share, contentDescription = "Share")
+                            Icon(Icons.Default.Share, contentDescription = stringResource(R.string.share))
                         }
                         if (showParchi) {
                             DigitalParchiDialog(viewModel, customerId) { showParchi = false }
@@ -77,7 +77,7 @@ fun CustomerDetailScreen(viewModel: DashboardViewModel, customerId: Long, onBack
                                 onBack()
                             }
                         }) {
-                            Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.Red)
+                            Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.delete_customer), tint = Color.Red)
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = GoldPrimary)
@@ -168,8 +168,8 @@ fun HisaabTab(viewModel: DashboardViewModel, customerId: Long) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("کل رقم (Total Month)", color = Color.LightGray)
-                Text("${total} PKR", color = GoldPrimary, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.total_amount), color = Color.LightGray)
+                Text("${total} ${stringResource(R.string.rupees)}", color = GoldPrimary, fontSize = 20.sp, fontWeight = FontWeight.Bold)
             }
         }
     }
@@ -177,8 +177,8 @@ fun HisaabTab(viewModel: DashboardViewModel, customerId: Long) {
 
 @Composable
 fun DailyLedgerRow(customer: Customer, date: Calendar, allRecords: List<DeliveryRecord>, viewModel: DashboardViewModel) {
-    val dateFormat = SimpleDateFormat("dd MMM", Locale("ur"))
-    val dayFormat = SimpleDateFormat("EEEE", Locale("ur"))
+    val dateFormat = SimpleDateFormat("dd MMM", java.util.Locale.getDefault())
+    val dayFormat = SimpleDateFormat("EEEE", java.util.Locale.getDefault())
     
     val morningRecord = allRecords.find { isSameDay(it.date, date) && it.shift == "Morning" }
     val eveningRecord = allRecords.find { isSameDay(it.date, date) && it.shift == "Evening" }
@@ -208,7 +208,7 @@ fun DailyLedgerRow(customer: Customer, date: Calendar, allRecords: List<Delivery
                     shape = MaterialTheme.shapes.small,
                     modifier = Modifier.height(36.dp)
                 ) {
-                    Text("ناغہ (Naga)", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.naga), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 }
             }
             
@@ -217,7 +217,7 @@ fun DailyLedgerRow(customer: Customer, date: Calendar, allRecords: List<Delivery
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 // Morning Action
                 ShiftAction(
-                    label = "صبح", 
+                    label = stringResource(R.string.morning), 
                     record = morningRecord, 
                     onAction = { viewModel.markDeliveredWithDate(customer, "Delivered", customer.morningReq, date, "Morning") },
                     onExtra = { viewModel.markDeliveredWithDate(customer, "Extra", 1.0, date, "Morning") },
@@ -226,7 +226,7 @@ fun DailyLedgerRow(customer: Customer, date: Calendar, allRecords: List<Delivery
                 
                 // Evening Action
                 ShiftAction(
-                    label = "شام", 
+                    label = stringResource(R.string.evening), 
                     record = eveningRecord, 
                     onAction = { viewModel.markDeliveredWithDate(customer, "Delivered", customer.eveningReq, date, "Evening") },
                     onExtra = { viewModel.markDeliveredWithDate(customer, "Extra", 1.0, date, "Evening") },
@@ -289,8 +289,8 @@ fun PaymentsTab(viewModel: DashboardViewModel, customerId: Long) {
                 colors = CardDefaults.cardColors(containerColor = DeepBlue)
             ) {
                 Column(modifier = Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("کل بقایا (Net Balance)", color = Color.LightGray)
-                    Text("${balance} PKR", fontSize = 32.sp, fontWeight = FontWeight.Bold, color = GoldPrimary)
+                    Text(stringResource(R.string.net_balance), color = Color.LightGray)
+                    Text("${balance} ${stringResource(R.string.rupees)}", fontSize = 32.sp, fontWeight = FontWeight.Bold, color = GoldPrimary)
                 }
             }
             
@@ -305,7 +305,7 @@ fun PaymentsTab(viewModel: DashboardViewModel, customerId: Long) {
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Box(modifier = Modifier.weight(1f)) {
-                        PremiumTextField(value = amount, onValueChange = { amount = it }, label = "رقم (Amount)", isNumber = true)
+                        PremiumTextField(value = amount, onValueChange = { amount = it }, label = stringResource(R.string.amount), isNumber = true)
                     }
                     Button(
                         onClick = {
@@ -316,14 +316,14 @@ fun PaymentsTab(viewModel: DashboardViewModel, customerId: Long) {
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = GoldPrimary)
                     ) {
-                        Text("ادائیگی", color = Color.Black)
+                        Text(stringResource(R.string.payment), color = Color.Black)
                     }
                 }
             }
         }
         
         Text(
-            text = "ادائیگی کی رپورٹ (Payment History)",
+            text = stringResource(R.string.payment_history),
             modifier = Modifier.padding(16.dp),
             fontWeight = FontWeight.Bold,
             color = DeepBlue
@@ -352,11 +352,11 @@ fun SettingsTab(viewModel: DashboardViewModel, customerId: Long) {
         var rate by remember { mutableStateOf((cust.customRate ?: cust.rate).toString()) }
 
         Column(modifier = Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            Text("کسٹمر سیٹنگز", style = MaterialTheme.typography.headlineSmall, color = DeepBlue)
+            Text(stringResource(R.string.customer_settings), style = MaterialTheme.typography.headlineSmall, color = DeepBlue)
             
-            PremiumTextField(value = morning, onValueChange = { morning = it }, label = "صبح کی مقدار (Morning Liters)", isNumber = true)
-            PremiumTextField(value = evening, onValueChange = { evening = it }, label = "شام کی مقدار (Evening Liters)", isNumber = true)
-            PremiumTextField(value = rate, onValueChange = { rate = it }, label = "فی لیٹر ریٹ (Custom Rate)", isNumber = true)
+            PremiumTextField(value = morning, onValueChange = { morning = it }, label = stringResource(R.string.morning) + " (" + stringResource(R.string.liters) + ")", isNumber = true)
+            PremiumTextField(value = evening, onValueChange = { evening = it }, label = stringResource(R.string.evening) + " (" + stringResource(R.string.liters) + ")", isNumber = true)
+            PremiumTextField(value = rate, onValueChange = { rate = it }, label = stringResource(R.string.rate_per_liter), isNumber = true)
             
             Button(
                 onClick = {
@@ -370,7 +370,7 @@ fun SettingsTab(viewModel: DashboardViewModel, customerId: Long) {
                 modifier = Modifier.fillMaxWidth().height(56.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = GoldPrimary)
             ) {
-                Text("تبدیلی محفوظ کریں", color = Color.Black, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.save_changes), color = Color.Black, fontWeight = FontWeight.Bold)
             }
         }
     }
@@ -406,7 +406,7 @@ fun CustomerSummaryHeader(customer: Customer, viewModel: DashboardViewModel) {
 
 @Composable
 fun KhataRow(item: KhataItem) {
-    val dateFormat = SimpleDateFormat("dd MMM, yyyy", Locale("ur"))
+    val dateFormat = SimpleDateFormat("dd MMM, yyyy", java.util.Locale.getDefault())
     val rupees = stringResource(R.string.rupees)
     
     Card(
@@ -487,16 +487,16 @@ fun DigitalParchiDialog(viewModel: DashboardViewModel, customerId: Long, onDismi
                         type = "text/plain"
                         putExtra(Intent.EXTRA_TEXT, parchiText)
                     }
-                    context.startActivity(Intent.createChooser(intent, "حساب شیئر کریں"))
+                    context.startActivity(Intent.createChooser(intent, context.getString(R.string.share_report)))
                     onDismiss()
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = GoldPrimary)
             ) {
-                Text("شیئر کریں (Share)", color = Color.Black)
+                Text(stringResource(R.string.share), color = Color.Black)
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("بند کریں") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
         },
         text = {
             Box(
