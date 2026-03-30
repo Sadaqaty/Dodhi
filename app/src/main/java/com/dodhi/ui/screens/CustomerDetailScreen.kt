@@ -2,6 +2,8 @@ package com.dodhi.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.lazy.LazyColumn
@@ -137,45 +139,43 @@ fun CustomerDetailScreen(viewModel: DashboardViewModel, customerId: Long, onBack
 @Composable
 fun HisaabTab(viewModel: DashboardViewModel, customerId: Long) {
     val records by viewModel.getRecordsForCustomer(customerId).collectAsState(initial = emptyList())
+    val payments by viewModel.getPaymentsForCustomer(customerId).collectAsState(initial = emptyList())
     val customer by viewModel.getCustomer(customerId).collectAsState(initial = null)
     
-    var showExtraDialog by remember { mutableStateOf(false) }
-    var selectedDate by remember { mutableStateOf<Calendar?>(null) }
-    var selectedShift by remember { mutableStateOf("") }
-
-    // Generate dates for current month
-    val calendar = Calendar.getInstance()
-    val monthStart = (calendar.clone() as Calendar).apply { set(Calendar.DAY_OF_MONTH, 1) }
-    val monthEnd = (calendar.clone() as Calendar).apply { set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH)) }
-    
-    val dates = remember {
-        val list = mutableListOf<Calendar>()
-        val curr = monthStart.clone() as Calendar
-        while (curr.timeInMillis <= monthEnd.timeInMillis) {
-            list.add(curr.clone() as Calendar)
-            curr.add(Calendar.DAY_OF_MONTH, 1)
-        }
-        list.reversed()
+    val khataItems = remember(records, payments) {
+        val list = mutableListOf<KhataItem>()
+        list.addAll(records.map { KhataItem.Delivery(it) })
+        list.addAll(payments.map { KhataItem.PaymentItem(it) })
+        list.sortedByDescending { it.date }
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        item {
             customer?.let { CustomerSummaryHeader(it, viewModel) }
-            
-            LazyColumn(
-                modifier = Modifier.fillMaxSize().padding(bottom = 70.dp),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(dates) { date ->
-                    customer?.let { cust ->
-                        DailyLedgerRow(cust, date, records, viewModel, onExtraClick = { shift ->
-                            selectedDate = date
-                            selectedShift = shift
-                            showExtraDialog = true
-                        })
-                    }
+        }
+        
+        item {
+            Text(
+                stringResource(R.string.payment_history), 
+                fontWeight = FontWeight.Bold, 
+                color = EarthBrown,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+        }
+
+        if (khataItems.isEmpty()) {
+            item {
+                Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
+                    Text(stringResource(R.string.no_records), color = Color.Gray)
                 }
+            }
+        } else {
+            items(khataItems) { item ->
+                KhataRow(item, viewModel, customerId)
             }
         }
 
@@ -191,7 +191,11 @@ fun HisaabTab(viewModel: DashboardViewModel, customerId: Long) {
             )
         }
         
-        // Sticky Bottom Summary Bar
+        item { Spacer(modifier = Modifier.height(80.dp)) }
+    }
+    
+    // Sticky Bottom Summary Bar
+    Box(modifier = Modifier.fillMaxSize()) {
         Surface(
             modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth(),
             color = EarthBrown,
@@ -210,102 +214,11 @@ fun HisaabTab(viewModel: DashboardViewModel, customerId: Long) {
     }
 }
 
-@Composable
-fun DailyLedgerRow(customer: Customer, date: Calendar, allRecords: List<DeliveryRecord>, viewModel: DashboardViewModel, onExtraClick: (String) -> Unit) {
-    val dateFormat = SimpleDateFormat("dd MMM", java.util.Locale.getDefault())
-    val dayFormat = SimpleDateFormat("EEEE", java.util.Locale.getDefault())
-    
-    val morningRecord = allRecords.find { isSameDay(it.date, date) && it.shift == "Morning" }
-    val eveningRecord = allRecords.find { isSameDay(it.date, date) && it.shift == "Evening" }
-    
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Column {
-                    Text(dateFormat.format(date.time), fontWeight = FontWeight.Bold, color = EarthBrown)
-                    Text(dayFormat.format(date.time), fontSize = 12.sp, color = Color.Gray)
-                }
-                
-                // Naga Button
-                Button(
-                    onClick = { 
-                        viewModel.markDeliveredWithDate(customer, "Naga", 0.0, date, "Morning")
-                        viewModel.markDeliveredWithDate(customer, "Naga", 0.0, date, "Evening")
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (morningRecord?.type == "Naga" && eveningRecord?.type == "Naga") Color.Red else Color.Red.copy(alpha = 0.1f),
-                        contentColor = if (morningRecord?.type == "Naga" && eveningRecord?.type == "Naga") Color.White else Color.Red
-                    ),
-                    shape = MaterialTheme.shapes.small,
-                    modifier = Modifier.height(36.dp)
-                ) {
-                    Text(stringResource(R.string.naga), fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                }
-            }
-            
-            Spacer(modifier = Modifier.height(12.dp))
-            
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                // Morning Action
-                ShiftAction(
-                    label = stringResource(R.string.morning), 
-                    record = morningRecord, 
-                    onAction = { viewModel.markDeliveredWithDate(customer, "Delivered", customer.morningReq, date, "Morning") },
-                    onExtra = { onExtraClick("Morning") },
-                    modifier = Modifier.weight(1f)
-                )
-                
-                // Evening Action
-                ShiftAction(
-                    label = stringResource(R.string.evening), 
-                    record = eveningRecord, 
-                    onAction = { viewModel.markDeliveredWithDate(customer, "Delivered", customer.eveningReq, date, "Evening") },
-                    onExtra = { onExtraClick("Evening") },
-                    modifier = Modifier.weight(1f)
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun ShiftAction(label: String, record: DeliveryRecord?, onAction: () -> Unit, onExtra: () -> Unit, modifier: Modifier) {
-    val isDelivered = record?.type == "Delivered"
-    
-    Surface(
-        onClick = onAction,
-        modifier = modifier,
-        color = if (isDelivered) GrassGreen.copy(alpha = 0.2f) else Color.Transparent,
-        border = BorderStroke(1.dp, if (isDelivered) GrassGreen else Color.LightGray),
-        shape = MaterialTheme.shapes.medium
-    ) {
-        Row(
-            modifier = Modifier.padding(vertical = 8.dp, horizontal = 4.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(label, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-            
-            if (isDelivered) {
-                Text("${record?.quantity} L", fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                IconButton(onClick = onExtra, modifier = Modifier.size(24.dp)) {
-                    Text("+", fontWeight = FontWeight.Bold, color = EarthBrown)
-                }
-            } else {
-                Text("-", color = Color.LightGray)
-            }
-        }
-    }
-}
-
 fun isSameDay(timestamp: Long, calendar: Calendar): Boolean {
     val recordCal = Calendar.getInstance().apply { timeInMillis = timestamp }
-    return recordCal.get(Calendar.YEAR) == calendar.get(Calendar.YEAR) &&
-           recordCal.get(Calendar.DAY_OF_YEAR) == calendar.get(Calendar.DAY_OF_YEAR)
+    val now = Calendar.getInstance()
+    return recordCal.get(Calendar.YEAR) == now.get(Calendar.YEAR) &&
+           recordCal.get(Calendar.DAY_OF_YEAR) == now.get(Calendar.DAY_OF_YEAR)
 }
 
 
@@ -316,66 +229,69 @@ fun PaymentsTab(viewModel: DashboardViewModel, customerId: Long) {
     
     var amount by remember { mutableStateOf("") }
 
-    Column {
-        customer?.let { cust ->
-            val balance by viewModel.getCustomerBalance(cust.id).collectAsState(initial = 0.0)
-            Card(
-                modifier = Modifier.fillMaxWidth().padding(16.dp),
-                colors = CardDefaults.cardColors(containerColor = EarthBrown)
-            ) {
-                Column(modifier = Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(
-                        text = stringResource(if (cust.isProvider) R.string.you_owe else R.string.they_owe), 
-                        color = Color.LightGray
-                    )
-                    Text("${balance} ${stringResource(R.string.rupees)}", fontSize = 32.sp, fontWeight = FontWeight.Bold, color = GrassGreen)
-                }
-            }
-            
-            // Payment Entry
-            Card(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White)
-            ) {
-                Row(
-                    modifier = Modifier.padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(bottom = 100.dp)
+    ) {
+        item {
+            customer?.let { cust ->
+                val balance by viewModel.getCustomerBalance(cust.id).collectAsState(initial = 0.0)
+                Card(
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = EarthBrown)
                 ) {
-                    Box(modifier = Modifier.weight(1f)) {
-                        PremiumTextField(value = amount, onValueChange = { amount = it }, label = stringResource(R.string.amount), isNumber = true)
-                    }
-                    Button(
-                        onClick = {
-                            if (amount.isNotEmpty()) {
-                                viewModel.addPayment(cust.id, amount.toDoubleOrNull() ?: 0.0)
-                                amount = ""
-                            }
-                        },
-                        colors = ButtonDefaults.buttonColors(containerColor = GrassGreen)
-                    ) {
+                    Column(modifier = Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
-                            text = stringResource(if (cust.isProvider) R.string.payment_given else R.string.payment_received), 
-                            color = Color.Black
+                            text = stringResource(if (cust.isProvider) R.string.you_owe else R.string.they_owe), 
+                            color = Color.LightGray
                         )
+                        Text("${balance} ${stringResource(R.string.rupees)}", fontSize = 32.sp, fontWeight = FontWeight.Bold, color = GrassGreen)
+                    }
+                }
+                
+                // Payment Entry
+                Card(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Box(modifier = Modifier.weight(1f)) {
+                            PremiumTextField(value = amount, onValueChange = { amount = it }, label = stringResource(R.string.amount), isNumber = true)
+                        }
+                        Button(
+                            onClick = {
+                                if (amount.isNotEmpty()) {
+                                    viewModel.addPayment(cust.id, amount.toDoubleOrNull() ?: 0.0)
+                                    amount = ""
+                                }
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = GrassGreen)
+                        ) {
+                            Text(
+                                text = stringResource(if (cust.isProvider) R.string.payment_given else R.string.payment_received), 
+                                color = Color.Black
+                            )
+                        }
                     }
                 }
             }
         }
         
-        Text(
-            text = stringResource(R.string.payment_history),
-            modifier = Modifier.padding(16.dp),
-            fontWeight = FontWeight.Bold,
-            color = EarthBrown
-        )
+        item {
+            Text(
+                text = stringResource(R.string.payment_history),
+                modifier = Modifier.padding(16.dp),
+                fontWeight = FontWeight.Bold,
+                color = EarthBrown
+            )
+        }
 
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(payments.sortedByDescending { it.date }) { payment ->
+        items(payments.sortedByDescending { it.date }) { payment ->
+            Box(modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
                 KhataRow(KhataItem.PaymentItem(payment), viewModel, customerId)
             }
         }
@@ -387,24 +303,29 @@ fun PaymentsTab(viewModel: DashboardViewModel, customerId: Long) {
 fun SettingsTab(viewModel: DashboardViewModel, customerId: Long) {
     val customer by viewModel.getCustomer(customerId).collectAsState(initial = null)
     
-    customer?.let { cust ->
-        var morning by remember { mutableStateOf(cust.morningReq.toString()) }
-        var evening by remember { mutableStateOf(cust.eveningReq.toString()) }
-        var rate by remember { mutableStateOf((cust.customRate ?: cust.rate).toString()) }
+    val scrollState = rememberScrollState()
 
-        Column(modifier = Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(scrollState)
+            .padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        customer?.let { cust ->
+            var dailyQuantity by remember { mutableStateOf(cust.defaultQuantity.toString()) }
+            var rate by remember { mutableStateOf((cust.customRate ?: cust.rate).toString()) }
+
             Text(stringResource(R.string.customer_settings), style = MaterialTheme.typography.headlineSmall, color = EarthBrown)
             
-            PremiumTextField(value = morning, onValueChange = { morning = it }, label = stringResource(R.string.morning) + " (" + stringResource(R.string.liters) + ")", isNumber = true)
-            PremiumTextField(value = evening, onValueChange = { evening = it }, label = stringResource(R.string.evening) + " (" + stringResource(R.string.liters) + ")", isNumber = true)
+            PremiumTextField(value = dailyQuantity, onValueChange = { dailyQuantity = it }, label = "Daily Quantity", isNumber = true)
             PremiumTextField(value = rate, onValueChange = { rate = it }, label = stringResource(R.string.rate_per_liter), isNumber = true)
             
             Button(
                 onClick = {
                     viewModel.updateCustomerSettings(
                         cust, 
-                        morning.toDoubleOrNull() ?: 0.0, 
-                        evening.toDoubleOrNull() ?: 0.0,
+                        dailyQuantity.toDoubleOrNull() ?: 0.0, 
                         rate.toDoubleOrNull()
                     )
                 },
@@ -414,6 +335,8 @@ fun SettingsTab(viewModel: DashboardViewModel, customerId: Long) {
                 Text(stringResource(R.string.save_changes), color = Color.Black, fontWeight = FontWeight.Bold)
             }
         }
+        
+        Spacer(modifier = Modifier.height(100.dp))
     }
 }
 
@@ -486,7 +409,7 @@ fun KhataRow(item: KhataItem, viewModel: DashboardViewModel, customerId: Long) {
             
             Text(
                 text = when (item) {
-                    is KhataItem.Delivery -> "${item.record.quantity} ${stringResource(R.string.liters)} | ${item.record.amount} $rupees"
+                    is KhataItem.Delivery -> "${item.record.quantity} | ${item.record.amount} $rupees"
                     is KhataItem.PaymentItem -> "${item.payment.amount} $rupees"
                 },
                 fontWeight = FontWeight.Bold,
@@ -501,27 +424,6 @@ sealed class KhataItem(val date: Long) {
     data class PaymentItem(val payment: Payment) : KhataItem(payment.date)
 }
 
-class SerratedEdgeShape(val serrationCount: Int = 20, val serrationHeight: Float = 15f) : Shape {
-    override fun createOutline(size: Size, layoutDirection: LayoutDirection, density: Density): androidx.compose.ui.graphics.Outline {
-        val path = Path().apply {
-            moveTo(0f, serrationHeight)
-            val segmentWidth = size.width / serrationCount
-            for (i in 0 until serrationCount) {
-                val x = i * segmentWidth
-                lineTo(x + segmentWidth / 2, 0f)
-                lineTo(x + segmentWidth, serrationHeight)
-            }
-            lineTo(size.width, size.height - serrationHeight)
-            for (i in serrationCount downTo 1) {
-                val x = (i - 1) * segmentWidth
-                lineTo(x + segmentWidth / 2, size.height)
-                lineTo(x, size.height - serrationHeight)
-            }
-            close()
-        }
-        return androidx.compose.ui.graphics.Outline.Generic(path)
-    }
-}
 
 @Composable
 fun ReportGenerationDialog(onDismiss: () -> Unit, onGenerate: (String, Boolean) -> Unit) {

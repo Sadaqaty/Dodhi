@@ -94,7 +94,7 @@ fun BusinessSummaryCards(summary: DashboardViewModel.CollectionSummary?) {
         }
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             SummaryCard(stringResource(R.string.outstanding), "${summary?.outstanding ?: 0.0} ${stringResource(R.string.rupees)}", Color(0xFFF44336), Modifier.weight(1f))
-            SummaryCard(stringResource(R.string.waste), "${summary?.waste ?: 0.0} ${stringResource(R.string.liters)}", Color(0xFF9C27B0), Modifier.weight(1f))
+            SummaryCard(stringResource(R.string.waste), "${summary?.waste ?: 0.0}", Color(0xFF9C27B0), Modifier.weight(1f))
         }
     }
 }

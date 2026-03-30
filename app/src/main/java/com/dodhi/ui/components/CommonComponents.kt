@@ -13,12 +13,21 @@ import com.dodhi.ui.theme.GrassGreen
 import com.dodhi.ui.theme.NatureGreen
 
 @Composable
-fun PremiumTextField(value: String, onValueChange: (String) -> Unit, label: String, isNumber: Boolean = false) {
+fun PremiumTextField(
+    value: String, 
+    onValueChange: (String) -> Unit, 
+    label: String, 
+    isNumber: Boolean = false,
+    isError: Boolean = false,
+    errorText: String? = null
+) {
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
         label = { Text(label) },
         modifier = Modifier.fillMaxWidth(),
+        isError = isError,
+        supportingText = errorText?.let { { Text(it, color = MaterialTheme.colorScheme.error) } },
         shape = MaterialTheme.shapes.medium,
         keyboardOptions = if (isNumber) KeyboardOptions(keyboardType = KeyboardType.Number) else KeyboardOptions.Default,
         colors = OutlinedTextFieldDefaults.colors(

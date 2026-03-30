@@ -25,7 +25,6 @@ import androidx.compose.material.icons.filled.Add
 fun DailyEntryScreen(viewModel: DashboardViewModel, onCustomerClick: (Long) -> Unit, onBack: () -> Unit) {
     val customers by viewModel.customers.collectAsState()
     val selectedDate by viewModel.selectedDate.collectAsState()
-    val selectedShift by viewModel.selectedShift.collectAsState()
     val dailyRecords by viewModel.dailyRecords.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
     var showMilkSourceDialog by remember { mutableStateOf(false) }
@@ -87,27 +86,7 @@ fun DailyEntryScreen(viewModel: DashboardViewModel, onCustomerClick: (Long) -> U
                 )
             }
 
-            item { HorizontalCalendarHeader(selectedDate) { viewModel.setSelectedDate(it) } }
             
-            item {
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    FilterChip(
-                        selected = selectedShift == "Morning",
-                        onClick = { viewModel.setShift("Morning") },
-                        label = { Text(stringResource(R.string.morning)) },
-                        modifier = Modifier.weight(1f)
-                    )
-                    FilterChip(
-                        selected = selectedShift == "Evening",
-                        onClick = { viewModel.setShift("Evening") },
-                        label = { Text(stringResource(R.string.evening)) },
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-            }
 
             item { SummarySection(viewModel) }
             
@@ -127,10 +106,13 @@ fun DailyEntryScreen(viewModel: DashboardViewModel, onCustomerClick: (Long) -> U
                             customer = customer,
                             balance = balance,
                             activeType = record?.type,
-                            currentQuantity = record?.quantity ?: (if (selectedShift == "Morning") customer.morningReq else customer.eveningReq),
+                            currentQuantity = record?.quantity ?: customer.defaultQuantity,
                             onClick = { onCustomerClick(customer.id) },
                             onAction = { type, qty ->
                                 viewModel.markDelivered(customer, type, qty)
+                            },
+                            onPayment = { amt ->
+                                viewModel.addPayment(customer.id, amt)
                             }
                         )
                     }

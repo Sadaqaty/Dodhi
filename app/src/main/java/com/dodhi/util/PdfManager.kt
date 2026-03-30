@@ -35,112 +35,152 @@ class PdfManager(context: Context) {
         try {
             // Header background
             paint.color = accentColor
-            canvas.drawRect(0f, 0f, 595f, 100f, paint)
+            canvas.drawRect(0f, 0f, 595f, 120f, paint)
             
             paint.color = Color.WHITE
-            paint.textSize = 28f
+            paint.textSize = 32f
             paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
-            canvas.drawText(milkmanName.uppercase(), 40f, 60f, paint)
-            
-            paint.textSize = 14f
-            paint.typeface = Typeface.DEFAULT
-            val monthStr = SimpleDateFormat("MMMM yyyy", if (isUrdu) Locale("ur") else Locale.ENGLISH).format(month.time)
-            val titleStr = if (isUrdu) "ماہانہ رپورٹ - $monthStr" else "Monthly Milk Statement - $monthStr"
-            canvas.drawText(titleStr, 40f, 85f, paint)
-
-            // Customer Info Section
-            paint.color = Color.BLACK
-            paint.textSize = 18f
-            paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
-            canvas.drawText(customer.name, 40f, 150f, paint)
+            canvas.drawText(milkmanName.uppercase(), 40f, 65f, paint)
             
             paint.textSize = 12f
             paint.typeface = Typeface.DEFAULT
-            val localityLabel = if (isUrdu) "علاقہ: ${customer.locality}" else "Locality: ${customer.locality}"
-            canvas.drawText(localityLabel, 40f, 170f, paint)
+            paint.letterSpacing = 0.1f
+            val monthStr = SimpleDateFormat("MMMM yyyy", if (isUrdu) Locale("ur") else Locale.ENGLISH).format(month.time)
+            val titleStr = if (isUrdu) "ماہانہ رپورٹ - $monthStr" else "MONTHLY MILK STATEMENT - $monthStr"
+            canvas.drawText(titleStr, 40f, 95f, paint)
+            paint.letterSpacing = 0f
+
+            // Customer Info Card
+            paint.color = Color.rgb(245, 245, 245)
+            canvas.drawRoundRect(40f, 150f, 555f, 220f, 8f, 8f, paint)
             
-            val generatedLabel = if (isUrdu) "تاریخ اخراج: " else "Generated: "
-            canvas.drawText(generatedLabel + SimpleDateFormat("dd/MM/yyyy HH:mm").format(Date()), 40f, 185f, paint)
+            paint.color = Color.BLACK
+            paint.textSize = 20f
+            paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+            canvas.drawText(customer.name, 60f, 185f, paint)
+            
+            paint.textSize = 12f
+            paint.typeface = Typeface.DEFAULT
+            paint.color = Color.GRAY
+            val localityLabel = if (isUrdu) "علاقہ: ${customer.locality}" else "Locality: ${customer.locality}"
+            canvas.drawText(localityLabel, 60f, 205f, paint)
+            
+            paint.color = Color.rgb(100, 100, 100)
+            val generatedLabel = if (isUrdu) "تاریخ اخراج: " else "Statement Date: "
+            val genDate = SimpleDateFormat("dd MMM yyyy").format(Date())
+            canvas.drawText(generatedLabel + genDate, 400f, 185f, paint)
 
             // Table Header
-            var y = 220f
-            paint.color = Color.rgb(240, 240, 240)
-            canvas.drawRect(40f, y, 555f, y + 30f, paint)
+            var y = 250f
+            paint.color = accentColor
+            canvas.drawRect(40f, y, 555f, y + 35f, paint)
             
-            paint.color = Color.BLACK
-            paint.textSize = 12f
+            paint.color = Color.WHITE
+            paint.textSize = 11f
             paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
             
-            val headers = if (isUrdu) listOf("تاریخ", "تفصیل", "مقدار", "رقم") else listOf("DATE", "DESCRIPTION", "QTY (L/S)", "AMOUNT (PKR)")
-            canvas.drawText(headers[0], 50f, y + 20f, paint)
-            canvas.drawText(headers[1], 150f, y + 20f, paint)
-            canvas.drawText(headers[2], 350f, y + 20f, paint)
-            canvas.drawText(headers[3], 450f, y + 20f, paint)
+            val headers = if (isUrdu) listOf("تاریخ", "تفصیل", "مقدار", "رقم") else listOf("DATE", "DESCRIPTION", "QUANTITY", "AMOUNT (PKR)")
+            canvas.drawText(headers[0], 60f, y + 22f, paint)
+            canvas.drawText(headers[1], 150f, y + 22f, paint)
+            canvas.drawText(headers[2], 350f, y + 22f, paint)
+            canvas.drawText(headers[3], 450f, y + 22f, paint)
             
-            y += 50f
+            y += 60f
             paint.typeface = Typeface.DEFAULT
+            paint.color = Color.BLACK
+            paint.textSize = 11f
             
             // Ledger logic
             val recordsInMonth = records.filter { isSameMonth(it.date, month) }
             val paymentsInMonth = payments.filter { isSameMonth(it.date, month) }
             
             val ledgerEntries = (recordsInMonth.map {Triple(it.date, it.type, it.quantity to it.amount)} + 
-                               paymentsInMonth.map {Triple(it.date, "Payment", 0.0 to it.amount)}) // Amount is positive in DB for payments
-                               .sortedBy { it.first }
+                                paymentsInMonth.map {Triple(it.date, "Payment", 0.0 to it.amount)})
+                                .sortedBy { it.first }
 
-            ledgerEntries.forEach { (date, label, values) ->
-                if (y > 780f) {
-                    // Page limit reached
-                    return@forEach
+            ledgerEntries.forEachIndexed { index, entry ->
+                val (date, label, values) = entry
+                if (y > 750f) {
+                    // Simple page limit handling
+                    return@forEachIndexed 
                 }
-                val (qty, amount) = values
-                val dateStr = SimpleDateFormat("dd/MM").format(Date(date))
                 
-                canvas.drawText(dateStr, 50f, y, paint)
+                // Zebrawing
+                if (index % 2 == 1) {
+                    paint.color = Color.rgb(250, 250, 250)
+                    canvas.drawRect(40f, y - 18f, 555f, y + 8f, paint)
+                }
+                
+                paint.color = Color.BLACK
+                val (qty, amount) = values
+                val dateStr = SimpleDateFormat("dd MMM").format(Date(date))
+                canvas.drawText(dateStr, 60f, y, paint)
                 
                 val typeLabel = when(label) {
-                    "Delivered" -> if (isUrdu) "ڈیلیوری" else "Delivery"
-                    "Extra" -> if (isUrdu) "اضافی" else "Extra"
-                    "Naga" -> if (isUrdu) "ناغہ" else "Naga"
-                    "Payment" -> if (isUrdu) "رقم" else "Payment"
+                    "Delivered" -> if (isUrdu) "ڈیلیوری" else "Milk Delivery"
+                    "Extra" -> if (isUrdu) "اضافی" else "Extra Milk"
+                    "Naga" -> if (isUrdu) "ناغہ" else "Off Day (Naga)"
+                    "Payment" -> if (isUrdu) "ادائیگی" else "Payment Received"
                     else -> label
                 }
-                canvas.drawText(typeLabel, 150f, y, paint)
                 
                 if (label == "Payment") {
+                    paint.color = Color.rgb(0, 100, 0) // Green for payments received
+                    canvas.drawText(typeLabel, 150f, y, paint)
                     canvas.drawText("-", 350f, y, paint)
-                    paint.color = Color.rgb(200, 0, 0)
-                    canvas.drawText("%.1f".format(amount), 450f, y, paint)
-                    paint.color = Color.BLACK
+                    canvas.drawText("%.0f".format(amount), 450f, y, paint)
                 } else {
+                    paint.color = Color.BLACK
+                    canvas.drawText(typeLabel, 150f, y, paint)
                     canvas.drawText("%.1f".format(qty), 350f, y, paint)
-                    canvas.drawText("%.1f".format(amount), 450f, y, paint)
+                    canvas.drawText("%.0f".format(amount), 450f, y, paint)
                 }
                 
-                y += 22f
-                paint.color = Color.rgb(230, 230, 230)
-                canvas.drawLine(40f, y-15f, 555f, y-15f, paint)
+                y += 24f
+                paint.color = Color.rgb(235, 235, 235)
+                canvas.drawLine(40f, y-12f, 555f, y-12f, paint)
                 paint.color = Color.BLACK
             }
 
-            // Footer Summary
-            y += 20f
-            paint.textSize = 14f
-            paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+            // Footer Summary Section
+            y += 30f
+            if (y > 780f) y = 780f
+            
+            paint.color = Color.rgb(240, 245, 240)
+            canvas.drawRect(350f, y - 20f, 555f, y + 60f, paint)
+            
+            paint.color = Color.BLACK
+            paint.textSize = 12f
+            paint.typeface = Typeface.DEFAULT
+            
             val totalBill = recordsInMonth.sumOf { it.amount }
             val totalPaid = paymentsInMonth.sumOf { it.amount }
             val netBalance = totalBill - totalPaid
             
-            val billLabel = if (isUrdu) "کل بل:" else "TOTAL BILL:"
-            val paidLabel = if (isUrdu) "کل ادائیگی:" else "TOTAL PAID:"
+            val billLabel = if (isUrdu) "کل بل:" else "Total Bill:"
+            val paidLabel = if (isUrdu) "کل ادائیگی:" else "Total Paid:"
+            val balanceLabelLabel = if (isUrdu) "بقیہ رقم:" else "Net Balance:"
             
-            canvas.drawText("$billLabel %.1f".format(totalBill), 40f, y, paint)
-            canvas.drawText("$paidLabel %.1f".format(totalPaid), 250f, y, paint)
+            canvas.drawText(billLabel, 365f, y, paint)
+            canvas.drawText("%.0f".format(totalBill), 480f, y, paint)
+            
+            y += 20f
+            canvas.drawText(paidLabel, 365f, y, paint)
+            canvas.drawText("%.0f".format(totalPaid), 480f, y, paint)
             
             y += 25f
+            paint.textSize = 14f
+            paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
             paint.color = accentColor
-            val balanceLabel = if (isUrdu) "بقیہ رقم: %.1f روپیہ" else "NET BALANCE: %.1f PKR"
-            canvas.drawText(balanceLabel.format(netBalance), 40f, y, paint)
+            canvas.drawText(balanceLabelLabel, 365f, y, paint)
+            canvas.drawText("%.0f".format(netBalance), 480f, y, paint)
+
+            // Final Stamp/Thank you
+            paint.color = Color.rgb(180, 180, 180)
+            paint.textSize = 10f
+            paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.ITALIC)
+            val footerMsg = if (isUrdu) "شکریہ! آپ کے تعاون کا شکریہ۔" else "Thank you for your business!"
+            canvas.drawText(footerMsg, 40f, 810f, paint)
 
             pdfDocument.finishPage(page)
 

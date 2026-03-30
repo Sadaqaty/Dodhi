@@ -15,6 +15,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.res.stringResource
 import com.dodhi.R
 import com.dodhi.ui.theme.EarthBrown
@@ -26,12 +29,12 @@ import com.dodhi.data.model.Customer
 @Composable
 fun MorningRunScreen(viewModel: DashboardViewModel, onBack: () -> Unit) {
     val customersByLocality by viewModel.customersByLocality.collectAsState(initial = emptyMap())
-    val progress by viewModel.getShiftProgress("Morning").collectAsState(initial = DashboardViewModel.ShiftProgress(0.0, 0.0))
+    val progress by viewModel.getDailyProgress().collectAsState(initial = DashboardViewModel.Progress(0.0, 0.0))
     
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.morning_run), fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(R.string.daily_run), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = null)
@@ -94,7 +97,7 @@ fun MorningRunScreen(viewModel: DashboardViewModel, onBack: () -> Unit) {
 @Composable
 fun RouteCustomerRow(customer: Customer, viewModel: DashboardViewModel) {
     val records by viewModel.dailyRecords.collectAsState()
-    val record = records.find { it.customerId == customer.id && it.shift == "Morning" }
+    val record = records.find { it.customerId == customer.id }
     val isDelivered = record?.type == "Delivered"
 
     Card(
@@ -105,15 +108,28 @@ fun RouteCustomerRow(customer: Customer, viewModel: DashboardViewModel) {
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            var customQty by remember { mutableStateOf(customer.defaultQuantity.toString()) }
+
             Column(modifier = Modifier.weight(1f)) {
                 Text(customer.name, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                Text("${customer.morningReq} ${stringResource(R.string.liters)}", color = Color.Gray)
+                OutlinedTextField(
+                    value = customQty,
+                    onValueChange = { customQty = it },
+                    keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),
+                    modifier = Modifier.width(80.dp).height(50.dp),
+                    textStyle = androidx.compose.ui.text.TextStyle(fontSize = 14.sp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedBorderColor = Color.LightGray,
+                        focusedBorderColor = EarthBrown
+                    )
+                )
             }
             
             IconButton(
                 onClick = { 
                     if (!isDelivered) {
-                        viewModel.markDelivered(customer, "Delivered", customer.morningReq)
+                        val qty = customQty.toDoubleOrNull() ?: customer.defaultQuantity
+                        viewModel.markDelivered(customer, "Delivered", qty)
                     }
                 }
             ) {

@@ -11,13 +11,16 @@
     <string name="monthly_report">Monthly Report</string>
     <string name="total_amount">Total Amount</string>
     <string name="rate">Rate</string>
-    <string name="liters">Liters</string>
-    <string name="ser">Ser</string>
     <string name="today_summary">Today\'s Summary</string>
-    <string name="liters_needed">Liters Needed</string>
+    <string name="quantity_needed">Requirement</string>
     <string name="outstanding">Outstanding</string>
     <string name="collected">Collected</string>
-    <string name="deliveries_done">Deliveries Done</string>
+    <string name="deliveries_done">Completed</string>
+    <string name="empty_name_error">Please enter a name</string>
+    <string name="invalid_rate_error">Enter a valid rate</string>
+    <string name="all_customers">All Customers</string>
+    <string name="providers">Milk Sources</string>
+    <string name="consumers">Milk Consumers</string>
     <string name="milk_source">Milk Source</string>
     <string name="cancel">Cancel</string>
     <string name="no_customers">No customers found. Add a customer.</string>
@@ -36,7 +39,7 @@
     <string name="morning">Morning</string>
     <string name="evening">Evening</string>
     <string name="search_hint">Search...</string>
-    
+     
     <!-- New Strings -->
     <string name="dashboard">Dashboard</string>
     <string name="customers">Customers</string>
@@ -55,7 +58,7 @@
     <string name="customer_settings">Customer Settings</string>
     <string name="save_changes">Save Changes</string>
     <string name="net_balance">Net Balance</string>
-    <string name="morning_run">Morning Run</string>
+    <string name="daily_run">Daily Run</string>
     <string name="miscellaneous">Miscellaneous</string>
     <string name="delivery_report">Delivery Report</string>
     <string name="delete_customer">Delete Customer</string>
@@ -80,4 +83,5 @@
     <string name="extra_milk_quantity">Extra Milk Quantity</string>
     <string name="enter_quantity">Enter Quantity (Liters)</string>
     <string name="confirm">Confirm</string>
+    <string name="no_records">No records found (Hisaab is clear)</string>
 </resources>
