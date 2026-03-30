@@ -178,6 +178,18 @@ fun HisaabTab(viewModel: DashboardViewModel, customerId: Long) {
                 KhataRow(item, viewModel, customerId)
             }
         }
+
+        if (showExtraDialog && selectedDate != null) {
+            ExtraMilkDialog(
+                onDismiss = { showExtraDialog = false },
+                onConfirm = { qty ->
+                    customer?.let { 
+                        viewModel.markDeliveredWithDate(it, "Extra", qty, selectedDate!!, selectedShift)
+                    }
+                    showExtraDialog = false
+                }
+            )
+        }
         
         item { Spacer(modifier = Modifier.height(80.dp)) }
     }

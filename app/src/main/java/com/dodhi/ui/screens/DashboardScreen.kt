@@ -216,7 +216,6 @@ fun DashboardScreen(
             SettingsSheet(viewModel = viewModel, onDismiss = { showLanguageSheet = false })
         }
     }
-}
 
 @Composable
 fun PremiumCustomerSummaryCard(customer: Customer, viewModel: DashboardViewModel) {
