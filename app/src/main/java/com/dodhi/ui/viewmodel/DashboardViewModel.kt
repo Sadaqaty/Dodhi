@@ -26,10 +26,24 @@ import java.text.SimpleDateFormat
 
 import com.dodhi.data.model.Payment
 import com.dodhi.data.model.MilkSource
+import com.dodhi.util.PdfManager
+import androidx.core.content.FileProvider
+import android.content.Intent
+import android.net.Uri
 
 class DashboardViewModel(application: Application) : AndroidViewModel(application) {
     private val db = DodhiDatabase.getDatabase(application)
     private val dao = db.dodhiDao()
+
+    private val prefs = application.getSharedPreferences("dodhi_prefs", Context.MODE_PRIVATE)
+    
+    private val _milkmanName = MutableStateFlow(prefs.getString("milkman_name", "Dodhi Village") ?: "Dodhi Village")
+    val milkmanName: StateFlow<String> = _milkmanName.asStateFlow()
+
+    fun updateMilkmanName(name: String) {
+        _milkmanName.value = name
+        prefs.edit().putString("milkman_name", name).apply()
+    }
 
     val customers: StateFlow<List<Customer>> = dao.getAllCustomers()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
@@ -43,14 +57,7 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
     private val _selectedDate = MutableStateFlow(Calendar.getInstance())
     val selectedDate: StateFlow<Calendar> = _selectedDate.asStateFlow()
 
-    private val _selectedShift = MutableStateFlow("Morning") // Morning or Evening
-    val selectedShift: StateFlow<String> = _selectedShift.asStateFlow()
-
-    fun setShift(shift: String) {
-        _selectedShift.value = shift
-    }
-
-    val dailyRecords: StateFlow<List<DeliveryRecord>> = combine(selectedDate, selectedShift) { date, shift ->
+    val dailyRecords: StateFlow<List<DeliveryRecord>> = selectedDate.map { date ->
         val start = (date.clone() as Calendar).apply {
             set(Calendar.HOUR_OF_DAY, 0)
             set(Calendar.MINUTE, 0)
@@ -61,15 +68,14 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
             set(Calendar.MINUTE, 59)
             set(Calendar.SECOND, 59)
         }.timeInMillis
-        // We filter by shift in the ViewModel for now, or update DAO to filter by shift
-        dao.getRecordsInPeriod(start, end).first().filter { it.shift == shift }
+        dao.getRecordsInPeriod(start, end).first()
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     val customersByLocality: Flow<Map<String, List<Customer>>> = customers.map { list ->
         list.groupBy { it.locality }.toSortedMap()
     }
 
-    fun getShiftProgress(shift: String): Flow<ShiftProgress> {
+    fun getDailyProgress(): Flow<Progress> {
         val date = (_selectedDate.value.clone() as Calendar).apply {
             set(Calendar.HOUR_OF_DAY, 0)
             set(Calendar.MINUTE, 0)
@@ -78,15 +84,14 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
         }.timeInMillis
         
         return combine(customers, dao.getRecordsInPeriod(date, date + 86400000)) { customers: List<Customer>, records: List<DeliveryRecord> ->
-            val shiftRecords = records.filter { it.shift == shift }
-            val deliveredLiters = shiftRecords.filter { it.type == "Delivered" }.sumOf { it.quantity }
-            val expectedLiters = customers.sumOf { c: Customer -> if (shift == "Morning") c.morningReq else c.eveningReq }
+            val deliveredLiters = records.filter { it.type == "Delivered" || it.type == "Extra" }.sumOf { it.quantity }
+            val expectedLiters = customers.sumOf { it.defaultQuantity }
             
-            ShiftProgress(deliveredLiters, expectedLiters)
+            Progress(deliveredLiters, expectedLiters)
         }
     }
 
-    data class ShiftProgress(val delivered: Double, val expected: Double)
+    data class Progress(val delivered: Double, val expected: Double)
 
 
     fun setSelectedDate(calendar: Calendar) {
@@ -95,6 +100,13 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
 
     val todayLitersNeeded: StateFlow<Double> = customers.map { list ->
         list.sumOf { it.defaultQuantity }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
+
+    val todayTotalCollected: StateFlow<Double> = customers.flatMapLatest { _ ->
+        val date = Calendar.getInstance().apply { set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0); set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0) }.timeInMillis
+        dao.getRecordsInPeriod(date, date + 86400000).map { records ->
+            records.filter { it.type == "Delivered" || it.type == "Extra" }.sumOf { it.quantity }
+        }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
 
     val todayLitersDelivered: StateFlow<Double> = dailyRecords.map { list ->
@@ -107,10 +119,22 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun getCustomerBalance(customerId: Long): Flow<Double> {
         return combine(
+            dao.getCustomerById(customerId),
             dao.getRecordsForCustomer(customerId),
             dao.getPaymentsForCustomer(customerId)
-        ) { records, payments ->
-            records.sumOf { it.amount } - payments.sumOf { it.amount }
+        ) { customer, records, payments ->
+            if (customer == null) return@combine 0.0
+            val recordSum = records.sumOf { it.amount }
+            val paymentSum = payments.sumOf { it.amount }
+            if (customer.isProvider) {
+                // For providers, record amount is what we OWE them, payment is what we PAID them.
+                // Balance = We Owe - We Paid
+                recordSum - paymentSum
+            } else {
+                // For consumers, record amount is what they OWE us, payment is what they PAID us.
+                // Balance = They Owe - They Paid
+                recordSum - paymentSum
+            }
         }
     }
 
@@ -209,9 +233,9 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
         }.timeInMillis
     }
 
-    fun addPayment(customerId: Long, amount: Double) {
+    fun addPayment(customerId: Long, amount: Double, note: String = "") {
         viewModelScope.launch {
-            dao.insertPayment(Payment(customerId = customerId, date = System.currentTimeMillis(), amount = amount))
+            dao.insertPayment(Payment(customerId = customerId, date = System.currentTimeMillis(), amount = amount, note = note))
         }
     }
 
@@ -221,7 +245,7 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
-    fun addCustomer(name: String, rate: Double, quantity: Double, unit: String = "Liter", locality: String = "") {
+    fun addCustomer(name: String, rate: Double, quantity: Double, unit: String = "Liter", locality: String = "", isProvider: Boolean = false) {
         viewModelScope.launch {
             dao.insertCustomer(Customer(
                 name = name, 
@@ -229,14 +253,15 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
                 defaultQuantity = quantity, 
                 unit = unit,
                 locality = locality,
-                morningReq = quantity // Default to morning
+                morningReq = quantity, // Default to morning
+                isProvider = isProvider
             ))
         }
     }
 
-    fun updateCustomerSettings(customer: Customer, morning: Double, evening: Double, rate: Double?) {
+    fun updateCustomerSettings(customer: Customer, quantity: Double, rate: Double?) {
         viewModelScope.launch {
-            dao.insertCustomer(customer.copy(morningReq = morning, eveningReq = evening, customRate = rate))
+            dao.insertCustomer(customer.copy(defaultQuantity = quantity, morningReq = quantity, eveningReq = 0.0, customRate = rate))
         }
     }
 
@@ -247,10 +272,10 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun markDelivered(customer: Customer, type: String, quantity: Double) {
-        markDeliveredWithDate(customer, type, quantity, _selectedDate.value, _selectedShift.value)
+        markDeliveredWithDate(customer, type, quantity, _selectedDate.value)
     }
 
-    fun markDeliveredWithDate(customer: Customer, type: String, quantity: Double, calendar: Calendar, shift: String) {
+    fun markDeliveredWithDate(customer: Customer, type: String, quantity: Double, calendar: Calendar) {
         viewModelScope.launch {
             val dateCal = (calendar.clone() as Calendar).apply {
                 set(Calendar.HOUR_OF_DAY, 0)
@@ -261,7 +286,7 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
             val date = dateCal.timeInMillis
             
             val allRecords = dao.getRecordsInPeriod(date, date + 86400000).first()
-            val existing = allRecords.find { it.customerId == customer.id && it.shift == shift }
+            val existing = allRecords.find { it.customerId == customer.id }
             
             var targetQuantity = quantity
             var targetType = type
@@ -281,7 +306,7 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
                 date = date,
                 quantity = targetQuantity,
                 type = targetType,
-                shift = shift,
+                shift = "Daily",
                 isExtra = isExtra,
                 amount = targetQuantity * (customer.customRate ?: customer.rate)
             )
@@ -307,5 +332,91 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
                 e.printStackTrace()
             }
         }
+    }
+
+    fun sharePdfReport(context: Context, customer: Customer, isUrdu: Boolean) {
+        viewModelScope.launch {
+            val records = dao.getRecordsForCustomerSync(customer.id)
+            val payments = dao.getPaymentsForCustomerSync(customer.id)
+            val month = Calendar.getInstance()
+            
+            val pdfManager = PdfManager(context)
+            val file = pdfManager.generateCustomerReport(
+                milkmanName = milkmanName.value,
+                customer = customer,
+                records = records,
+                payments = payments,
+                month = month,
+                isUrdu = isUrdu
+            )
+            
+            if (file != null) {
+                try {
+                    val uri: Uri = FileProvider.getUriForFile(
+                        context.applicationContext,
+                        "${context.packageName}.fileprovider",
+                        file
+                    )
+                    
+                    val intent = Intent(Intent.ACTION_SEND).apply {
+                        type = "application/pdf"
+                        putExtra(Intent.EXTRA_STREAM, uri)
+                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    }
+                    val chooser = Intent.createChooser(intent, if (isUrdu) "رپورٹ شیئر کریں" else "Share Report")
+                    chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    context.startActivity(chooser)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }
+    }
+
+    fun shareTextReport(context: Context, customer: Customer, isUrdu: Boolean) {
+        viewModelScope.launch {
+            val records = dao.getRecordsForCustomerSync(customer.id)
+            val payments = dao.getPaymentsForCustomerSync(customer.id)
+            val month = Calendar.getInstance()
+            
+            val reportTitle = if (isUrdu) "\n*ماہانہ ہساب - ${customer.name}*\n" else "\n*Monthly Ledger - ${customer.name}*\n"
+            val sb = StringBuilder(reportTitle)
+            
+            val dateFormat = SimpleDateFormat("dd/MM")
+            records.filter { isSameMonth(it.date, month) }.forEach {
+                val label = when(it.type) {
+                    "Delivered" -> if (isUrdu) "ڈیلیوری" else "Delivered"
+                    "Extra" -> if (isUrdu) "اضافی" else "Extra"
+                    else -> it.type
+                }
+                sb.append("${dateFormat.format(Date(it.date))}: $label - ${it.quantity}L - ${it.amount} PKR\n")
+            }
+            
+            payments.filter { isSameMonth(it.date, month) }.forEach {
+                val label = if (isUrdu) "رقم وصولی" else "Payment"
+                sb.append("${dateFormat.format(Date(it.date))}: $label - ${it.amount} PKR\n")
+            }
+            
+            val totalBill = records.filter { isSameMonth(it.date, month) }.sumOf { it.amount }
+            val totalPaid = payments.filter { isSameMonth(it.date, month) }.sumOf { it.amount }
+            val net = totalBill - totalPaid
+            
+            sb.append("\n------------------\n")
+            sb.append(if (isUrdu) "*کل بل:* $totalBill PKR\n" else "*Total Bill:* $totalBill PKR\n")
+            sb.append(if (isUrdu) "*کل ادائیگی:* $totalPaid PKR\n" else "*Total Paid:* $totalPaid PKR\n")
+            sb.append(if (isUrdu) "*بقیہ بیلنس:* $net PKR\n" else "*Net Balance:* $net PKR\n")
+
+            val intent = Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_TEXT, sb.toString())
+            }
+            context.startActivity(Intent.createChooser(intent, if (isUrdu) "ہساب شیئر کریں" else "Share Ledger"))
+        }
+    }
+
+    private fun isSameMonth(date1: Long, cal2: Calendar): Boolean {
+        val cal1 = Calendar.getInstance().apply { timeInMillis = date1 }
+        return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
+               cal1.get(Calendar.MONTH) == cal2.get(Calendar.MONTH)
     }
 }

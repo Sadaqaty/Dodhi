@@ -1,0 +1,81 @@
+name: Android CI/CD
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  version_and_build:
+    name: Auto Version, Build & Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+          cache: gradle
+
+      - name: Increment Version
+        id: increment_version
+        run: |
+          # Load version properties
+          VERSION_CODE=$(grep 'VERSION_CODE=' version.properties | cut -d'=' -f2)
+          VERSION_NAME=$(grep 'VERSION_NAME=' version.properties | cut -d'=' -f2)
+
+          # Increment version code
+          NEW_VERSION_CODE=$((VERSION_CODE + 1))
+
+          # Increment patch version (assuming X.Y.Z format)
+          IFS='.' read -ra ADDR <<< "$VERSION_NAME"
+          PATCH=${ADDR[2]}
+          MINOR=${ADDR[1]}
+          MAJOR=${ADDR[0]}
+          NEW_PATCH=$((PATCH + 1))
+          NEW_VERSION_NAME="$MAJOR.$MINOR.$NEW_PATCH"
+
+          # Update file
+          sed -i "s/VERSION_CODE=.*/VERSION_CODE=$NEW_VERSION_CODE/" version.properties
+          sed -i "s/VERSION_NAME=.*/VERSION_NAME=$NEW_VERSION_NAME/" version.properties
+
+          echo "NEW_TAG=v$NEW_VERSION_NAME" >> $GITHUB_ENV
+          echo "Updating to Version $NEW_VERSION_NAME ($NEW_VERSION_CODE)"
+
+      - name: Commit & Push Version Changes
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add version.properties
+          git commit -m "chore: bump version to ${{ env.NEW_TAG }} [skip ci]"
+          git push
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build with Gradle
+        run: ./gradlew assembleDebug assembleRelease
+
+      - name: Create Release & Tag
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ env.NEW_TAG }}
+          files: |
+            app/build/outputs/apk/debug/*.apk
+            app/build/outputs/apk/release/*.apk
+          name: Release ${{ env.NEW_TAG }}
+          body: |
+            Automated release for version ${{ env.NEW_TAG }}
+
+            Change Log:
+            ${{ github.event.head_commit.message }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
