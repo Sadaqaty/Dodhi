@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">دودھی</string>
+    <string name="app_name">دودهی</string>
     <string name="customer_name">گاہک کا نام</string>
-    <string name="daily_entry">روزانہ کا اندراج</string>
-    <string name="delivered">دیا</string>
+    <string name="daily_entry">روزانہ اندراج</string>
+    <string name="delivered">دیا گیا</string>
     <string name="extra">اضافی</string>
     <string name="naga">ناغہ</string>
     <string name="save">محفوظ کریں</string>
@@ -14,25 +14,52 @@
     <string name="liters">لیٹر</string>
     <string name="ser">سیر</string>
     <string name="today_summary">آج کا خلاصہ</string>
-    <string name="liters_needed">ضروری لیٹر</string>
-    <string name="deliveries_done">کمل ڈلیوری</string>
-    <string name="collected">رقم وصول کی</string>
-    <string name="outstanding">رقم بقایا</string>
+    <string name="liters_needed">مطلوبہ لیٹر</string>
+    <string name="outstanding">بقایا</string>
+    <string name="collected">وصول شدہ</string>
+    <string name="deliveries_done">کمل ڈیلیوری</string>
+    <string name="milk_source">دودھ کا ذریعہ</string>
+    <string name="cancel">کینسل</string>
+    <string name="no_customers">کوئی گاہک نہیں ملا۔ گاہک شامل کریں۔</string>
+    <string name="name">نام</string>
+    <string name="add_milk_source">دودھ کا ذریعہ شامل کریں</string>
+    <string name="rupees" translatable="false">روپے</string>
+    <string name="add_to_ledger">لیجر میں شامل کریں</string>
+    <string name="default_quantity">طے شدہ مقدار</string>
     <string name="naga_count">ناغہ کی تعداد</string>
     <string name="no_customers_found">کوئی گاہک نہیں ملا۔ گاہک شامل کریں۔</string>
-    <string name="milk_source">دودھ کا ذریعہ</string>
-    <string name="name">نام</string>
     <string name="quantity">مقدار</string>
-    <string name="save_payment">رقم محفوظ کریں</string>
-    <string name="cancel">منسوخ کریں</string>
-    <string name="total_deliveries">کل ڈلیوریز</string>
-    <string name="add_to_ledger">لیجر میں شامل کریں</string>
     <string name="rate_per_liter">ریٹ فی لیٹر</string>
-    <string name="default_quantity">طے شدہ مقدار</string>
-    <string name="search_hint">نام یا محلہ تلاش کریں...</string>
+    <string name="save_payment">رقم محفوظ کریں</string>
+    <string name="total_deliveries">کل ڈلیوریز</string>
+    <string name="baqaya">بقایا</string>
     <string name="morning">صبح</string>
     <string name="evening">شام</string>
-    <string name="baqaya">بقایا</string>
-    <string name="no_customers">کوئی گاہک نہیں ملا</string>
-    <string name="add_milk_source">دودھ کا اندراج</string>
+    <string name="search_hint">تلاش کریں...</string>
+    
+    <!-- New Strings -->
+    <string name="dashboard">ڈیش بورڈ</string>
+    <string name="customers">گاہک</string>
+    <string name="reports">رپورٹ</string>
+    <string name="settings">سیٹنگز</string>
+    <string name="language">زبان (Language)</string>
+    <string name="english">English</string>
+    <string name="urdu">اردو</string>
+    <string name="share_report">رپورٹ شیئر کریں</string>
+    <string name="share">شیئر</string>
+    <string name="amount">رقم</string>
+    <string name="locality">گلی / محلہ</string>
+    <string name="hisaab">حساب کتاب</string>
+    <string name="payment">ادائیگی</string>
+    <string name="payment_history">ادائیگی کی رپورٹ</string>
+    <string name="customer_settings">کسٹمر سیٹنگز</string>
+    <string name="save_changes">تبدیلی محفوظ کریں</string>
+    <string name="net_balance">کل بقایا</string>
+    <string name="morning_run">مارننگ رن</string>
+    <string name="miscellaneous">متفرق</string>
+    <string name="delivery_report">ڈیلیوری رپورٹ</string>
+    <string name="delete_customer">گاہک ختم کریں</string>
+    <string name="delivery_volume">ڈیلیوری والیم</string>
+    <string name="market_value">کل فروخت</string>
+    <string name="waste">ضیاع (Loss)</string>
 </resources>
