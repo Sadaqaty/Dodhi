@@ -36,8 +36,6 @@
     <string name="save_payment">رقم محفوظ کریں</string>
     <string name="total_deliveries">کل ڈلیوریز</string>
     <string name="baqaya">بقایا</string>
-    <string name="morning">صبح</string>
-    <string name="evening">شام</string>
     <string name="search_hint">تلاش کریں...</string>
     
     <!-- New Strings -->
@@ -58,7 +56,7 @@
     <string name="customer_settings">کسٹمر سیٹنگز</string>
     <string name="save_changes">تبدیلی محفوظ کریں</string>
     <string name="net_balance">کل بقایا</string>
-    <string name="morning_run">مارننگ رن</string>
+    <string name="daily_run">ڈیلی رن</string>
     <string name="miscellaneous">متفرق</string>
     <string name="delivery_report">ڈیلیوری رپورٹ</string>
     <string name="delete_customer">گاہک ختم کریں</string>

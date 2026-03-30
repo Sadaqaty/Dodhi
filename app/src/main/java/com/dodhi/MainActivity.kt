@@ -43,22 +43,21 @@ class MainActivity : AppCompatActivity() {
                         composable("dashboard") { 
                             DashboardScreen(
                                 viewModel = viewModel,
-                                onMilkCollectionClick = { navController.navigate("daily_entry") },
+                                onAllTimeReportsClick = { navController.navigate("all_time_reports") },
                                 onReportsClick = { navController.navigate("report") },
                                 onAddMemberClick = { navController.navigate("add_customer") },
-                                onMorningRunClick = { navController.navigate("morning_run") }
+                                onDailyRunClick = { navController.navigate("daily_run") }
                             ) 
                         }
-                        composable("daily_entry") {
-                            DailyEntryScreen(
+                        composable("all_time_reports") {
+                            AllTimeReportsScreen(
                                 viewModel = viewModel,
-                                onCustomerClick = { customerId -> navController.navigate("customer_detail/$customerId") },
                                 onBack = { navController.popBackStack() }
                             )
                         }
                         composable("add_customer") { AddCustomerScreen(viewModel) { navController.popBackStack() } }
                         composable("report") { ReportScreen(viewModel) { customerId -> navController.navigate("customer_detail/$customerId") } }
-                        composable("morning_run") { MorningRunScreen(viewModel) { navController.popBackStack() } }
+                        composable("daily_run") { DailyRunScreen(viewModel) { navController.popBackStack() } }
                         composable(
                             "customer_detail/{customerId}",
                             arguments = listOf(navArgument("customerId") { type = NavType.LongType })

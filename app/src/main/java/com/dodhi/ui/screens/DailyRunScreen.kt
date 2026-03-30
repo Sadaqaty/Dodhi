@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -15,9 +16,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.res.stringResource
 import com.dodhi.R
 import com.dodhi.ui.theme.EarthBrown
@@ -27,7 +25,7 @@ import com.dodhi.data.model.Customer
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MorningRunScreen(viewModel: DashboardViewModel, onBack: () -> Unit) {
+fun DailyRunScreen(viewModel: DashboardViewModel, onBack: () -> Unit) {
     val customersByLocality by viewModel.customersByLocality.collectAsState(initial = emptyMap())
     val progress by viewModel.getDailyProgress().collectAsState(initial = DashboardViewModel.Progress(0.0, 0.0))
     
@@ -98,46 +96,98 @@ fun MorningRunScreen(viewModel: DashboardViewModel, onBack: () -> Unit) {
 fun RouteCustomerRow(customer: Customer, viewModel: DashboardViewModel) {
     val records by viewModel.dailyRecords.collectAsState()
     val record = records.find { it.customerId == customer.id }
+    val isMarked = record != null // Any mark (delivered or naga)
+    val isNaga = record?.type == "Naga"
     val isDelivered = record?.type == "Delivered"
+
+    var customQty by remember { mutableStateOf(customer.defaultQuantity.toString()) }
+
+    // Determine card background color
+    val cardColor = when {
+        isNaga -> Color(0xFFFFF3F3)       // light red for Naga
+        isDelivered -> Color(0xFFE8F5E9)  // light green for Delivered
+        else -> Color.White
+    }
 
     Card(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
-        colors = CardDefaults.cardColors(containerColor = if (isDelivered) Color(0xFFE8F5E9) else Color.White)
+        colors = CardDefaults.cardColors(containerColor = cardColor)
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            var customQty by remember { mutableStateOf(customer.defaultQuantity.toString()) }
-
             Column(modifier = Modifier.weight(1f)) {
-                Text(customer.name, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                OutlinedTextField(
-                    value = customQty,
-                    onValueChange = { customQty = it },
-                    keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),
-                    modifier = Modifier.width(80.dp).height(50.dp),
-                    textStyle = androidx.compose.ui.text.TextStyle(fontSize = 14.sp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        unfocusedBorderColor = Color.LightGray,
-                        focusedBorderColor = EarthBrown
-                    )
-                )
-            }
-            
-            IconButton(
-                onClick = { 
-                    if (!isDelivered) {
-                        val qty = customQty.toDoubleOrNull() ?: customer.defaultQuantity
-                        viewModel.markDelivered(customer, "Delivered", qty)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(customer.name, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                    if (isNaga) {
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = stringResource(R.string.naga),
+                            fontSize = 11.sp,
+                            color = Color(0xFFB71C1C),
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier
+                                .background(Color(0xFFFFCDD2), MaterialTheme.shapes.small)
+                                .padding(horizontal = 6.dp, vertical = 2.dp)
+                        )
                     }
                 }
-            ) {
+                Spacer(modifier = Modifier.height(4.dp))
+                if (!isMarked) {
+                    OutlinedTextField(
+                        value = customQty,
+                        onValueChange = { customQty = it },
+                        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                            keyboardType = androidx.compose.ui.text.input.KeyboardType.Number
+                        ),
+                        modifier = Modifier.width(100.dp).height(55.dp),
+                        textStyle = androidx.compose.ui.text.TextStyle(fontSize = 14.sp),
+                        label = { Text("Liters", fontSize = 11.sp) },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            unfocusedBorderColor = Color.LightGray,
+                            focusedBorderColor = EarthBrown
+                        )
+                    )
+                } else {
+                    // Show what was recorded
+                    val recordQty = record?.quantity ?: 0.0
+                    Text(
+                        text = if (isNaga) "0 L (Naga)" else "${recordQty} L",
+                        fontSize = 13.sp,
+                        color = if (isNaga) Color(0xFFB71C1C) else Color(0xFF2E7D32),
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            }
+            
+            if (!isMarked) {
+                // Mark as Delivered button
+                IconButton(
+                    onClick = {
+                        val qty = customQty.toDoubleOrNull() ?: 0.0
+                        if (qty <= 0.0) {
+                            // Zero quantity = Naga
+                            viewModel.markDelivered(customer, "Naga", 0.0)
+                        } else {
+                            viewModel.markDelivered(customer, "Delivered", qty)
+                        }
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.CheckCircle,
+                        contentDescription = "Mark as done",
+                        tint = Color.LightGray,
+                        modifier = Modifier.size(36.dp)
+                    )
+                }
+            } else {
+                // Show status icon — green check for delivered, red X for naga
                 Icon(
-                    imageVector = Icons.Default.CheckCircle,
+                    imageVector = if (isDelivered) Icons.Default.CheckCircle else Icons.Default.Close,
                     contentDescription = null,
-                    tint = if (isDelivered) Color(0xFF4CAF50) else Color.LightGray,
-                    modifier = Modifier.size(32.dp)
+                    tint = if (isDelivered) Color(0xFF2E7D32) else Color(0xFFB71C1C),
+                    modifier = Modifier.size(36.dp)
                 )
             }
         }

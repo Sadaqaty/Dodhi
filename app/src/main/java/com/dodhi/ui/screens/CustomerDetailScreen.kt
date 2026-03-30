@@ -179,17 +179,7 @@ fun HisaabTab(viewModel: DashboardViewModel, customerId: Long) {
             }
         }
 
-        if (showExtraDialog && selectedDate != null) {
-            ExtraMilkDialog(
-                onDismiss = { showExtraDialog = false },
-                onConfirm = { qty ->
-                    customer?.let { 
-                        viewModel.markDeliveredWithDate(it, "Extra", qty, selectedDate!!, selectedShift)
-                    }
-                    showExtraDialog = false
-                }
-            )
-        }
+        // Removed broken legacy ExtraMilkDialog logic
         
         item { Spacer(modifier = Modifier.height(80.dp)) }
     }
@@ -345,24 +335,64 @@ fun SettingsTab(viewModel: DashboardViewModel, customerId: Long) {
 fun CustomerSummaryHeader(customer: Customer, viewModel: DashboardViewModel) {
     val total by viewModel.getMonthlyTotal(customer.id).collectAsState(initial = 0.0)
     val balance by viewModel.getCustomerBalance(customer.id).collectAsState(initial = 0.0)
+    val totalLiters by viewModel.getTotalLiters(customer.id).collectAsState(initial = 0.0)
     val rupees = stringResource(R.string.rupees)
+
+    // Same semantics as dashboard: consumer positive = to receive (green), provider positive = to give (red)
+    val balanceColor = when {
+        balance == 0.0 -> Color.Gray
+        customer.isProvider -> if (balance > 0) Color(0xFFF44336) else Color(0xFF4CAF50)
+        else -> if (balance > 0) Color(0xFF4CAF50) else Color(0xFFF44336)
+    }
+    val balanceLabel = when {
+        balance == 0.0 -> "Settled"
+        customer.isProvider -> if (balance > 0) "To Give" else "Overpaid"
+        else -> if (balance > 0) "To Receive" else "Advance"
+    }
 
     Card(
         modifier = Modifier.fillMaxWidth().padding(16.dp),
         colors = CardDefaults.cardColors(containerColor = EarthBrown),
         shape = MaterialTheme.shapes.large
     ) {
-        Row(
-            modifier = Modifier.padding(24.dp).fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Column {
-                Text(stringResource(R.string.monthly_report), color = Color.LightGray, fontSize = 14.sp)
-                Text("$total $rupees", color = GrassGreen, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+        Column(modifier = Modifier.padding(24.dp)) {
+            // Financial row
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column {
+                    Text(stringResource(R.string.monthly_report), color = Color.LightGray, fontSize = 14.sp)
+                    Text("$total $rupees", color = GrassGreen, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                }
+                Column(horizontalAlignment = Alignment.End) {
+                    Text(stringResource(R.string.outstanding), color = Color.LightGray, fontSize = 14.sp)
+                    Text(
+                        "${kotlin.math.abs(balance).toInt()} $rupees",
+                        color = balanceColor,
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(balanceLabel, color = balanceColor.copy(alpha = 0.8f), fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                }
             }
-            Column(horizontalAlignment = Alignment.End) {
-                Text(stringResource(R.string.outstanding), color = Color.LightGray, fontSize = 14.sp)
-                Text("$balance $rupees", color = if (balance > 0) Color(0xFFF44336) else Color(0xFF4CAF50), fontSize = 24.sp, fontWeight = FontWeight.Bold)
+
+            Box(modifier = Modifier.fillMaxWidth().height(1.dp).background(Color.White.copy(alpha = 0.2f)).padding(vertical = 12.dp))
+
+            // Total Liters row
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                val litersLabel = if (customer.isProvider) "Total Milk Received" else "Total Milk Given"
+                Text("$litersLabel: ", color = Color.LightGray, fontSize = 14.sp)
+                Text(
+                    "${totalLiters.toInt()} L",
+                    color = Color.White,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
     }

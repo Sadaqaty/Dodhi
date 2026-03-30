@@ -53,4 +53,7 @@ interface DodhiDao {
 
     @Query("SELECT * FROM payments WHERE customerId = :customerId")
     suspend fun getPaymentsForCustomerSync(customerId: Long): List<Payment>
+
+    @Query("SELECT * FROM delivery_records ORDER BY date DESC")
+    fun getAllRecords(): Flow<List<DeliveryRecord>>
 }

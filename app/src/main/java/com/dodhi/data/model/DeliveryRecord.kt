@@ -10,7 +10,6 @@ data class DeliveryRecord(
     val date: Long,
     val quantity: Double,
     val type: String, // Delivered, Naga, etc.
-    val shift: String = "Morning", // Morning or Evening
     val isExtra: Boolean = false,
     val amount: Double
 )

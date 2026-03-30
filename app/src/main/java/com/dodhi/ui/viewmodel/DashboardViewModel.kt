@@ -57,18 +57,19 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
     private val _selectedDate = MutableStateFlow(Calendar.getInstance())
     val selectedDate: StateFlow<Calendar> = _selectedDate.asStateFlow()
 
-    val dailyRecords: StateFlow<List<DeliveryRecord>> = selectedDate.map { date ->
+    val dailyRecords: StateFlow<List<DeliveryRecord>> = selectedDate.flatMapLatest { date ->
         val start = (date.clone() as Calendar).apply {
             set(Calendar.HOUR_OF_DAY, 0)
             set(Calendar.MINUTE, 0)
             set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
         }.timeInMillis
         val end = (date.clone() as Calendar).apply {
             set(Calendar.HOUR_OF_DAY, 23)
             set(Calendar.MINUTE, 59)
             set(Calendar.SECOND, 59)
         }.timeInMillis
-        dao.getRecordsInPeriod(start, end).first()
+        dao.getRecordsInPeriod(start, end)  // live Flow — no .first()
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     val customersByLocality: Flow<Map<String, List<Customer>>> = customers.map { list ->
@@ -155,6 +156,89 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
+    /** Total liters of milk delivered/received for this customer (all time, excludes Naga). */
+    fun getTotalLiters(customerId: Long): Flow<Double> {
+        return dao.getRecordsForCustomer(customerId).map { records ->
+            records.filter { it.type != "Naga" }.sumOf { it.quantity }
+        }
+    }
+
+    /** Data class representing a month/year key for reports */
+    data class MonthYear(val year: Int, val month: Int) : Comparable<MonthYear> {
+        override fun compareTo(other: MonthYear): Int {
+            return if (year != other.year) year.compareTo(other.year)
+            else month.compareTo(other.month)
+        }
+        fun toCalendarRange(): Pair<Long, Long> {
+            val cal = Calendar.getInstance().apply {
+                set(Calendar.YEAR, year)
+                set(Calendar.MONTH, month)
+                set(Calendar.DAY_OF_MONTH, 1)
+                set(Calendar.HOUR_OF_DAY, 0)
+                set(Calendar.MINUTE, 0)
+                set(Calendar.SECOND, 0)
+                set(Calendar.MILLISECOND, 0)
+            }
+            val start = cal.timeInMillis
+            cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH))
+            cal.set(Calendar.HOUR_OF_DAY, 23)
+            cal.set(Calendar.MINUTE, 59)
+            val end = cal.timeInMillis
+            return Pair(start, end)
+        }
+    }
+
+    /** Returns a sorted (newest first) list of all months that have delivery records. */
+    fun getAvailableMonths(): Flow<List<MonthYear>> {
+        return dao.getAllRecords().map { records ->
+            records.map { record ->
+                val cal = Calendar.getInstance().apply { timeInMillis = record.date }
+                MonthYear(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH))
+            }.distinct().sortedDescending()
+        }
+    }
+
+    data class MonthSummary(
+        val monthYear: MonthYear,
+        val totalLiters: Double,
+        val totalAmount: Double,
+        val totalPaid: Double,
+        val balance: Double,
+        val customerCount: Int,
+        val nagaCount: Int
+    )
+
+    /** Summary of all deliveries and payments for a specific month */
+    fun getMonthSummary(monthYear: MonthYear): Flow<MonthSummary> {
+        val (start, end) = monthYear.toCalendarRange()
+        return combine(
+            dao.getRecordsInPeriod(start, end),
+            dao.getPaymentsForCustomerInRange(start, end)
+        ) { records, payments ->
+            val delivered = records.filter { it.type != "Naga" }
+            val nagaCount = records.count { it.type == "Naga" }
+            val totalAmount = delivered.sumOf { it.amount }
+            val totalPaid = payments.sumOf { it.amount }
+            MonthSummary(
+                monthYear = monthYear,
+                totalLiters = delivered.sumOf { it.quantity },
+                totalAmount = totalAmount,
+                totalPaid = totalPaid,
+                balance = totalAmount - totalPaid,
+                customerCount = delivered.map { it.customerId }.distinct().size,
+                nagaCount = nagaCount
+            )
+        }
+    }
+
+    /** All records for a customer within a specific month */
+    fun getCustomerRecordsForMonth(customerId: Long, monthYear: MonthYear): Flow<List<DeliveryRecord>> {
+        val (start, end) = monthYear.toCalendarRange()
+        return dao.getRecordsInPeriod(start, end).map { records ->
+            records.filter { it.customerId == customerId }
+        }
+    }
+
     fun generateParchiText(customerId: Long): Flow<String> {
         return combine(
             getCustomer(customerId),
@@ -233,6 +317,10 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
         }.timeInMillis
     }
 
+    fun getRecordsInPeriodAsFlow(start: Long, end: Long): Flow<List<DeliveryRecord>> {
+        return dao.getRecordsInPeriod(start, end)
+    }
+
     fun addPayment(customerId: Long, amount: Double, note: String = "") {
         viewModelScope.launch {
             dao.insertPayment(Payment(customerId = customerId, date = System.currentTimeMillis(), amount = amount, note = note))
@@ -253,7 +341,6 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
                 defaultQuantity = quantity, 
                 unit = unit,
                 locality = locality,
-                morningReq = quantity, // Default to morning
                 isProvider = isProvider
             ))
         }
@@ -261,7 +348,7 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun updateCustomerSettings(customer: Customer, quantity: Double, rate: Double?) {
         viewModelScope.launch {
-            dao.insertCustomer(customer.copy(defaultQuantity = quantity, morningReq = quantity, eveningReq = 0.0, customRate = rate))
+            dao.insertCustomer(customer.copy(defaultQuantity = quantity, customRate = rate))
         }
     }
 
@@ -306,7 +393,6 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
                 date = date,
                 quantity = targetQuantity,
                 type = targetType,
-                shift = "Daily",
                 isExtra = isExtra,
                 amount = targetQuantity * (customer.customRate ?: customer.rate)
             )
@@ -418,5 +504,89 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
         val cal1 = Calendar.getInstance().apply { timeInMillis = date1 }
         return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
                cal1.get(Calendar.MONTH) == cal2.get(Calendar.MONTH)
+    }
+
+    /** Generate and share a PDF report for a single customer for a specific month */
+    fun sharePdfForMonth(context: Context, customer: Customer, monthYear: MonthYear, isUrdu: Boolean) {
+        viewModelScope.launch {
+            val (start, end) = monthYear.toCalendarRange()
+            val records = dao.getRecordsInPeriod(start, end).first()
+                .filter { it.customerId == customer.id }
+            val payments = dao.getPaymentsForCustomerSync(customer.id)
+                .filter { p -> val c = Calendar.getInstance().apply { timeInMillis = p.date }
+                    c.get(Calendar.YEAR) == monthYear.year && c.get(Calendar.MONTH) == monthYear.month }
+            val cal = Calendar.getInstance().apply {
+                set(Calendar.YEAR, monthYear.year)
+                set(Calendar.MONTH, monthYear.month)
+                set(Calendar.DAY_OF_MONTH, 1)
+            }
+            val pdfManager = PdfManager(context)
+            val file = pdfManager.generateCustomerReport(
+                milkmanName = milkmanName.value,
+                customer = customer,
+                records = records,
+                payments = payments,
+                month = cal,
+                isUrdu = isUrdu
+            )
+            if (file != null) {
+                try {
+                    val uri: Uri = FileProvider.getUriForFile(
+                        context.applicationContext,
+                        "${context.packageName}.fileprovider",
+                        file
+                    )
+                    val intent = Intent(Intent.ACTION_SEND).apply {
+                        type = "application/pdf"
+                        putExtra(Intent.EXTRA_STREAM, uri)
+                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    }
+                    val chooser = Intent.createChooser(intent, if (isUrdu) "رپورٹ شیئر کریں" else "Share Report")
+                    chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    context.startActivity(chooser)
+                } catch (e: Exception) { e.printStackTrace() }
+            }
+        }
+    }
+
+    /** Generate and share a text summary for all customers for a specific month */
+    fun shareAllCustomersReportForMonth(context: Context, monthYear: MonthYear) {
+        viewModelScope.launch {
+            val (start, end) = monthYear.toCalendarRange()
+            val allCustomers = dao.getAllCustomers().first()
+            val records = dao.getRecordsInPeriod(start, end).first()
+            val payments = dao.getPaymentsForCustomerInRange(start, end).first()
+            val sdf = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
+            val cal = Calendar.getInstance().apply {
+                set(Calendar.YEAR, monthYear.year)
+                set(Calendar.MONTH, monthYear.month)
+                set(Calendar.DAY_OF_MONTH, 1)
+            }
+            val monthLabel = sdf.format(cal.time)
+            val sb = StringBuilder("*Dodhi Report — $monthLabel*\n")
+            sb.append("=".repeat(30) + "\n\n")
+            allCustomers.forEach { customer ->
+                val custRecords = records.filter { it.customerId == customer.id && it.type != "Naga" }
+                val custPayments = payments.filter { it.customerId == customer.id }
+                if (custRecords.isEmpty()) return@forEach
+                val bill = custRecords.sumOf { it.amount }
+                val paid = custPayments.sumOf { it.amount }
+                val liters = custRecords.sumOf { it.quantity }
+                sb.append("👤 *${customer.name}*\n")
+                sb.append("   ${liters.toInt()} L  •  Bill: ${bill.toInt()} PKR  •  Paid: ${paid.toInt()} PKR  •  Due: ${(bill - paid).toInt()} PKR\n\n")
+            }
+            val totalBill = records.filter { it.type != "Naga" }.sumOf { it.amount }
+            val totalPaid = payments.sumOf { it.amount }
+            sb.append("=".repeat(30) + "\n")
+            sb.append("*Total Bill: ${totalBill.toInt()} PKR*\n")
+            sb.append("*Total Collected: ${totalPaid.toInt()} PKR*\n")
+            sb.append("*Outstanding: ${(totalBill - totalPaid).toInt()} PKR*\n")
+            val intent = Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_TEXT, sb.toString())
+            }
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            context.startActivity(Intent.createChooser(intent, "Share Monthly Report"))
+        }
     }
 }

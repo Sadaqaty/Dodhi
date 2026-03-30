@@ -54,10 +54,10 @@ import java.util.*
 @Composable
 fun DashboardScreen(
     viewModel: DashboardViewModel,
-    onMilkCollectionClick: () -> Unit,
+    onAllTimeReportsClick: () -> Unit,
     onReportsClick: () -> Unit,
     onAddMemberClick: () -> Unit,
-    onMorningRunClick: () -> Unit
+    onDailyRunClick: () -> Unit
 ) {
     var showLanguageSheet by remember { mutableStateOf(false) }
 
@@ -134,13 +134,13 @@ fun DashboardScreen(
                 Column(modifier = Modifier.padding(24.dp).fillMaxWidth()) {
                     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                         ActionCard(
-                            title = stringResource(R.string.milk_collection),
-                            subtitle = "Quick Entries",
-                            description = stringResource(R.string.milk_collection_desc),
-                            icon = R.drawable.ic_milk_collection_premium,
+                            title = "All Time Reports",
+                            subtitle = "History",
+                            description = "Browse past months",
+                            icon = R.drawable.ic_reports_premium,
                             color = PastelGreen,
                             modifier = Modifier.weight(1f),
-                            onClick = onMilkCollectionClick
+                            onClick = onAllTimeReportsClick
                         )
                         ActionCard(
                             title = stringResource(R.string.reports),
@@ -170,7 +170,7 @@ fun DashboardScreen(
                             icon = R.drawable.cow_illustration,
                             color = PastelOrange,
                             modifier = Modifier.weight(1f),
-                            onClick = onMorningRunClick
+                            onClick = onDailyRunClick
                         )
                     }
                     
@@ -222,11 +222,27 @@ fun DashboardScreen(
             SettingsSheet(viewModel = viewModel, onDismiss = { showLanguageSheet = false })
         }
     }
+}
 
 @Composable
 fun PremiumCustomerSummaryCard(customer: Customer, viewModel: DashboardViewModel) {
     val balance by viewModel.getCustomerBalance(customer.id).collectAsState(initial = 0.0)
     
+    // Semantics: 
+    //   Consumer (we sell to them): balance > 0 means they OWE us → GREEN (good for us)
+    //   Provider (we buy from them): balance > 0 means we OWE them → RED (we must pay)
+    val balanceColor = when {
+        balance == 0.0 -> EarthBrown.copy(alpha = 0.5f)
+        customer.isProvider -> if (balance > 0) Color(0xFFD32F2F) else Color(0xFF2E7D32)
+        else -> if (balance > 0) Color(0xFF2E7D32) else Color(0xFFD32F2F)
+    }
+    
+    val balanceLabel = when {
+        balance == 0.0 -> "Clear"
+        customer.isProvider -> if (balance > 0) "To Give" else "Overpaid"
+        else -> if (balance > 0) "To Receive" else "Advance"
+    }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -245,14 +261,24 @@ fun PremiumCustomerSummaryCard(customer: Customer, viewModel: DashboardViewModel
                 Text(text = customer.name, fontWeight = FontWeight.ExtraBold, fontSize = 18.sp, color = ClayTerracotta)
                 Text(text = if (customer.isProvider) stringResource(R.string.providers) else stringResource(R.string.consumers), fontSize = 12.sp, color = EarthBrown.copy(alpha = 0.6f))
             }
-            Text(
-                text = "${balance.toInt()} ${stringResource(R.string.rupees)}",
-                fontWeight = FontWeight.ExtraBold,
-                color = if (balance > 0) Color(0xFFD32F2F) else HeritageOlive
-            )
+            Column(horizontalAlignment = Alignment.End) {
+                Text(
+                    text = "${kotlin.math.abs(balance).toInt()} ${stringResource(R.string.rupees)}",
+                    fontWeight = FontWeight.ExtraBold,
+                    fontSize = 18.sp,
+                    color = balanceColor
+                )
+                Text(
+                    text = balanceLabel,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = balanceColor.copy(alpha = 0.8f)
+                )
+            }
         }
     }
 }
+
 
 @Composable
 fun ActionCard(
