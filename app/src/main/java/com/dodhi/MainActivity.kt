@@ -42,6 +42,7 @@ class MainActivity : AppCompatActivity() {
                     NavHost(navController, startDestination = "dashboard") {
                         composable("dashboard") { 
                             DashboardScreen(
+                                viewModel = viewModel,
                                 onMilkCollectionClick = { navController.navigate("daily_entry") },
                                 onReportsClick = { navController.navigate("report") },
                                 onAddMemberClick = { navController.navigate("add_customer") },

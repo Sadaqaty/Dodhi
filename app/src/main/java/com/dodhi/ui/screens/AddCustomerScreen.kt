@@ -26,6 +26,8 @@ fun AddCustomerScreen(viewModel: DashboardViewModel, onDismiss: () -> Unit) {
     var quantity by remember { mutableStateOf("") }
     var locality by remember { mutableStateOf("") }
 
+    var isProvider by remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -39,7 +41,28 @@ fun AddCustomerScreen(viewModel: DashboardViewModel, onDismiss: () -> Unit) {
             style = MaterialTheme.typography.headlineLarge,
             color = EarthBrown
         )
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Text(text = stringResource(R.string.customer_type), fontWeight = FontWeight.Bold, color = EarthBrown)
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            FilterChip(
+                selected = !isProvider,
+                onClick = { isProvider = false },
+                label = { Text(stringResource(R.string.sell_milk)) },
+                modifier = Modifier.weight(1f)
+            )
+            FilterChip(
+                selected = isProvider,
+                onClick = { isProvider = true },
+                label = { Text(stringResource(R.string.buy_milk)) },
+                modifier = Modifier.weight(1f)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
         
         PremiumTextField(
             value = name,
@@ -58,7 +81,7 @@ fun AddCustomerScreen(viewModel: DashboardViewModel, onDismiss: () -> Unit) {
         PremiumTextField(
             value = rate,
             onValueChange = { rate = it },
-            label = stringResource(R.string.rate),
+            label = stringResource(R.string.rate_per_liter),
             isNumber = true
         )
         Spacer(modifier = Modifier.height(16.dp))
@@ -66,7 +89,7 @@ fun AddCustomerScreen(viewModel: DashboardViewModel, onDismiss: () -> Unit) {
         PremiumTextField(
             value = quantity,
             onValueChange = { quantity = it },
-            label = stringResource(R.string.liters),
+            label = stringResource(R.string.default_quantity),
             isNumber = true
         )
         
@@ -91,19 +114,19 @@ fun AddCustomerScreen(viewModel: DashboardViewModel, onDismiss: () -> Unit) {
             )
         }
         
-        Spacer(modifier = Modifier.weight(1f))
+        Spacer(modifier = Modifier.height(32.dp))
         
         Button(
             onClick = {
-                viewModel.addCustomer(name, rate.toDoubleOrNull() ?: 0.0, quantity.toDoubleOrNull() ?: 0.0, selectedUnit, locality)
+                viewModel.addCustomer(name, rate.toDoubleOrNull() ?: 0.0, quantity.toDoubleOrNull() ?: 0.0, selectedUnit, locality, isProvider)
                 onDismiss()
             },
-            modifier = Modifier.fillMaxWidth().height(64.dp),
+            modifier = Modifier.fillMaxWidth().height(60.dp),
             colors = ButtonDefaults.buttonColors(containerColor = GrassGreen),
             shape = MaterialTheme.shapes.large,
             elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
         ) {
-            Text(stringResource(R.string.save), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+            Text(stringResource(R.string.save), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
         }
     }
 }

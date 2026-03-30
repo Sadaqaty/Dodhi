@@ -28,6 +28,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.filled.Translate
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Place
+import androidx.compose.material.icons.filled.Check
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 import androidx.compose.material.icons.Icons
@@ -42,6 +43,7 @@ import com.dodhi.R
 import com.dodhi.data.model.Customer
 import com.dodhi.ui.viewmodel.DashboardViewModel
 import com.dodhi.ui.theme.*
+import com.dodhi.ui.components.PremiumTextField
 import androidx.compose.foundation.layout.aspectRatio
 import java.text.SimpleDateFormat
 import java.util.*
@@ -49,6 +51,7 @@ import java.util.*
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(
+    viewModel: DashboardViewModel,
     onMilkCollectionClick: () -> Unit,
     onReportsClick: () -> Unit,
     onAddMemberClick: () -> Unit,
@@ -162,7 +165,7 @@ fun DashboardScreen(
     }
 
     if (showLanguageSheet) {
-        LanguageSheet(onDismiss = { showLanguageSheet = false })
+        SettingsSheet(viewModel = viewModel, onDismiss = { showLanguageSheet = false })
     }
 }
 
@@ -200,28 +203,46 @@ fun ActionCard(title: String, icon: Int, color: Color, modifier: Modifier, onCli
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LanguageSheet(onDismiss: () -> Unit) {
+fun SettingsSheet(viewModel: DashboardViewModel, onDismiss: () -> Unit) {
+    val milkmanName by viewModel.milkmanName.collectAsState()
+    var tempName by remember { mutableStateOf(milkmanName) }
+    
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Column(modifier = Modifier.padding(24.dp).fillMaxWidth()) {
-            Text("Select Language / زبان منتخب کریں", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+            Text(stringResource(R.string.settings), fontWeight = FontWeight.Bold, fontSize = 22.sp, color = EarthBrown)
+            Spacer(modifier = Modifier.height(24.dp))
+            
+            PremiumTextField(
+                value = tempName, 
+                onValueChange = { 
+                    tempName = it
+                    viewModel.updateMilkmanName(it)
+                }, 
+                label = stringResource(R.string.milkman_name)
+            )
+            
+            Spacer(modifier = Modifier.height(32.dp))
+            
+            Text(stringResource(R.string.select_language), fontWeight = FontWeight.Bold, fontSize = 16.sp, color = EarthBrown)
             Spacer(modifier = Modifier.height(16.dp))
+            
             val currentLang = AppCompatDelegate.getApplicationLocales().toLanguageTags()
             
             ListItem(
-                headlineContent = { Text("English") },
+                headlineContent = { Text("English", fontWeight = FontWeight.Medium) },
                 modifier = Modifier.clickable {
                     AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags("en"))
                     onDismiss()
                 },
-                trailingContent = { if (currentLang != "ur") Icon(Icons.Default.Add, null) }
+                trailingContent = { if (currentLang != "ur") Icon(Icons.Default.Check, null, tint = GrassGreen) }
             )
             ListItem(
-                headlineContent = { Text("اردو (Urdu)") },
+                headlineContent = { Text("اردو (Urdu)", fontWeight = FontWeight.Medium) },
                 modifier = Modifier.clickable {
                     AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags("ur"))
                     onDismiss()
                 },
-                trailingContent = { if (currentLang == "ur") Icon(Icons.Default.Add, null) }
+                trailingContent = { if (currentLang == "ur") Icon(Icons.Default.Check, null, tint = GrassGreen) }
             )
         }
     }

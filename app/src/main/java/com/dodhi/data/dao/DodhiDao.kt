@@ -48,4 +48,9 @@ interface DodhiDao {
 
     @Query("SELECT * FROM milk_sources WHERE date BETWEEN :start AND :end")
     fun getMilkSourcesInPeriod(start: Long, end: Long): Flow<List<MilkSource>>
+    @Query("SELECT * FROM delivery_records WHERE customerId = :customerId")
+    suspend fun getRecordsForCustomerSync(customerId: Long): List<DeliveryRecord>
+
+    @Query("SELECT * FROM payments WHERE customerId = :customerId")
+    suspend fun getPaymentsForCustomerSync(customerId: Long): List<Payment>
 }

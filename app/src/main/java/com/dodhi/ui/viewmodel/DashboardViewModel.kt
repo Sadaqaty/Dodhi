@@ -26,10 +26,24 @@ import java.text.SimpleDateFormat
 
 import com.dodhi.data.model.Payment
 import com.dodhi.data.model.MilkSource
+import com.dodhi.util.PdfManager
+import androidx.core.content.FileProvider
+import android.content.Intent
+import android.net.Uri
 
 class DashboardViewModel(application: Application) : AndroidViewModel(application) {
     private val db = DodhiDatabase.getDatabase(application)
     private val dao = db.dodhiDao()
+
+    private val prefs = application.getSharedPreferences("dodhi_prefs", Context.MODE_PRIVATE)
+    
+    private val _milkmanName = MutableStateFlow(prefs.getString("milkman_name", "Dodhi Village") ?: "Dodhi Village")
+    val milkmanName: StateFlow<String> = _milkmanName.asStateFlow()
+
+    fun updateMilkmanName(name: String) {
+        _milkmanName.value = name
+        prefs.edit().putString("milkman_name", name).apply()
+    }
 
     val customers: StateFlow<List<Customer>> = dao.getAllCustomers()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
@@ -107,10 +121,22 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun getCustomerBalance(customerId: Long): Flow<Double> {
         return combine(
+            dao.getCustomerById(customerId),
             dao.getRecordsForCustomer(customerId),
             dao.getPaymentsForCustomer(customerId)
-        ) { records, payments ->
-            records.sumOf { it.amount } - payments.sumOf { it.amount }
+        ) { customer, records, payments ->
+            if (customer == null) return@combine 0.0
+            val recordSum = records.sumOf { it.amount }
+            val paymentSum = payments.sumOf { it.amount }
+            if (customer.isProvider) {
+                // For providers, record amount is what we OWE them, payment is what we PAID them.
+                // Balance = We Owe - We Paid
+                recordSum - paymentSum
+            } else {
+                // For consumers, record amount is what they OWE us, payment is what they PAID us.
+                // Balance = They Owe - They Paid
+                recordSum - paymentSum
+            }
         }
     }
 
@@ -209,9 +235,9 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
         }.timeInMillis
     }
 
-    fun addPayment(customerId: Long, amount: Double) {
+    fun addPayment(customerId: Long, amount: Double, note: String = "") {
         viewModelScope.launch {
-            dao.insertPayment(Payment(customerId = customerId, date = System.currentTimeMillis(), amount = amount))
+            dao.insertPayment(Payment(customerId = customerId, date = System.currentTimeMillis(), amount = amount, note = note))
         }
     }
 
@@ -221,7 +247,7 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
-    fun addCustomer(name: String, rate: Double, quantity: Double, unit: String = "Liter", locality: String = "") {
+    fun addCustomer(name: String, rate: Double, quantity: Double, unit: String = "Liter", locality: String = "", isProvider: Boolean = false) {
         viewModelScope.launch {
             dao.insertCustomer(Customer(
                 name = name, 
@@ -229,7 +255,8 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
                 defaultQuantity = quantity, 
                 unit = unit,
                 locality = locality,
-                morningReq = quantity // Default to morning
+                morningReq = quantity, // Default to morning
+                isProvider = isProvider
             ))
         }
     }
@@ -307,5 +334,91 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
                 e.printStackTrace()
             }
         }
+    }
+
+    fun sharePdfReport(context: Context, customer: Customer, isUrdu: Boolean) {
+        viewModelScope.launch {
+            val records = dao.getRecordsForCustomerSync(customer.id)
+            val payments = dao.getPaymentsForCustomerSync(customer.id)
+            val month = Calendar.getInstance()
+            
+            val pdfManager = PdfManager(context)
+            val file = pdfManager.generateCustomerReport(
+                milkmanName = milkmanName.value,
+                customer = customer,
+                records = records,
+                payments = payments,
+                month = month,
+                isUrdu = isUrdu
+            )
+            
+            if (file != null) {
+                try {
+                    val uri: Uri = FileProvider.getUriForFile(
+                        context.applicationContext,
+                        "${context.packageName}.fileprovider",
+                        file
+                    )
+                    
+                    val intent = Intent(Intent.ACTION_SEND).apply {
+                        type = "application/pdf"
+                        putExtra(Intent.EXTRA_STREAM, uri)
+                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    }
+                    val chooser = Intent.createChooser(intent, if (isUrdu) "رپورٹ شیئر کریں" else "Share Report")
+                    chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    context.startActivity(chooser)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }
+    }
+
+    fun shareTextReport(context: Context, customer: Customer, isUrdu: Boolean) {
+        viewModelScope.launch {
+            val records = dao.getRecordsForCustomerSync(customer.id)
+            val payments = dao.getPaymentsForCustomerSync(customer.id)
+            val month = Calendar.getInstance()
+            
+            val reportTitle = if (isUrdu) "\n*ماہانہ ہساب - ${customer.name}*\n" else "\n*Monthly Ledger - ${customer.name}*\n"
+            val sb = StringBuilder(reportTitle)
+            
+            val dateFormat = SimpleDateFormat("dd/MM")
+            records.filter { isSameMonth(it.date, month) }.forEach {
+                val label = when(it.type) {
+                    "Delivered" -> if (isUrdu) "ڈیلیوری" else "Delivered"
+                    "Extra" -> if (isUrdu) "اضافی" else "Extra"
+                    else -> it.type
+                }
+                sb.append("${dateFormat.format(Date(it.date))}: $label - ${it.quantity}L - ${it.amount} PKR\n")
+            }
+            
+            payments.filter { isSameMonth(it.date, month) }.forEach {
+                val label = if (isUrdu) "رقم وصولی" else "Payment"
+                sb.append("${dateFormat.format(Date(it.date))}: $label - ${it.amount} PKR\n")
+            }
+            
+            val totalBill = records.filter { isSameMonth(it.date, month) }.sumOf { it.amount }
+            val totalPaid = payments.filter { isSameMonth(it.date, month) }.sumOf { it.amount }
+            val net = totalBill - totalPaid
+            
+            sb.append("\n------------------\n")
+            sb.append(if (isUrdu) "*کل بل:* $totalBill PKR\n" else "*Total Bill:* $totalBill PKR\n")
+            sb.append(if (isUrdu) "*کل ادائیگی:* $totalPaid PKR\n" else "*Total Paid:* $totalPaid PKR\n")
+            sb.append(if (isUrdu) "*بقیہ بیلنس:* $net PKR\n" else "*Net Balance:* $net PKR\n")
+
+            val intent = Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_TEXT, sb.toString())
+            }
+            context.startActivity(Intent.createChooser(intent, if (isUrdu) "ہساب شیئر کریں" else "Share Ledger"))
+        }
+    }
+
+    private fun isSameMonth(date1: Long, cal2: Calendar): Boolean {
+        val cal1 = Calendar.getInstance().apply { timeInMillis = date1 }
+        return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
+               cal1.get(Calendar.MONTH) == cal2.get(Calendar.MONTH)
     }
 }

@@ -61,6 +61,23 @@
     <string name="delete_customer">Delete Customer</string>
     <string name="delivery_volume">Delivery Volume</string>
     <string name="market_value">Total Sales</string>
+    <string name="payment_received">Payment Received</string>
+    <string name="payment_given">Payment Given</string>
+    <string name="you_owe">You Owe</string>
+    <string name="they_owe">They Owe</string>
     <string name="waste">Loss (Waste)</string>
     <string name="milk_collection">Milk Collection</string>
+    <string name="buy_milk">Buy Milk (from them)</string>
+    <string name="sell_milk">Sell Milk (to them)</string>
+    <string name="milkman_name">Your Name (for reports)</string>
+    <string name="select_language">Select Language</string>
+    <string name="customer_type">Customer Type</string>
+    <string name="generate_report">Generate Report</string>
+    <string name="report_format">Report Format</string>
+    <string name="text_report">Text (Digital Parchi)</string>
+    <string name="pdf_report">PDF (Professional)</string>
+    <string name="report_language">Report Language</string>
+    <string name="extra_milk_quantity">Extra Milk Quantity</string>
+    <string name="enter_quantity">Enter Quantity (Liters)</string>
+    <string name="confirm">Confirm</string>
 </resources>

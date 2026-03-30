@@ -72,7 +72,16 @@ fun HorizontalCalendarHeader(selectedDate: Calendar, onDateSelected: (Calendar) 
 }
 
 @Composable
-fun PremiumCustomerCard(customer: Customer, balance: Double, activeType: String?, currentQuantity: Double, onClick: () -> Unit, onAction: (String) -> Unit) {
+fun PremiumCustomerCard(
+    customer: Customer, 
+    balance: Double, 
+    activeType: String?, 
+    currentQuantity: Double, 
+    onClick: () -> Unit, 
+    onAction: (String, Double) -> Unit
+) {
+    var rawQuantity by remember(currentQuantity) { mutableStateOf(currentQuantity.toString()) }
+    
     Card(
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
         shape = MaterialTheme.shapes.large,
@@ -85,10 +94,25 @@ fun PremiumCustomerCard(customer: Customer, balance: Double, activeType: String?
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column {
+                Column(modifier = Modifier.weight(1f)) {
                     Text(text = customer.name, fontSize = 22.sp, fontWeight = FontWeight.Bold, color = EarthBrown)
                     if (customer.locality.isNotEmpty()) {
                         Text(text = customer.locality, fontSize = 14.sp, color = Color.Gray)
+                    }
+                    if (customer.isProvider) {
+                        Surface(
+                            color = PastelOrange.copy(alpha = 0.2f),
+                            shape = MaterialTheme.shapes.extraSmall,
+                            modifier = Modifier.padding(top = 4.dp)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.buy_milk),
+                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = EarthBrown
+                            )
+                        }
                     }
                 }
                 Column(horizontalAlignment = Alignment.End) {
@@ -104,21 +128,32 @@ fun PremiumCustomerCard(customer: Customer, balance: Double, activeType: String?
             
             Spacer(modifier = Modifier.height(16.dp))
             
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Surface(
-                    color = PastelBlue,
-                    shape = MaterialTheme.shapes.small
-                ) {
-                    Text(
-                        text = "$currentQuantity ${if (customer.unit == "Liter") stringResource(R.string.liters) else stringResource(R.string.ser)}",
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                OutlinedTextField(
+                    value = rawQuantity,
+                    onValueChange = { rawQuantity = it },
+                    modifier = Modifier.weight(1f),
+                    label = { Text(stringResource(R.string.liters)) },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    singleLine = true,
+                    shape = MaterialTheme.shapes.medium,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = PastelBlue.copy(alpha = 0.1f)
                     )
-                }
+                )
+                
+                Text(
+                    text = if (customer.unit == "Liter") stringResource(R.string.liters) else stringResource(R.string.ser),
+                    fontWeight = FontWeight.Bold,
+                    color = EarthBrown
+                )
             }
             
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(20.dp))
             
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -129,21 +164,21 @@ fun PremiumCustomerCard(customer: Customer, balance: Double, activeType: String?
                     color = Color(0xFF4CAF50),
                     isActive = activeType == "Delivered",
                     modifier = Modifier.weight(1f)
-                ) { onAction("Delivered") }
+                ) { onAction("Delivered", rawQuantity.toDoubleOrNull() ?: 0.0) }
                 
                 DeliveryButton(
                     label = stringResource(R.string.extra),
                     color = Color(0xFFFFD700),
                     isActive = activeType == "Extra",
                     modifier = Modifier.weight(1f)
-                ) { onAction("Extra") }
+                ) { onAction("Extra", rawQuantity.toDoubleOrNull() ?: 0.0) }
                 
                 DeliveryButton(
                     label = stringResource(R.string.naga),
                     color = Color(0xFFF44336),
                     isActive = activeType == "Naga",
                     modifier = Modifier.weight(1f)
-                ) { onAction("Naga") }
+                ) { onAction("Naga", 0.0) }
             }
         }
     }

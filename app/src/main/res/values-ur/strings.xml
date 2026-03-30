@@ -61,6 +61,23 @@
     <string name="delete_customer">گاہک ختم کریں</string>
     <string name="delivery_volume">ڈیلیوری والیم</string>
     <string name="market_value">کل فروخت</string>
+    <string name="payment_received">رقم وصول کی</string>
+    <string name="payment_given">رقم ادا کی</string>
+    <string name="you_owe">آپ نے دینے ہیں</string>
+    <string name="they_owe">انہوں نے دینے ہیں</string>
     <string name="waste">ضیاع (Loss)</string>
     <string name="milk_collection">دودھ کی وصولی</string>
+    <string name="buy_milk">دودھ خریدیں (ان سے)</string>
+    <string name="sell_milk">دودھ بیچیں (ان کو)</string>
+    <string name="milkman_name">آپ کا نام (رپورٹ کے لیے)</string>
+    <string name="select_language">زبان منتخب کریں</string>
+    <string name="customer_type">گاہک کی قسم</string>
+    <string name="generate_report">رپورٹ تیار کریں</string>
+    <string name="report_format">رپورٹ کی قسم</string>
+    <string name="text_report">ٹیکسٹ رپورٹ (ڈیجیٹل پرچی)</string>
+    <string name="pdf_report">پی ڈی ایف (پروفیشنل رپورٹ)</string>
+    <string name="report_language">رپورٹ کی زبان</string>
+    <string name="extra_milk_quantity">اضافی دودھ کی مقدار</string>
+    <string name="enter_quantity">مقدار درج کریں (لیٹر)</string>
+    <string name="confirm">اوکے</string>
 </resources>

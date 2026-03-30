@@ -1,6 +1,7 @@
 package com.dodhi.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.lazy.LazyColumn
@@ -62,13 +63,29 @@ fun CustomerDetailScreen(viewModel: DashboardViewModel, customerId: Long, onBack
                         }
                     },
                     actions = {
-                        var showParchi by remember { mutableStateOf(false) }
-                        IconButton(onClick = { showParchi = true }) {
-                            Icon(Icons.Default.Share, contentDescription = stringResource(R.string.share))
+                        var showReportDialog by remember { mutableStateOf(false) }
+                        val context = LocalContext.current
+                        
+                        IconButton(onClick = { showReportDialog = true }) {
+                            Icon(Icons.Default.Share, contentDescription = "Generate Report", tint = Color.Black)
                         }
-                        if (showParchi) {
-                            DigitalParchiDialog(viewModel, customerId) { showParchi = false }
+
+                        if (showReportDialog) {
+                            ReportGenerationDialog(
+                                onDismiss = { showReportDialog = false },
+                                onGenerate = { type, isUrdu ->
+                                    customer?.let {
+                                        if (type == "PDF") {
+                                            viewModel.sharePdfReport(context, it, isUrdu)
+                                        } else {
+                                            viewModel.shareTextReport(context, it, isUrdu)
+                                        }
+                                    }
+                                    showReportDialog = false
+                                }
+                            )
                         }
+
                         IconButton(onClick = { 
                             customer?.let { 
                                 viewModel.deleteCustomer(it)
@@ -122,6 +139,10 @@ fun HisaabTab(viewModel: DashboardViewModel, customerId: Long) {
     val records by viewModel.getRecordsForCustomer(customerId).collectAsState(initial = emptyList())
     val customer by viewModel.getCustomer(customerId).collectAsState(initial = null)
     
+    var showExtraDialog by remember { mutableStateOf(false) }
+    var selectedDate by remember { mutableStateOf<Calendar?>(null) }
+    var selectedShift by remember { mutableStateOf("") }
+
     // Generate dates for current month
     val calendar = Calendar.getInstance()
     val monthStart = (calendar.clone() as Calendar).apply { set(Calendar.DAY_OF_MONTH, 1) }
@@ -148,10 +169,26 @@ fun HisaabTab(viewModel: DashboardViewModel, customerId: Long) {
             ) {
                 items(dates) { date ->
                     customer?.let { cust ->
-                        DailyLedgerRow(cust, date, records, viewModel)
+                        DailyLedgerRow(cust, date, records, viewModel, onExtraClick = { shift ->
+                            selectedDate = date
+                            selectedShift = shift
+                            showExtraDialog = true
+                        })
                     }
                 }
             }
+        }
+
+        if (showExtraDialog && selectedDate != null) {
+            ExtraMilkDialog(
+                onDismiss = { showExtraDialog = false },
+                onConfirm = { qty ->
+                    customer?.let { 
+                        viewModel.markDeliveredWithDate(it, "Extra", qty, selectedDate!!, selectedShift)
+                    }
+                    showExtraDialog = false
+                }
+            )
         }
         
         // Sticky Bottom Summary Bar
@@ -174,7 +211,7 @@ fun HisaabTab(viewModel: DashboardViewModel, customerId: Long) {
 }
 
 @Composable
-fun DailyLedgerRow(customer: Customer, date: Calendar, allRecords: List<DeliveryRecord>, viewModel: DashboardViewModel) {
+fun DailyLedgerRow(customer: Customer, date: Calendar, allRecords: List<DeliveryRecord>, viewModel: DashboardViewModel, onExtraClick: (String) -> Unit) {
     val dateFormat = SimpleDateFormat("dd MMM", java.util.Locale.getDefault())
     val dayFormat = SimpleDateFormat("EEEE", java.util.Locale.getDefault())
     
@@ -218,7 +255,7 @@ fun DailyLedgerRow(customer: Customer, date: Calendar, allRecords: List<Delivery
                     label = stringResource(R.string.morning), 
                     record = morningRecord, 
                     onAction = { viewModel.markDeliveredWithDate(customer, "Delivered", customer.morningReq, date, "Morning") },
-                    onExtra = { viewModel.markDeliveredWithDate(customer, "Extra", 1.0, date, "Morning") },
+                    onExtra = { onExtraClick("Morning") },
                     modifier = Modifier.weight(1f)
                 )
                 
@@ -227,7 +264,7 @@ fun DailyLedgerRow(customer: Customer, date: Calendar, allRecords: List<Delivery
                     label = stringResource(R.string.evening), 
                     record = eveningRecord, 
                     onAction = { viewModel.markDeliveredWithDate(customer, "Delivered", customer.eveningReq, date, "Evening") },
-                    onExtra = { viewModel.markDeliveredWithDate(customer, "Extra", 1.0, date, "Evening") },
+                    onExtra = { onExtraClick("Evening") },
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -287,12 +324,15 @@ fun PaymentsTab(viewModel: DashboardViewModel, customerId: Long) {
                 colors = CardDefaults.cardColors(containerColor = EarthBrown)
             ) {
                 Column(modifier = Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(stringResource(R.string.net_balance), color = Color.LightGray)
+                    Text(
+                        text = stringResource(if (cust.isProvider) R.string.you_owe else R.string.they_owe), 
+                        color = Color.LightGray
+                    )
                     Text("${balance} ${stringResource(R.string.rupees)}", fontSize = 32.sp, fontWeight = FontWeight.Bold, color = GrassGreen)
                 }
             }
             
-            // Peshgi / Payment Entry
+            // Payment Entry
             Card(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.White)
@@ -314,7 +354,10 @@ fun PaymentsTab(viewModel: DashboardViewModel, customerId: Long) {
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = GrassGreen)
                     ) {
-                        Text(stringResource(R.string.payment), color = Color.Black)
+                        Text(
+                            text = stringResource(if (cust.isProvider) R.string.payment_given else R.string.payment_received), 
+                            color = Color.Black
+                        )
                     }
                 }
             }
@@ -333,7 +376,7 @@ fun PaymentsTab(viewModel: DashboardViewModel, customerId: Long) {
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(payments.sortedByDescending { it.date }) { payment ->
-                KhataRow(KhataItem.PaymentItem(payment))
+                KhataRow(KhataItem.PaymentItem(payment), viewModel, customerId)
             }
         }
     }
@@ -403,10 +446,12 @@ fun CustomerSummaryHeader(customer: Customer, viewModel: DashboardViewModel) {
 }
 
 @Composable
-fun KhataRow(item: KhataItem) {
+fun KhataRow(item: KhataItem, viewModel: DashboardViewModel, customerId: Long) {
     val dateFormat = SimpleDateFormat("dd MMM, yyyy", java.util.Locale.getDefault())
     val rupees = stringResource(R.string.rupees)
     
+    val customer by viewModel.getCustomer(customerId).collectAsState(initial = null)
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -420,13 +465,20 @@ fun KhataRow(item: KhataItem) {
             Column {
                 Text(
                     text = when (item) {
-                        is KhataItem.Delivery -> stringResource(if (item.record.type == "Naga") R.string.naga else R.string.delivered)
-                        is KhataItem.PaymentItem -> stringResource(R.string.collected)
+                        is KhataItem.Delivery -> {
+                            if (item.record.type == "Naga") stringResource(R.string.naga)
+                            else if (customer?.isProvider == true) stringResource(R.string.buy_milk)
+                            else stringResource(R.string.delivered)
+                        }
+                        is KhataItem.PaymentItem -> {
+                            if (customer?.isProvider == true) stringResource(R.string.payment_given)
+                            else stringResource(R.string.payment_received)
+                        }
                     },
                     fontWeight = FontWeight.Bold,
                     color = when (item) {
                         is KhataItem.Delivery -> if (item.record.type == "Naga") Color.Red else Color(0xFF4CAF50)
-                        is KhataItem.PaymentItem -> EarthBrown
+                        is KhataItem.PaymentItem -> if (customer?.isProvider == true) Color.Red else Color(0xFF4CAF50)
                     }
                 )
                 Text(dateFormat.format(Date(item.date)), fontSize = 12.sp, color = Color.Gray)
@@ -472,47 +524,90 @@ class SerratedEdgeShape(val serrationCount: Int = 20, val serrationHeight: Float
 }
 
 @Composable
-fun DigitalParchiDialog(viewModel: DashboardViewModel, customerId: Long, onDismiss: () -> Unit) {
-    val parchiText by viewModel.generateParchiText(customerId).collectAsState(initial = "")
-    val context = LocalContext.current
-    
+fun ReportGenerationDialog(onDismiss: () -> Unit, onGenerate: (String, Boolean) -> Unit) {
+    var selectedType by remember { mutableStateOf("PDF") }
+    var selectedLangIsUrdu by remember { mutableStateOf(false) }
+
     AlertDialog(
         onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.generate_report), fontWeight = FontWeight.Bold, color = EarthBrown) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                Text(stringResource(R.string.report_format), fontWeight = FontWeight.Medium)
+                Column {
+                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable { selectedType = "PDF" }) {
+                        RadioButton(selected = selectedType == "PDF", onClick = { selectedType = "PDF" })
+                        Text(stringResource(R.string.pdf_report))
+                    }
+                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable { selectedType = "Text" }) {
+                        RadioButton(selected = selectedType == "Text", onClick = { selectedType = "Text" })
+                        Text(stringResource(R.string.text_report))
+                    }
+                }
+
+                Divider(modifier = Modifier.padding(vertical = 8.dp), color = Color.LightGray.copy(alpha = 0.5f))
+
+                Text(stringResource(R.string.report_language), fontWeight = FontWeight.Medium)
+                Column {
+                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable { selectedLangIsUrdu = false }) {
+                        RadioButton(selected = !selectedLangIsUrdu, onClick = { selectedLangIsUrdu = false })
+                        Text("English")
+                    }
+                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable { selectedLangIsUrdu = true }) {
+                        RadioButton(selected = selectedLangIsUrdu, onClick = { selectedLangIsUrdu = true })
+                        Text("اردو (Urdu)")
+                    }
+                }
+            }
+        },
         confirmButton = {
             Button(
-                onClick = {
-                    val intent = Intent(Intent.ACTION_SEND).apply {
-                        type = "text/plain"
-                        putExtra(Intent.EXTRA_TEXT, parchiText)
-                    }
-                    context.startActivity(Intent.createChooser(intent, context.getString(R.string.share_report)))
-                    onDismiss()
-                },
+                onClick = { onGenerate(selectedType, selectedLangIsUrdu) },
                 colors = ButtonDefaults.buttonColors(containerColor = GrassGreen)
             ) {
-                Text(stringResource(R.string.share), color = Color.Black)
+                Text(stringResource(R.string.generate_report), color = Color.White)
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
-        },
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.cancel), color = Color.Gray)
+            }
+        }
+    )
+}
+
+@Composable
+fun ExtraMilkDialog(onDismiss: () -> Unit, onConfirm: (Double) -> Unit) {
+    var quantity by remember { mutableStateOf("") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.extra_milk_quantity), fontWeight = FontWeight.Bold, color = EarthBrown) },
         text = {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 16.dp)
-                    .clip(SerratedEdgeShape())
-                    .background(Color.White)
-                    .padding(24.dp)
-            ) {
-                Text(
-                    text = parchiText,
-                    lineHeight = 24.sp,
-                    color = Color.DarkGray
+            Column {
+                Text(stringResource(R.string.enter_quantity))
+                Spacer(modifier = Modifier.height(8.dp))
+                PremiumTextField(
+                    value = quantity,
+                    onValueChange = { quantity = it },
+                    label = "Liters",
+                    isNumber = true
                 )
             }
         },
-        containerColor = PastelGreen
+        confirmButton = {
+            Button(
+                onClick = { quantity.toDoubleOrNull()?.let { onConfirm(it) } },
+                colors = ButtonDefaults.buttonColors(containerColor = NatureGreen)
+            ) {
+                Text(stringResource(R.string.confirm), color = Color.White)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.cancel), color = Color.Gray)
+            }
+        }
     )
 }
 

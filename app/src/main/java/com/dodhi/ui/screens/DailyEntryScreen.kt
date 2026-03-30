@@ -129,8 +129,7 @@ fun DailyEntryScreen(viewModel: DashboardViewModel, onCustomerClick: (Long) -> U
                             activeType = record?.type,
                             currentQuantity = record?.quantity ?: (if (selectedShift == "Morning") customer.morningReq else customer.eveningReq),
                             onClick = { onCustomerClick(customer.id) },
-                            onAction = { type ->
-                                val qty = if (selectedShift == "Morning") customer.morningReq else customer.eveningReq
+                            onAction = { type, qty ->
                                 viewModel.markDelivered(customer, type, qty)
                             }
                         )
