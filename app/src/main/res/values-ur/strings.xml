@@ -81,4 +81,25 @@
     <string name="extra_milk_quantity">اضافی دودھ کی مقدار</string>
     <string name="enter_quantity">مقدار درج کریں (لیٹر)</string>
     <string name="confirm">اوکے</string>
+
+    <!-- Khata Records Screen -->
+    <string name="khata_records">کھاتہ ریکارڈ</string>
+    <string name="khata_records_subtitle">ماہانہ تاریخ</string>
+    <string name="khata_records_desc">گزشتہ مہینے دیکھیں</string>
+    <string name="no_records_yet">کوئی ریکارڈ نہیں</string>
+    <string name="no_records_hint">دودھ ڈیلیور کریں تاکہ یہاں رپورٹ نظر آئے</string>
+    <string name="per_customer_breakdown">گاہک کے مطابق تفصیل</string>
+    <string name="daily_records">روزانہ ریکارڈ</string>
+    <string name="share_monthly_report">ماہانہ رپورٹ شیئر کریں</string>
+    <string name="share_pdf_report">پی ڈی ایف رپورٹ شیئر کریں</string>
+    <string name="pdf_report_btn">پی ڈی ایف رپورٹ</string>
+    <string name="settled">حساب صاف ✓</string>
+    <string name="overpaid">زیادہ ادا کی</string>
+    <string name="total_liters">کل لیٹر</string>
+    <string name="total_bill">کل بل</string>
+    <string name="naga_days">ناگہ دن</string>
+    <string name="to_give">دینے ہیں</string>
+    <string name="to_receive">لینے ہیں</string>
+    <string name="advance">پیشگی</string>
+    <string name="clear">صاف</string>
 </resources>

@@ -8,8 +8,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -101,6 +103,14 @@ fun RouteCustomerRow(customer: Customer, viewModel: DashboardViewModel) {
     val isDelivered = record?.type == "Delivered"
 
     var customQty by remember { mutableStateOf(customer.defaultQuantity.toString()) }
+    var isEditing by remember { mutableStateOf(false) }
+
+    // When entering edit mode pre-fill with recorded qty
+    LaunchedEffect(isEditing) {
+        if (isEditing && record != null) customQty = record.quantity.toString()
+    }
+
+    val showInputMode = !isMarked || isEditing
 
     // Determine card background color
     val cardColor = when {
@@ -120,7 +130,7 @@ fun RouteCustomerRow(customer: Customer, viewModel: DashboardViewModel) {
             Column(modifier = Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(customer.name, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                    if (isNaga) {
+                    if (isNaga && !isEditing) {
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             text = stringResource(R.string.naga),
@@ -134,7 +144,7 @@ fun RouteCustomerRow(customer: Customer, viewModel: DashboardViewModel) {
                     }
                 }
                 Spacer(modifier = Modifier.height(4.dp))
-                if (!isMarked) {
+                if (showInputMode) {
                     OutlinedTextField(
                         value = customQty,
                         onValueChange = { customQty = it },
@@ -161,17 +171,17 @@ fun RouteCustomerRow(customer: Customer, viewModel: DashboardViewModel) {
                 }
             }
             
-            if (!isMarked) {
+            if (showInputMode) {
                 // Mark as Delivered button
                 IconButton(
                     onClick = {
                         val qty = customQty.toDoubleOrNull() ?: 0.0
                         if (qty <= 0.0) {
-                            // Zero quantity = Naga
                             viewModel.markDelivered(customer, "Naga", 0.0)
                         } else {
                             viewModel.markDelivered(customer, "Delivered", qty)
                         }
+                        isEditing = false
                     }
                 ) {
                     Icon(
@@ -182,13 +192,26 @@ fun RouteCustomerRow(customer: Customer, viewModel: DashboardViewModel) {
                     )
                 }
             } else {
-                // Show status icon — green check for delivered, red X for naga
-                Icon(
-                    imageVector = if (isDelivered) Icons.Default.CheckCircle else Icons.Default.Close,
-                    contentDescription = null,
-                    tint = if (isDelivered) Color(0xFF2E7D32) else Color(0xFFB71C1C),
-                    modifier = Modifier.size(36.dp)
-                )
+                // Status icon + small pencil to edit
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = if (isDelivered) Icons.Default.CheckCircle else Icons.Default.Close,
+                        contentDescription = null,
+                        tint = if (isDelivered) Color(0xFF2E7D32) else Color(0xFFB71C1C),
+                        modifier = Modifier.size(36.dp)
+                    )
+                    IconButton(
+                        onClick = { isEditing = true },
+                        modifier = Modifier.size(32.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "Edit entry",
+                            tint = Color.Gray,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                }
             }
         }
     }

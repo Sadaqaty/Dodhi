@@ -15,9 +15,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.dodhi.R
 import com.dodhi.data.model.Customer
 import com.dodhi.data.model.DeliveryRecord
 import com.dodhi.data.model.Payment
@@ -45,7 +47,7 @@ fun AllTimeReportsScreen(
             TopAppBar(
                 title = {
                     Column {
-                        Text("All Time Reports", fontWeight = FontWeight.Bold, color = Color.White)
+                        Text(stringResource(R.string.khata_records), fontWeight = FontWeight.Bold, color = Color.White)
                         selectedCustomer?.let {
                             Text(it.name, fontSize = 13.sp, color = Color.White.copy(alpha = 0.8f))
                         }
@@ -77,8 +79,8 @@ fun AllTimeReportsScreen(
                 if (availableMonths.isEmpty()) {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text("No records yet", fontSize = 18.sp, color = EarthBrown.copy(alpha = 0.6f))
-                            Text("Start delivering milk to see reports here", fontSize = 13.sp, color = Color.Gray)
+                            Text(stringResource(R.string.no_records_yet), fontSize = 18.sp, color = EarthBrown.copy(alpha = 0.6f))
+                            Text(stringResource(R.string.no_records_hint), fontSize = 13.sp, color = Color.Gray)
                         }
                     }
                 } else {
@@ -128,7 +130,7 @@ fun CustomerFilterBar(
                 FilterChip(
                     selected = selected == null,
                     onClick = { onSelect(null) },
-                    label = { Text("All Customers", fontSize = 12.sp) },
+                    label = { Text(stringResource(R.string.all_customers), fontSize = 12.sp) },
                     colors = FilterChipDefaults.filterChipColors(
                         selectedContainerColor = EarthBrown,
                         selectedLabelColor = Color.White
@@ -205,7 +207,9 @@ fun MonthReportCard(
                             color = if (balance > 0) Color(0xFF2E7D32) else if (balance < 0) Color(0xFFD32F2F) else Color.Gray
                         )
                         Text(
-                            if (balance > 0) "Outstanding" else if (balance < 0) "Overpaid" else "Settled",
+                            if (balance > 0) stringResource(R.string.outstanding)
+                            else if (balance < 0) stringResource(R.string.overpaid)
+                            else stringResource(R.string.settled),
                             fontSize = 11.sp,
                             color = Color.Gray
                         )
@@ -304,16 +308,16 @@ fun MonthDetailView(
                         Text(monthLabel, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 20.sp)
                         Spacer(modifier = Modifier.height(12.dp))
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            SummaryStatColumn("Total Liters", "${summary.totalLiters.toInt()} L", GrassGreen)
-                            SummaryStatColumn("Total Bill", "${summary.totalAmount.toInt()} PKR", Color.White)
-                            SummaryStatColumn("Collected", "${summary.totalPaid.toInt()} PKR", Color(0xFF80CBC4))
+                            SummaryStatColumn(stringResource(R.string.total_liters), "${summary.totalLiters.toInt()} L", GrassGreen)
+                            SummaryStatColumn(stringResource(R.string.total_bill), "${summary.totalAmount.toInt()} PKR", Color.White)
+                            SummaryStatColumn(stringResource(R.string.collected), "${summary.totalPaid.toInt()} PKR", Color(0xFF80CBC4))
                         }
                         Spacer(modifier = Modifier.height(8.dp))
                         val balance = summary.balance
                         Text(
-                            text = if (balance > 0) "Outstanding: ${balance.toInt()} PKR"
-                                   else if (balance < 0) "Overpaid: ${kotlin.math.abs(balance).toInt()} PKR"
-                                   else "Fully Settled ✓",
+                            text = if (balance > 0) "${stringResource(R.string.outstanding)}: ${balance.toInt()} PKR"
+                                   else if (balance < 0) "${stringResource(R.string.overpaid)}: ${kotlin.math.abs(balance).toInt()} PKR"
+                                   else stringResource(R.string.settled),
                             color = if (balance > 0) Color(0xFFFFCC80) else Color(0xFF80CBC4),
                             fontWeight = FontWeight.Bold,
                             fontSize = 15.sp
@@ -327,14 +331,14 @@ fun MonthDetailView(
                         ) {
                             Icon(Icons.Default.Share, contentDescription = null, tint = Color.Black, modifier = Modifier.size(18.dp))
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Share Monthly Report", color = Color.Black, fontWeight = FontWeight.Bold)
+                            Text(stringResource(R.string.share_monthly_report), color = Color.Black, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
             }
 
             item {
-                Text("Per Customer Breakdown", fontWeight = FontWeight.Bold, color = EarthBrown, fontSize = 16.sp)
+                Text(stringResource(R.string.per_customer_breakdown), fontWeight = FontWeight.Bold, color = EarthBrown, fontSize = 16.sp)
             }
 
             // Show per-customer breakdown
@@ -362,7 +366,7 @@ fun MonthDetailView(
                             ) {
                                 Icon(Icons.Default.Share, contentDescription = null, modifier = Modifier.size(14.dp))
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("PDF Report", fontSize = 12.sp)
+                                Text(stringResource(R.string.pdf_report_btn), fontSize = 12.sp)
                             }
                         }
                     }
@@ -393,9 +397,9 @@ fun MonthDetailView(
                         val delivered = records.filter { it.type != "Naga" }
                         val nagas = records.count { it.type == "Naga" }
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            SummaryStatColumn("Total Liters", "${delivered.sumOf { it.quantity }.toInt()} L", GrassGreen)
-                            SummaryStatColumn("Total Bill", "${delivered.sumOf { it.amount }.toInt()} PKR", Color.White)
-                            SummaryStatColumn("Naga Days", "$nagas", Color(0xFFFFCC80))
+                            SummaryStatColumn(stringResource(R.string.total_liters), "${delivered.sumOf { it.quantity }.toInt()} L", GrassGreen)
+                            SummaryStatColumn(stringResource(R.string.total_bill), "${delivered.sumOf { it.amount }.toInt()} PKR", Color.White)
+                            SummaryStatColumn(stringResource(R.string.naga_days), "$nagas", Color(0xFFFFCC80))
                         }
                         Spacer(modifier = Modifier.height(12.dp))
                         Button(
@@ -405,14 +409,14 @@ fun MonthDetailView(
                         ) {
                             Icon(Icons.Default.Share, contentDescription = null, tint = Color.Black, modifier = Modifier.size(18.dp))
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Share PDF Report", color = Color.Black, fontWeight = FontWeight.Bold)
+                            Text(stringResource(R.string.share_pdf_report), color = Color.Black, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
             }
 
             item {
-                Text("Daily Records", fontWeight = FontWeight.Bold, color = EarthBrown, fontSize = 16.sp)
+                Text(stringResource(R.string.daily_records), fontWeight = FontWeight.Bold, color = EarthBrown, fontSize = 16.sp)
             }
 
             items(records.sortedByDescending { it.date }) { record ->

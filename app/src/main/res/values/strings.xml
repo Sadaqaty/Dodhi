@@ -88,4 +88,25 @@
     <string name="reports_desc">View and share detailed ledgers</string>
     <string name="add_customer_desc">Register a new source or consumer</string>
     <string name="daily_run_desc">Start route with custom quantities</string>
+
+    <!-- Khata Records Screen -->
+    <string name="khata_records">Khata Records</string>
+    <string name="khata_records_subtitle">Monthly History</string>
+    <string name="khata_records_desc">Browse past months &amp; reports</string>
+    <string name="no_records_yet">No records yet</string>
+    <string name="no_records_hint">Start delivering milk to see reports here</string>
+    <string name="per_customer_breakdown">Per Customer Breakdown</string>
+    <string name="daily_records">Daily Records</string>
+    <string name="share_monthly_report">Share Monthly Report</string>
+    <string name="share_pdf_report">Share PDF Report</string>
+    <string name="pdf_report_btn">PDF Report</string>
+    <string name="settled">Settled ✓</string>
+    <string name="overpaid">Overpaid</string>
+    <string name="total_liters">Total Liters</string>
+    <string name="total_bill">Total Bill</string>
+    <string name="naga_days">Naga Days</string>
+    <string name="to_give">To Give</string>
+    <string name="to_receive">To Receive</string>
+    <string name="advance">Advance</string>
+    <string name="clear">Clear</string>
 </resources>

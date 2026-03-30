@@ -134,10 +134,10 @@ fun DashboardScreen(
                 Column(modifier = Modifier.padding(24.dp).fillMaxWidth()) {
                     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                         ActionCard(
-                            title = "All Time Reports",
-                            subtitle = "History",
-                            description = "Browse past months",
-                            icon = R.drawable.ic_reports_premium,
+                            title = stringResource(R.string.khata_records),
+                            subtitle = stringResource(R.string.khata_records_subtitle),
+                            description = stringResource(R.string.khata_records_desc),
+                            icon = R.drawable.ic_milk_collection_premium,
                             color = PastelGreen,
                             modifier = Modifier.weight(1f),
                             onClick = onAllTimeReportsClick
