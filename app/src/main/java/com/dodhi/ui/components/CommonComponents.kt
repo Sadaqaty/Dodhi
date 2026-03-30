@@ -9,8 +9,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
-import com.dodhi.ui.theme.GoldDark
-import com.dodhi.ui.theme.GoldPrimary
+import com.dodhi.ui.theme.GrassGreen
+import com.dodhi.ui.theme.NatureGreen
 
 @Composable
 fun PremiumTextField(value: String, onValueChange: (String) -> Unit, label: String, isNumber: Boolean = false) {
@@ -22,9 +22,9 @@ fun PremiumTextField(value: String, onValueChange: (String) -> Unit, label: Stri
         shape = MaterialTheme.shapes.medium,
         keyboardOptions = if (isNumber) KeyboardOptions(keyboardType = KeyboardType.Number) else KeyboardOptions.Default,
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = GoldPrimary,
-            unfocusedBorderColor = GoldDark.copy(alpha = 0.5f),
-            focusedLabelColor = GoldDark
+            focusedBorderColor = GrassGreen,
+            unfocusedBorderColor = NatureGreen.copy(alpha = 0.5f),
+            focusedLabelColor = NatureGreen
         )
     )
 }

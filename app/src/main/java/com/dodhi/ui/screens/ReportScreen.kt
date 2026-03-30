@@ -2,6 +2,7 @@ package com.dodhi.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -14,11 +15,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dodhi.R
-import com.dodhi.ui.theme.DeepBlue
-import androidx.compose.foundation.clickable
-import com.dodhi.ui.theme.GoldDark
-import com.dodhi.ui.theme.CreamBase
-import com.dodhi.ui.theme.GoldPrimary
+import com.dodhi.ui.theme.EarthBrown
+import com.dodhi.ui.theme.NatureGreen
+import com.dodhi.ui.theme.PastelGreen
+import com.dodhi.ui.theme.GrassGreen
 import com.dodhi.ui.viewmodel.DashboardViewModel
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
@@ -39,7 +39,7 @@ fun ReportScreen(viewModel: DashboardViewModel, onCustomerClick: (Long) -> Unit)
             CenterAlignedTopAppBar(
                 title = { Text(stringResource(R.string.reports), fontWeight = FontWeight.Bold) },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = GoldPrimary,
+                    containerColor = GrassGreen,
                     titleContentColor = Color.Black
                 )
             )
@@ -60,14 +60,14 @@ fun ReportScreen(viewModel: DashboardViewModel, onCustomerClick: (Long) -> Unit)
             
             // 2. Volume Chart
             item {
-                Text(stringResource(R.string.delivery_volume), style = MaterialTheme.typography.titleMedium, color = DeepBlue)
+                Text(stringResource(R.string.delivery_volume), style = MaterialTheme.typography.titleMedium, color = EarthBrown)
                 Spacer(modifier = Modifier.height(8.dp))
                 VolumeBarChart(dailyVolume)
             }
             
             // 3. Customer Reports
             item {
-                Text(stringResource(R.string.reports), style = MaterialTheme.typography.titleMedium, color = DeepBlue)
+                Text(stringResource(R.string.reports), style = MaterialTheme.typography.titleMedium, color = EarthBrown)
                 Spacer(modifier = Modifier.height(8.dp))
             }
             
@@ -89,7 +89,7 @@ fun ReportScreen(viewModel: DashboardViewModel, onCustomerClick: (Long) -> Unit)
 fun BusinessSummaryCards(summary: DashboardViewModel.CollectionSummary?) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            SummaryCard(stringResource(R.string.market_value), "${summary?.marketValue ?: 0.0} ${stringResource(R.string.rupees)}", DeepBlue, Modifier.weight(1f))
+            SummaryCard(stringResource(R.string.market_value), "${summary?.marketValue ?: 0.0} ${stringResource(R.string.rupees)}", NatureGreen, Modifier.weight(1f))
             SummaryCard(stringResource(R.string.collected), "${summary?.cashCollected ?: 0.0} ${stringResource(R.string.rupees)}", Color(0xFF4CAF50), Modifier.weight(1f))
         }
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -133,7 +133,7 @@ fun VolumeBarChart(data: List<DashboardViewModel.DayVolume>) {
                         .weight(1f)
                         .fillMaxHeight(barHeight)
                         .clip(MaterialTheme.shapes.extraSmall)
-                        .background(GoldPrimary)
+                        .background(GrassGreen)
                 )
             }
         }
@@ -150,11 +150,11 @@ fun PremiumReportCard(customer: com.dodhi.data.model.Customer, total: Double, ba
     ) {
         Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(1f)) {
-                Text(text = customer.name, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = DeepBlue)
+                Text(text = customer.name, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = EarthBrown)
                 Text(text = customer.locality, fontSize = 12.sp, color = Color.Gray)
             }
             Column(horizontalAlignment = Alignment.End) {
-                Text(text = "${total} ${stringResource(R.string.rupees)}", fontWeight = FontWeight.Bold, color = GoldDark)
+                Text(text = "${total} ${stringResource(R.string.rupees)}", fontWeight = FontWeight.Bold, color = NatureGreen)
                 Text(
                     text = "${balance} ${stringResource(R.string.rupees)}",
                     fontSize = 12.sp,

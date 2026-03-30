@@ -13,8 +13,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dodhi.R
-import com.dodhi.ui.theme.DeepBlue
-import com.dodhi.ui.theme.GoldPrimary
+import com.dodhi.ui.theme.EarthBrown
+import com.dodhi.ui.theme.GrassGreen
 import com.dodhi.ui.viewmodel.DashboardViewModel
 import com.dodhi.ui.components.PremiumTextField
 
@@ -37,7 +37,7 @@ fun AddCustomerScreen(viewModel: DashboardViewModel, onDismiss: () -> Unit) {
         Text(
             text = stringResource(R.string.add_customer),
             style = MaterialTheme.typography.headlineLarge,
-            color = DeepBlue
+            color = EarthBrown
         )
         Spacer(modifier = Modifier.height(32.dp))
         
@@ -99,7 +99,7 @@ fun AddCustomerScreen(viewModel: DashboardViewModel, onDismiss: () -> Unit) {
                 onDismiss()
             },
             modifier = Modifier.fillMaxWidth().height(64.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = GoldPrimary),
+            colors = ButtonDefaults.buttonColors(containerColor = GrassGreen),
             shape = MaterialTheme.shapes.large,
             elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
         ) {

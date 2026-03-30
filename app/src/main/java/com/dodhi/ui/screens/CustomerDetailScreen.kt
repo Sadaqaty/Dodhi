@@ -34,11 +34,11 @@ import com.dodhi.R
 import com.dodhi.data.model.Customer
 import com.dodhi.data.model.DeliveryRecord
 import com.dodhi.data.model.Payment
-import com.dodhi.ui.theme.DeepBlue
-import com.dodhi.ui.theme.GoldPrimary
-import com.dodhi.ui.theme.GoldDark
-import com.dodhi.ui.theme.CreamBase
-import com.dodhi.ui.theme.SoftBlue
+import com.dodhi.ui.theme.EarthBrown
+import com.dodhi.ui.theme.GrassGreen
+import com.dodhi.ui.theme.NatureGreen
+import com.dodhi.ui.theme.PastelGreen
+import com.dodhi.ui.theme.PastelBlue
 import com.dodhi.ui.viewmodel.DashboardViewModel
 import com.dodhi.ui.components.PremiumTextField
 import java.text.SimpleDateFormat
@@ -48,8 +48,6 @@ import java.util.*
 @Composable
 fun CustomerDetailScreen(viewModel: DashboardViewModel, customerId: Long, onBack: () -> Unit) {
     val customer by viewModel.getCustomer(customerId).collectAsState(initial = null)
-    val context = LocalContext.current
-    val scope = rememberCoroutineScope()
     var selectedTab by remember { mutableStateOf(0) }
     val tabs = listOf(stringResource(R.string.hisaab), stringResource(R.string.payment), stringResource(R.string.settings))
 
@@ -80,16 +78,16 @@ fun CustomerDetailScreen(viewModel: DashboardViewModel, customerId: Long, onBack
                             Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.delete_customer), tint = Color.Red)
                         }
                     },
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = GoldPrimary)
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = GrassGreen)
                 )
                 TabRow(
                     selectedTabIndex = selectedTab,
-                    containerColor = GoldPrimary,
+                    containerColor = GrassGreen,
                     contentColor = Color.Black,
                     indicator = { tabPositions ->
                         TabRowDefaults.Indicator(
                             Modifier.tabIndicatorOffset(tabPositions[selectedTab]),
-                            color = DeepBlue
+                            color = EarthBrown
                         )
                     }
                 ) {
@@ -159,7 +157,7 @@ fun HisaabTab(viewModel: DashboardViewModel, customerId: Long) {
         // Sticky Bottom Summary Bar
         Surface(
             modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth(),
-            color = DeepBlue,
+            color = EarthBrown,
             tonalElevation = 8.dp
         ) {
             val total by viewModel.getMonthlyTotal(customerId).collectAsState(initial = 0.0)
@@ -169,7 +167,7 @@ fun HisaabTab(viewModel: DashboardViewModel, customerId: Long) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(stringResource(R.string.total_amount), color = Color.LightGray)
-                Text("${total} ${stringResource(R.string.rupees)}", color = GoldPrimary, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                Text("${total} ${stringResource(R.string.rupees)}", color = GrassGreen, fontSize = 20.sp, fontWeight = FontWeight.Bold)
             }
         }
     }
@@ -191,7 +189,7 @@ fun DailyLedgerRow(customer: Customer, date: Calendar, allRecords: List<Delivery
         Column(modifier = Modifier.padding(16.dp)) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Column {
-                    Text(dateFormat.format(date.time), fontWeight = FontWeight.Bold, color = DeepBlue)
+                    Text(dateFormat.format(date.time), fontWeight = FontWeight.Bold, color = EarthBrown)
                     Text(dayFormat.format(date.time), fontSize = 12.sp, color = Color.Gray)
                 }
                 
@@ -244,8 +242,8 @@ fun ShiftAction(label: String, record: DeliveryRecord?, onAction: () -> Unit, on
     Surface(
         onClick = onAction,
         modifier = modifier,
-        color = if (isDelivered) GoldPrimary.copy(alpha = 0.2f) else Color.Transparent,
-        border = BorderStroke(1.dp, if (isDelivered) GoldPrimary else Color.LightGray),
+        color = if (isDelivered) GrassGreen.copy(alpha = 0.2f) else Color.Transparent,
+        border = BorderStroke(1.dp, if (isDelivered) GrassGreen else Color.LightGray),
         shape = MaterialTheme.shapes.medium
     ) {
         Row(
@@ -258,7 +256,7 @@ fun ShiftAction(label: String, record: DeliveryRecord?, onAction: () -> Unit, on
             if (isDelivered) {
                 Text("${record?.quantity} L", fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 IconButton(onClick = onExtra, modifier = Modifier.size(24.dp)) {
-                    Text("+", fontWeight = FontWeight.Bold, color = DeepBlue)
+                    Text("+", fontWeight = FontWeight.Bold, color = EarthBrown)
                 }
             } else {
                 Text("-", color = Color.LightGray)
@@ -286,11 +284,11 @@ fun PaymentsTab(viewModel: DashboardViewModel, customerId: Long) {
             val balance by viewModel.getCustomerBalance(cust.id).collectAsState(initial = 0.0)
             Card(
                 modifier = Modifier.fillMaxWidth().padding(16.dp),
-                colors = CardDefaults.cardColors(containerColor = DeepBlue)
+                colors = CardDefaults.cardColors(containerColor = EarthBrown)
             ) {
                 Column(modifier = Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(stringResource(R.string.net_balance), color = Color.LightGray)
-                    Text("${balance} ${stringResource(R.string.rupees)}", fontSize = 32.sp, fontWeight = FontWeight.Bold, color = GoldPrimary)
+                    Text("${balance} ${stringResource(R.string.rupees)}", fontSize = 32.sp, fontWeight = FontWeight.Bold, color = GrassGreen)
                 }
             }
             
@@ -314,7 +312,7 @@ fun PaymentsTab(viewModel: DashboardViewModel, customerId: Long) {
                                 amount = ""
                             }
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = GoldPrimary)
+                        colors = ButtonDefaults.buttonColors(containerColor = GrassGreen)
                     ) {
                         Text(stringResource(R.string.payment), color = Color.Black)
                     }
@@ -326,7 +324,7 @@ fun PaymentsTab(viewModel: DashboardViewModel, customerId: Long) {
             text = stringResource(R.string.payment_history),
             modifier = Modifier.padding(16.dp),
             fontWeight = FontWeight.Bold,
-            color = DeepBlue
+            color = EarthBrown
         )
 
         LazyColumn(
@@ -352,7 +350,7 @@ fun SettingsTab(viewModel: DashboardViewModel, customerId: Long) {
         var rate by remember { mutableStateOf((cust.customRate ?: cust.rate).toString()) }
 
         Column(modifier = Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            Text(stringResource(R.string.customer_settings), style = MaterialTheme.typography.headlineSmall, color = DeepBlue)
+            Text(stringResource(R.string.customer_settings), style = MaterialTheme.typography.headlineSmall, color = EarthBrown)
             
             PremiumTextField(value = morning, onValueChange = { morning = it }, label = stringResource(R.string.morning) + " (" + stringResource(R.string.liters) + ")", isNumber = true)
             PremiumTextField(value = evening, onValueChange = { evening = it }, label = stringResource(R.string.evening) + " (" + stringResource(R.string.liters) + ")", isNumber = true)
@@ -368,7 +366,7 @@ fun SettingsTab(viewModel: DashboardViewModel, customerId: Long) {
                     )
                 },
                 modifier = Modifier.fillMaxWidth().height(56.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = GoldPrimary)
+                colors = ButtonDefaults.buttonColors(containerColor = GrassGreen)
             ) {
                 Text(stringResource(R.string.save_changes), color = Color.Black, fontWeight = FontWeight.Bold)
             }
@@ -385,7 +383,7 @@ fun CustomerSummaryHeader(customer: Customer, viewModel: DashboardViewModel) {
 
     Card(
         modifier = Modifier.fillMaxWidth().padding(16.dp),
-        colors = CardDefaults.cardColors(containerColor = DeepBlue),
+        colors = CardDefaults.cardColors(containerColor = EarthBrown),
         shape = MaterialTheme.shapes.large
     ) {
         Row(
@@ -394,7 +392,7 @@ fun CustomerSummaryHeader(customer: Customer, viewModel: DashboardViewModel) {
         ) {
             Column {
                 Text(stringResource(R.string.monthly_report), color = Color.LightGray, fontSize = 14.sp)
-                Text("$total $rupees", color = GoldPrimary, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                Text("$total $rupees", color = GrassGreen, fontSize = 24.sp, fontWeight = FontWeight.Bold)
             }
             Column(horizontalAlignment = Alignment.End) {
                 Text(stringResource(R.string.outstanding), color = Color.LightGray, fontSize = 14.sp)
@@ -428,7 +426,7 @@ fun KhataRow(item: KhataItem) {
                     fontWeight = FontWeight.Bold,
                     color = when (item) {
                         is KhataItem.Delivery -> if (item.record.type == "Naga") Color.Red else Color(0xFF4CAF50)
-                        is KhataItem.PaymentItem -> DeepBlue
+                        is KhataItem.PaymentItem -> EarthBrown
                     }
                 )
                 Text(dateFormat.format(Date(item.date)), fontSize = 12.sp, color = Color.Gray)
@@ -490,7 +488,7 @@ fun DigitalParchiDialog(viewModel: DashboardViewModel, customerId: Long, onDismi
                     context.startActivity(Intent.createChooser(intent, context.getString(R.string.share_report)))
                     onDismiss()
                 },
-                colors = ButtonDefaults.buttonColors(containerColor = GoldPrimary)
+                colors = ButtonDefaults.buttonColors(containerColor = GrassGreen)
             ) {
                 Text(stringResource(R.string.share), color = Color.Black)
             }
@@ -514,7 +512,7 @@ fun DigitalParchiDialog(viewModel: DashboardViewModel, customerId: Long, onDismi
                 )
             }
         },
-        containerColor = CreamBase
+        containerColor = PastelGreen
     )
 }
 

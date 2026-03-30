@@ -17,8 +17,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
 import com.dodhi.R
-import com.dodhi.ui.theme.DeepBlue
-import com.dodhi.ui.theme.GoldPrimary
+import com.dodhi.ui.theme.EarthBrown
+import com.dodhi.ui.theme.GrassGreen
 import com.dodhi.ui.viewmodel.DashboardViewModel
 import com.dodhi.data.model.Customer
 
@@ -37,7 +37,7 @@ fun MorningRunScreen(viewModel: DashboardViewModel, onBack: () -> Unit) {
                         Icon(Icons.Default.ArrowBack, contentDescription = null)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = DeepBlue, titleContentColor = Color.White, navigationIconContentColor = Color.White)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = GrassGreen, titleContentColor = Color.White, navigationIconContentColor = Color.White)
             )
         }
     ) { padding ->
@@ -50,13 +50,13 @@ fun MorningRunScreen(viewModel: DashboardViewModel, onBack: () -> Unit) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                         Text(stringResource(R.string.delivery_report), fontWeight = FontWeight.Bold)
-                        Text("${progress.delivered.toInt()} / ${progress.expected.toInt()} L", color = DeepBlue, fontWeight = FontWeight.Bold)
+                        Text("${progress.delivered.toInt()} / ${progress.expected.toInt()} L", color = EarthBrown, fontWeight = FontWeight.Bold)
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                     LinearProgressIndicator(
                         progress = (if (progress.expected > 0) progress.delivered / progress.expected else 0.0).toFloat(),
                         modifier = Modifier.fillMaxWidth().height(8.dp),
-                        color = GoldPrimary,
+                        color = GrassGreen,
                         trackColor = Color.LightGray
                     )
                 }
@@ -69,14 +69,14 @@ fun MorningRunScreen(viewModel: DashboardViewModel, onBack: () -> Unit) {
                 customersByLocality.forEach { (locality, customers) ->
                     item {
                         Surface(
-                            color = DeepBlue.copy(alpha = 0.05f),
+                            color = EarthBrown.copy(alpha = 0.05f),
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Text(
                                 text = locality.ifEmpty { stringResource(R.string.miscellaneous) },
                                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                                 fontWeight = FontWeight.Bold,
-                                color = DeepBlue,
+                                color = EarthBrown,
                                 fontSize = 14.sp
                             )
                         }

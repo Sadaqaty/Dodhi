@@ -9,14 +9,14 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 
 private val LightColorScheme = lightColorScheme(
-    primary = GoldPrimary,
-    onPrimary = Color.Black,
-    primaryContainer = CreamBase,
-    secondary = GoldDark,
-    background = CreamBase,
-    onBackground = DeepBlue,
+    primary = GrassGreen,
+    onPrimary = Color.White,
+    primaryContainer = PastelGreen,
+    secondary = NatureGreen,
+    background = MilkWhite,
+    onBackground = EarthBrown,
     surface = Color.White,
-    onSurface = DeepBlue
+    onSurface = EarthBrown
 )
 
 @Composable
@@ -24,13 +24,11 @@ fun DodhiTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    val colorScheme = LightColorScheme // Premium high-contrast light theme
+    val colorScheme = LightColorScheme
 
-    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-        MaterialTheme(
-            colorScheme = colorScheme,
-            typography = Typography,
-            content = content
-        )
-    }
+    MaterialTheme(
+        colorScheme = colorScheme,
+        typography = Typography,
+        content = content
+    )
 }

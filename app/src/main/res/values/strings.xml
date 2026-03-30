@@ -62,4 +62,5 @@
     <string name="delivery_volume">Delivery Volume</string>
     <string name="market_value">Total Sales</string>
     <string name="waste">Loss (Waste)</string>
+    <string name="milk_collection">Milk Collection</string>
 </resources>

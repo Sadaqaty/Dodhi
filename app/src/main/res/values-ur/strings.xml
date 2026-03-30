@@ -62,4 +62,5 @@
     <string name="delivery_volume">ڈیلیوری والیم</string>
     <string name="market_value">کل فروخت</string>
     <string name="waste">ضیاع (Loss)</string>
+    <string name="milk_collection">دودھ کی وصولی</string>
 </resources>
