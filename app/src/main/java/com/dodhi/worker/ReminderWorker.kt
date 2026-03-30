@@ -1,5 +1,6 @@
 package com.dodhi.worker
 
+import android.annotation.SuppressLint
 import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
@@ -15,6 +16,7 @@ class ReminderWorker(context: Context, params: WorkerParameters) : CoroutineWork
         return Result.success()
     }
 
+    @SuppressLint("MissingPermission")
     private fun showNotification(title: String, message: String) {
         val notificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val channelId = "dodhi_reminders"

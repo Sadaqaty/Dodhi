@@ -23,7 +23,7 @@
     <string name="no_customers">کوئی گاہک نہیں ملا۔ گاہک شامل کریں۔</string>
     <string name="name">نام</string>
     <string name="add_milk_source">دودھ کا ذریعہ شامل کریں</string>
-    <string name="rupees">روپے</string>
+    <string name="rupees" translatable="false">روپے</string>
     <string name="add_to_ledger">لیجر میں شامل کریں</string>
     <string name="default_quantity">طے شدہ مقدار</string>
     <string name="naga_count">ناغہ کی تعداد</string>
