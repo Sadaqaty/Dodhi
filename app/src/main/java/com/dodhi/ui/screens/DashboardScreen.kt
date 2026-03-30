@@ -23,6 +23,10 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.material.icons.Icons
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.material.icons.filled.Translate
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.ui.Alignment
@@ -79,10 +83,22 @@ fun DashboardScreen(viewModel: DashboardViewModel, onCustomerClick: (Long) -> Un
             CenterAlignedTopAppBar(
                 title = { Text(stringResource(R.string.app_name), fontWeight = FontWeight.Bold) },
                 actions = {
+                    val currentLang = AppCompatDelegate.getApplicationLocales().toLanguageTags()
+                    IconButton(onClick = {
+                        val newLang = if (currentLang == "ur") "en" else "ur"
+                        val appLocale: LocaleListCompat = LocaleListCompat.forLanguageTags(newLang)
+                        AppCompatDelegate.setApplicationLocales(appLocale)
+                    }) {
+                        Icon(
+                            imageVector = Icons.Default.Translate,
+                            contentDescription = stringResource(R.string.language),
+                            tint = Color.Black
+                        )
+                    }
                     IconButton(onClick = onMorningRunClick) {
                         Icon(
                             imageVector = Icons.Default.Place,
-                            contentDescription = "Morning Run",
+                            contentDescription = stringResource(R.string.morning_run),
                             tint = Color.Black
                         )
                     }
@@ -94,67 +110,69 @@ fun DashboardScreen(viewModel: DashboardViewModel, onCustomerClick: (Long) -> Un
             )
         }
     ) { padding ->
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .padding(padding)
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
+                .background(MaterialTheme.colorScheme.background),
+            contentPadding = PaddingValues(bottom = 100.dp) // Extra bottom padding for fab/nav
         ) {
-            // Search Bar
-            OutlinedTextField(
-                value = searchQuery,
-                onValueChange = { searchQuery = it },
-                modifier = Modifier.fillMaxWidth().padding(16.dp),
-                placeholder = { Text(stringResource(R.string.search_hint)) },
-                shape = MaterialTheme.shapes.large,
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White
-                )
-            )
-
-            HorizontalCalendarHeader(selectedDate) { viewModel.setSelectedDate(it) }
-            
-            // Shift Toggle
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                FilterChip(
-                    selected = selectedShift == "Morning",
-                    onClick = { viewModel.setShift("Morning") },
-                    label = { Text(stringResource(R.string.morning)) },
-                    modifier = Modifier.weight(1f)
-                )
-                FilterChip(
-                    selected = selectedShift == "Evening",
-                    onClick = { viewModel.setShift("Evening") },
-                    label = { Text(stringResource(R.string.evening)) },
-                    modifier = Modifier.weight(1f)
+            item {
+                // Search Bar
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                    placeholder = { Text(stringResource(R.string.search_hint)) },
+                    shape = MaterialTheme.shapes.large,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = Color.White
+                    )
                 )
             }
 
-            SummarySection(viewModel)
+            item { HorizontalCalendarHeader(selectedDate) { viewModel.setSelectedDate(it) } }
             
-            if (filteredCustomers.isEmpty()) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(
-                        text = stringResource(R.string.no_customers),
-                        fontSize = 18.sp,
-                        color = Color.Gray,
-                        modifier = Modifier.padding(32.dp)
+            item {
+                // Shift Toggle
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    FilterChip(
+                        selected = selectedShift == "Morning",
+                        onClick = { viewModel.setShift("Morning") },
+                        label = { Text(stringResource(R.string.morning)) },
+                        modifier = Modifier.weight(1f)
+                    )
+                    FilterChip(
+                        selected = selectedShift == "Evening",
+                        onClick = { viewModel.setShift("Evening") },
+                        label = { Text(stringResource(R.string.evening)) },
+                        modifier = Modifier.weight(1f)
                     )
                 }
+            }
+
+            item { SummarySection(viewModel) }
+            
+            if (filteredCustomers.isEmpty()) {
+                item {
+                    Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
+                        Text(
+                            text = stringResource(R.string.no_customers),
+                            fontSize = 18.sp,
+                            color = Color.Gray
+                        )
+                    }
+                }
             } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(filteredCustomers) { customer ->
-                        val record = dailyRecords.find { it.customerId == customer.id }
-                        val balance by viewModel.getCustomerBalance(customer.id).collectAsState(initial = 0.0)
-                        
+                items(filteredCustomers) { customer ->
+                    val record = dailyRecords.find { it.customerId == customer.id }
+                    val balance by viewModel.getCustomerBalance(customer.id).collectAsState(initial = 0.0)
+                    
+                    Box(modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)) {
                         PremiumCustomerCard(
                             customer = customer,
                             balance = balance,
@@ -203,7 +221,7 @@ fun HorizontalCalendarHeader(selectedDate: Calendar, onDateSelected: (Calendar) 
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = SimpleDateFormat("E", Locale("ur")).format(date.time),
+                        text = SimpleDateFormat("E", java.util.Locale.getDefault()).format(date.time),
                         fontSize = 12.sp,
                         color = if (isSelected) Color.Black else Color.Gray
                     )

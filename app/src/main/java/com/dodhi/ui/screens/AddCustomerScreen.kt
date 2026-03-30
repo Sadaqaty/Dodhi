@@ -2,6 +2,8 @@ package com.dodhi.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -28,6 +30,8 @@ fun AddCustomerScreen(viewModel: DashboardViewModel, onDismiss: () -> Unit) {
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
+            .verticalScroll(rememberScrollState())
+            .imePadding()
             .padding(24.dp)
     ) {
         Text(
@@ -47,7 +51,7 @@ fun AddCustomerScreen(viewModel: DashboardViewModel, onDismiss: () -> Unit) {
         PremiumTextField(
             value = locality,
             onValueChange = { locality = it },
-            label = "گلی / محلہ (Street/Mohalla)"
+            label = stringResource(R.string.locality)
         )
         Spacer(modifier = Modifier.height(16.dp))
         
