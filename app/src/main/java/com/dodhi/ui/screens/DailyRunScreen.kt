@@ -1,6 +1,7 @@
 package com.dodhi.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -24,12 +25,39 @@ import com.dodhi.ui.theme.EarthBrown
 import com.dodhi.ui.theme.GrassGreen
 import com.dodhi.ui.viewmodel.DashboardViewModel
 import com.dodhi.data.model.Customer
+import java.text.SimpleDateFormat
+import java.util.*
+import android.app.DatePickerDialog
+import androidx.compose.ui.platform.LocalContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DailyRunScreen(viewModel: DashboardViewModel, onBack: () -> Unit) {
     val customersByLocality by viewModel.customersByLocality.collectAsState(initial = emptyMap())
     val progress by viewModel.getDailyProgress().collectAsState(initial = DashboardViewModel.Progress(0.0, 0.0))
+    val selectedDate by viewModel.selectedDate.collectAsState()
+    val context = LocalContext.current
+
+    // Reset to today on entry
+    LaunchedEffect(Unit) {
+        viewModel.refreshToToday()
+    }
+    
+    val dateFormatter = remember { SimpleDateFormat("EEEE, d MMMM", Locale.getDefault()) }
+    val dateString = dateFormatter.format(selectedDate.time)
+
+    val datePickerDialog = DatePickerDialog(
+        context,
+        { _, year, month, dayOfMonth ->
+            val cal = Calendar.getInstance().apply {
+                set(year, month, dayOfMonth)
+            }
+            viewModel.setSelectedDate(cal)
+        },
+        selectedDate.get(Calendar.YEAR),
+        selectedDate.get(Calendar.MONTH),
+        selectedDate.get(Calendar.DAY_OF_MONTH)
+    )
     
     Scaffold(
         topBar = {
@@ -51,8 +79,21 @@ fun DailyRunScreen(viewModel: DashboardViewModel, onBack: () -> Unit) {
                 colors = CardDefaults.cardColors(containerColor = Color.White)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text(stringResource(R.string.delivery_report), fontWeight = FontWeight.Bold)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            Text(stringResource(R.string.delivery_report), fontWeight = FontWeight.Bold)
+                            Text(
+                                text = dateString,
+                                fontSize = 12.sp,
+                                color = GrassGreen,
+                                fontWeight = FontWeight.SemiBold,
+                                modifier = Modifier.clickable { datePickerDialog.show() }
+                            )
+                        }
                         Text("${progress.delivered.toInt()} / ${progress.expected.toInt()} L", color = EarthBrown, fontWeight = FontWeight.Bold)
                     }
                     Spacer(modifier = Modifier.height(8.dp))

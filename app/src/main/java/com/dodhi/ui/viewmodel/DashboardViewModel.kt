@@ -99,13 +99,17 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
         _selectedDate.value = calendar
     }
 
+    fun refreshToToday() {
+        _selectedDate.value = Calendar.getInstance()
+    }
+
     val todayLitersNeeded: StateFlow<Double> = customers.map { list ->
         list.sumOf { it.defaultQuantity }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
 
-    val todayTotalCollected: StateFlow<Double> = customers.flatMapLatest { _ ->
-        val date = Calendar.getInstance().apply { set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0); set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0) }.timeInMillis
-        dao.getRecordsInPeriod(date, date + 86400000).map { records ->
+    val todayTotalCollected: StateFlow<Double> = selectedDate.flatMapLatest { date ->
+        val start = (date.clone() as Calendar).apply { set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0); set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0) }.timeInMillis
+        dao.getRecordsInPeriod(start, start + 86400000).map { records ->
             records.filter { it.type == "Delivered" || it.type == "Extra" }.sumOf { it.quantity }
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)

@@ -61,6 +61,11 @@ fun DashboardScreen(
 ) {
     var showLanguageSheet by remember { mutableStateOf(false) }
 
+    // Refresh to today on entry to ensure totals/actions are correct
+    LaunchedEffect(Unit) {
+        viewModel.refreshToToday()
+    }
+
     var filterType by remember { mutableStateOf("All") }
     val customers by viewModel.customers.collectAsState(initial = emptyList())
     
