@@ -10,14 +10,17 @@
     <string name="add_customer">گاہک شامل کریں</string>
     <string name="monthly_report">ماہانہ رپورٹ</string>
     <string name="total_amount">کل رقم</string>
-    <string name="rate">ریٹ</string>
-    <string name="liters">لیٹر</string>
-    <string name="ser">سیر</string>
+    <string name="rate">قیمت ریٹ</string>
     <string name="today_summary">آج کا خلاصہ</string>
-    <string name="liters_needed">مطلوبہ لیٹر</string>
+    <string name="quantity_needed">ضرورت</string>
     <string name="outstanding">بقایا</string>
     <string name="collected">وصول شدہ</string>
-    <string name="deliveries_done">کمل ڈیلیوری</string>
+    <string name="deliveries_done">مکمل</string>
+    <string name="empty_name_error">نام درج کرنا ضروری ہے</string>
+    <string name="invalid_rate_error">درست قیمت درج کریں</string>
+    <string name="all_customers">تمام کھاتے</string>
+    <string name="providers">دودھ کے ذرائع</string>
+    <string name="consumers">دودھ کے خریدار</string>
     <string name="milk_source">دودھ کا ذریعہ</string>
     <string name="cancel">کینسل</string>
     <string name="no_customers">کوئی گاہک نہیں ملا۔ گاہک شامل کریں۔</string>
@@ -33,8 +36,6 @@
     <string name="save_payment">رقم محفوظ کریں</string>
     <string name="total_deliveries">کل ڈلیوریز</string>
     <string name="baqaya">بقایا</string>
-    <string name="morning">صبح</string>
-    <string name="evening">شام</string>
     <string name="search_hint">تلاش کریں...</string>
     
     <!-- New Strings -->
@@ -55,11 +56,50 @@
     <string name="customer_settings">کسٹمر سیٹنگز</string>
     <string name="save_changes">تبدیلی محفوظ کریں</string>
     <string name="net_balance">کل بقایا</string>
-    <string name="morning_run">مارننگ رن</string>
+    <string name="daily_run">ڈیلی رن</string>
     <string name="miscellaneous">متفرق</string>
     <string name="delivery_report">ڈیلیوری رپورٹ</string>
     <string name="delete_customer">گاہک ختم کریں</string>
     <string name="delivery_volume">ڈیلیوری والیم</string>
     <string name="market_value">کل فروخت</string>
+    <string name="payment_received">رقم وصول کی</string>
+    <string name="payment_given">رقم ادا کی</string>
+    <string name="you_owe">آپ نے دینے ہیں</string>
+    <string name="they_owe">انہوں نے دینے ہیں</string>
     <string name="waste">ضیاع (Loss)</string>
+    <string name="milk_collection">دودھ کی وصولی</string>
+    <string name="buy_milk">دودھ خریدیں (ان سے)</string>
+    <string name="sell_milk">دودھ بیچیں (ان کو)</string>
+    <string name="milkman_name">آپ کا نام (رپورٹ کے لیے)</string>
+    <string name="select_language">زبان منتخب کریں</string>
+    <string name="customer_type">گاہک کی قسم</string>
+    <string name="generate_report">رپورٹ تیار کریں</string>
+    <string name="report_format">رپورٹ کی قسم</string>
+    <string name="text_report">ٹیکسٹ رپورٹ (ڈیجیٹل پرچی)</string>
+    <string name="pdf_report">پی ڈی ایف (پروفیشنل رپورٹ)</string>
+    <string name="report_language">رپورٹ کی زبان</string>
+    <string name="extra_milk_quantity">اضافی دودھ کی مقدار</string>
+    <string name="enter_quantity">مقدار درج کریں (لیٹر)</string>
+    <string name="confirm">اوکے</string>
+
+    <!-- Khata Records Screen -->
+    <string name="khata_records">کھاتہ ریکارڈ</string>
+    <string name="khata_records_subtitle">ماہانہ تاریخ</string>
+    <string name="khata_records_desc">گزشتہ مہینے دیکھیں</string>
+    <string name="no_records_yet">کوئی ریکارڈ نہیں</string>
+    <string name="no_records_hint">دودھ ڈیلیور کریں تاکہ یہاں رپورٹ نظر آئے</string>
+    <string name="per_customer_breakdown">گاہک کے مطابق تفصیل</string>
+    <string name="daily_records">روزانہ ریکارڈ</string>
+    <string name="share_monthly_report">ماہانہ رپورٹ شیئر کریں</string>
+    <string name="share_pdf_report">پی ڈی ایف رپورٹ شیئر کریں</string>
+    <string name="pdf_report_btn">پی ڈی ایف رپورٹ</string>
+    <string name="settled">حساب صاف ✓</string>
+    <string name="overpaid">زیادہ ادا کی</string>
+    <string name="total_liters">کل لیٹر</string>
+    <string name="total_bill">کل بل</string>
+    <string name="naga_days">ناگہ دن</string>
+    <string name="to_give">دینے ہیں</string>
+    <string name="to_receive">لینے ہیں</string>
+    <string name="advance">پیشگی</string>
+    <string name="clear">صاف</string>
 </resources>

@@ -13,9 +13,8 @@ data class Customer(
     val rate: Double,
     val unit: String = "Liter",
     val locality: String = "", // Street/Mohalla
-    val morningReq: Double = 0.0, // Auto-fill quantity for morning
-    val eveningReq: Double = 0.0, // Auto-fill quantity for evening
     val customRate: Double? = null, // Specific rate for this customer
     val peshgi: Double = 0.0,
-    val udhaar: Double = 0.0
+    val udhaar: Double = 0.0,
+    val isProvider: Boolean = false // true if Dodhi buys milk from this home
 )

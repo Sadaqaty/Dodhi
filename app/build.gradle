@@ -4,6 +4,12 @@ plugins {
     id 'kotlin-kapt'
 }
 
+def versionPropsFile = file('../version.properties')
+def versionProps = new Properties()
+if (versionPropsFile.exists()) {
+    versionProps.load(new FileInputStream(versionPropsFile))
+}
+
 android {
     namespace 'com.dodhi'
     compileSdk 34
@@ -12,8 +18,8 @@ android {
         applicationId "com.dodhi"
         minSdk 24
         targetSdk 34
-        versionCode 1
-        versionName "1.0"
+        versionCode versionProps['VERSION_CODE']?.toInteger() ?: 1
+        versionName versionProps['VERSION_NAME'] ?: "1.0.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
