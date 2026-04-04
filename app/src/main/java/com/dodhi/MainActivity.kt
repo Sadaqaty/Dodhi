@@ -39,7 +39,14 @@ class MainActivity : AppCompatActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    NavHost(navController, startDestination = "dashboard") {
+                    NavHost(navController, startDestination = "splash") {
+                        composable("splash") {
+                            SplashScreen(onTimeout = {
+                                navController.navigate("dashboard") {
+                                    popUpTo("splash") { inclusive = true }
+                                }
+                            })
+                        }
                         composable("dashboard") { 
                             DashboardScreen(
                                 viewModel = viewModel,
@@ -47,9 +54,11 @@ class MainActivity : AppCompatActivity() {
                                 onReportsClick = { navController.navigate("report") },
                                 onAddMemberClick = { navController.navigate("add_customer") },
                                 onDailyRunClick = { navController.navigate("daily_run") },
-                                onCustomerClick = { customerId -> navController.navigate("customer_detail/$customerId") }
+                                onCustomerClick = { customerId -> navController.navigate("customer_detail/$customerId") },
+                                onAboutClick = { navController.navigate("about") }
                             ) 
                         }
+                        composable("about") { AboutScreen(onBack = { navController.popBackStack() }) }
                         composable("all_time_reports") {
                             AllTimeReportsScreen(
                                 viewModel = viewModel,

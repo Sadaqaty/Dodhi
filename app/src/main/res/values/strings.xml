@@ -90,7 +90,7 @@
     <string name="daily_run_desc">Start route with custom quantities</string>
 
     <!-- Khata Records Screen -->
-    <string name="khata_records">Khata Records</string>
+    <string name="khata_records">Khata</string>
     <string name="khata_records_subtitle">Monthly History</string>
     <string name="khata_records_desc">Browse past months &amp; reports</string>
     <string name="no_records_yet">No records yet</string>

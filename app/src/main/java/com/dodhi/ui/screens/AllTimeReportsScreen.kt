@@ -7,6 +7,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
@@ -119,35 +121,33 @@ fun CustomerFilterBar(
     selected: Customer?,
     onSelect: (Customer?) -> Unit
 ) {
-    LazyColumn(
-        modifier = Modifier.height(56.dp).fillMaxWidth(),
+    LazyRow(
+        modifier = Modifier.fillMaxWidth().height(56.dp),
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        // Wrapping in a horizontal scroll row approach:
         item {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                FilterChip(
-                    selected = selected == null,
-                    onClick = { onSelect(null) },
-                    label = { Text(stringResource(R.string.all_customers), fontSize = 12.sp) },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = EarthBrown,
-                        selectedLabelColor = Color.White
-                    )
+            FilterChip(
+                selected = selected == null,
+                onClick = { onSelect(null) },
+                label = { Text(stringResource(R.string.all_customers), fontSize = 12.sp) },
+                colors = FilterChipDefaults.filterChipColors(
+                    selectedContainerColor = EarthBrown,
+                    selectedLabelColor = Color.White
                 )
-                customers.forEach { customer ->
-                    FilterChip(
-                        selected = selected?.id == customer.id,
-                        onClick = { onSelect(customer) },
-                        label = { Text(customer.name, fontSize = 12.sp) },
-                        colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = ClayTerracotta,
-                            selectedLabelColor = Color.White
-                        )
-                    )
-                }
-            }
+            )
+        }
+        items(customers) { customer ->
+            FilterChip(
+                selected = selected?.id == customer.id,
+                onClick = { onSelect(customer) },
+                label = { Text(customer.name, fontSize = 12.sp) },
+                colors = FilterChipDefaults.filterChipColors(
+                    selectedContainerColor = ClayTerracotta,
+                    selectedLabelColor = Color.White
+                )
+            )
         }
     }
 }

@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -31,6 +32,7 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Info
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 import androidx.compose.material.icons.Icons
@@ -58,7 +60,8 @@ fun DashboardScreen(
     onReportsClick: () -> Unit,
     onAddMemberClick: () -> Unit,
     onDailyRunClick: () -> Unit,
-    onCustomerClick: (Long) -> Unit
+    onCustomerClick: (Long) -> Unit,
+    onAboutClick: () -> Unit
 ) {
     var showLanguageSheet by remember { mutableStateOf(false) }
 
@@ -127,10 +130,14 @@ fun DashboardScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(16.dp),
-                        horizontalArrangement = Arrangement.End
+                        horizontalArrangement = Arrangement.End,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
+                        IconButton(onClick = onAboutClick) {
+                            Icon(Icons.Default.Info, contentDescription = "About", tint = Color.White)
+                        }
                         IconButton(onClick = { showLanguageSheet = true }) {
-                            Icon(Icons.Default.Settings, contentDescription = null, tint = Color.White)
+                            Icon(Icons.Default.Settings, contentDescription = "Settings", tint = Color.White)
                         }
                     }
                 }
@@ -192,7 +199,9 @@ fun DashboardScreen(
                     Spacer(modifier = Modifier.height(12.dp))
                     
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .horizontalScroll(rememberScrollState()),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         FilterChip(
