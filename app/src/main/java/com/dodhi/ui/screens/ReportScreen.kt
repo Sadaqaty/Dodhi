@@ -72,7 +72,7 @@ fun ReportScreen(viewModel: DashboardViewModel, onCustomerClick: (Long) -> Unit)
             }
             
             items(customers) { customer ->
-                val total by viewModel.getMonthlyTotal(customer.id).collectAsState(initial = 0.0)
+                val total by viewModel.getMonthlyBill(customer.id).collectAsState(initial = 0.0)
                 val balance by viewModel.getCustomerBalance(customer.id).collectAsState(initial = 0.0)
                 PremiumReportCard(
                     customer = customer,

@@ -27,8 +27,11 @@ interface DodhiDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertRecord(record: DeliveryRecord)
 
-    @Query("SELECT * FROM delivery_records WHERE date >= :start AND date <= :end")
+    @Query("SELECT * FROM delivery_records WHERE date >= :start AND date < :end")
     fun getRecordsInPeriod(start: Long, end: Long): Flow<List<DeliveryRecord>>
+
+    @Query("SELECT * FROM delivery_records WHERE customerId = :customerId AND date = :date LIMIT 1")
+    suspend fun getRecordForCustomerOnDate(customerId: Long, date: Long): DeliveryRecord?
 
     // Payments
     @Query("SELECT * FROM payments WHERE customerId = :customerId ORDER BY date DESC")

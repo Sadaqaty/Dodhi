@@ -64,12 +64,8 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
             set(Calendar.SECOND, 0)
             set(Calendar.MILLISECOND, 0)
         }.timeInMillis
-        val end = (date.clone() as Calendar).apply {
-            set(Calendar.HOUR_OF_DAY, 23)
-            set(Calendar.MINUTE, 59)
-            set(Calendar.SECOND, 59)
-        }.timeInMillis
-        dao.getRecordsInPeriod(start, end)  // live Flow — no .first()
+        val end = start + 86400000 // Exclusive end with DAO '< :end'
+        dao.getRecordsInPeriod(start, end)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     val customersByLocality: Flow<Map<String, List<Customer>>> = customers.map { list ->
@@ -109,7 +105,8 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
 
     val todayTotalCollected: StateFlow<Double> = selectedDate.flatMapLatest { date ->
         val start = (date.clone() as Calendar).apply { set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0); set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0) }.timeInMillis
-        dao.getRecordsInPeriod(start, start + 86400000).map { records ->
+        val end = start + 86400000
+        dao.getRecordsInPeriod(start, end).map { records ->
             records.filter { it.type == "Delivered" || it.type == "Extra" }.sumOf { it.quantity }
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
@@ -143,27 +140,26 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
-    fun getMonthlyTotal(customerId: Long): Flow<Double> {
-        val calendar = Calendar.getInstance().apply {
-            set(Calendar.DAY_OF_MONTH, 1)
-            set(Calendar.HOUR_OF_DAY, 0)
-            set(Calendar.MINUTE, 0)
-            set(Calendar.SECOND, 0)
-        }
-        val start = calendar.timeInMillis
-        calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH))
-        calendar.set(Calendar.HOUR_OF_DAY, 23)
-        val end = calendar.timeInMillis
-        
-        return dao.getRecordsInPeriod(start, end).map { list ->
-            list.filter { it.customerId == customerId }.sumOf { it.amount }
-        }
-    }
-
     /** Total liters of milk delivered/received for this customer (all time, excludes Naga). */
     fun getTotalLiters(customerId: Long): Flow<Double> {
         return dao.getRecordsForCustomer(customerId).map { records ->
             records.filter { it.type != "Naga" }.sumOf { it.quantity }
+        }
+    }
+
+    /** Total milk volume (Liters) for the current month. */
+    fun getMonthlyLiters(customerId: Long): Flow<Double> {
+        val (start, end) = MonthYear(Calendar.getInstance().get(Calendar.YEAR), Calendar.getInstance().get(Calendar.MONTH)).toCalendarRange()
+        return dao.getRecordsInPeriod(start, end).map { list ->
+            list.filter { it.customerId == customerId && it.type != "Naga" }.sumOf { it.quantity }
+        }
+    }
+
+    /** Total financial bill (PKR) for the current month. */
+    fun getMonthlyBill(customerId: Long): Flow<Double> {
+        val (start, end) = MonthYear(Calendar.getInstance().get(Calendar.YEAR), Calendar.getInstance().get(Calendar.MONTH)).toCalendarRange()
+        return dao.getRecordsInPeriod(start, end).map { list ->
+            list.filter { it.customerId == customerId }.sumOf { it.amount }
         }
     }
 
@@ -246,10 +242,13 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
     fun generateParchiText(customerId: Long): Flow<String> {
         return combine(
             getCustomer(customerId),
-            getMonthlyTotal(customerId),
+            getMonthlyBill(customerId),
             getCustomerBalance(customerId)
-        ) { customer, totalMonth, balance ->
+        ) { customer, totalMonth, currentBalance ->
             if (customer == null) return@combine ""
+            
+            val totalMonthVal = totalMonth
+            val balanceVal = currentBalance
             
             val sdf = SimpleDateFormat("MMMM yyyy", Locale("ur"))
             val month = sdf.format(Date())
@@ -260,9 +259,9 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
             *گاہک:* ${customer.name}
             *مہینہ:* $month
             
-            *اس مہینے کا بل:* $totalMonth PKR
-            *پچھلا بقایا:* ${balance - totalMonth} PKR
-            *کل واجب الادا:* $balance PKR
+            *اس مہینے کا بل:* ${totalMonthVal.toInt()} PKR
+            *پچھلا بقایا:* ${(balanceVal - totalMonthVal).toInt()} PKR
+            *کل واجب الادا:* ${balanceVal.toInt()} PKR
             --------------------------
             *دودهی ایپ (Dodhi App)*
             """.trimIndent()
@@ -376,8 +375,8 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
             }
             val date = dateCal.timeInMillis
             
-            val allRecords = dao.getRecordsInPeriod(date, date + 86400000).first()
-            val existing = allRecords.find { it.customerId == customer.id }
+            // USE PRECISE SINGLE-RECORD QUERY
+            val existing = dao.getRecordForCustomerOnDate(customer.id, date)
             
             var targetQuantity = quantity
             var targetType = type
@@ -391,6 +390,12 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
                 targetQuantity = 0.0
             }
 
+            val targetRate = if (type == "Extra" && existing != null) {
+                if (existing.rate > 0) existing.rate else (customer.customRate ?: customer.rate)
+            } else {
+                customer.customRate ?: customer.rate
+            }
+
             val record = DeliveryRecord(
                 id = existing?.id ?: 0,
                 customerId = customer.id,
@@ -398,7 +403,8 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
                 quantity = targetQuantity,
                 type = targetType,
                 isExtra = isExtra,
-                amount = targetQuantity * (customer.customRate ?: customer.rate)
+                amount = targetQuantity * targetRate,
+                rate = targetRate
             )
             dao.insertRecord(record)
         }
@@ -429,7 +435,12 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
             val records = dao.getRecordsForCustomerSync(customer.id)
             val payments = dao.getPaymentsForCustomerSync(customer.id)
             val month = Calendar.getInstance()
-            
+            val recordsInMonth = records.filter { isSameMonth(it.date, month) }
+            val paymentsInMonth = payments.filter { isSameMonth(it.date, month) }
+            val currentNet = recordsInMonth.sumOf { it.amount } - paymentsInMonth.sumOf { it.amount }
+            val totalBalance = records.sumOf { it.amount } - payments.sumOf { it.amount }
+            val previousBalance = totalBalance - currentNet
+
             val pdfManager = PdfManager(context)
             val file = pdfManager.generateCustomerReport(
                 milkmanName = milkmanName.value,
@@ -437,7 +448,8 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
                 records = records,
                 payments = payments,
                 month = month,
-                isUrdu = isUrdu
+                isUrdu = isUrdu,
+                previousBalance = previousBalance
             )
             
             if (file != null) {
@@ -487,14 +499,22 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
                 sb.append("${dateFormat.format(Date(it.date))}: $label - ${it.amount} PKR\n")
             }
             
-            val totalBill = records.filter { isSameMonth(it.date, month) }.sumOf { it.amount }
-            val totalPaid = payments.filter { isSameMonth(it.date, month) }.sumOf { it.amount }
-            val net = totalBill - totalPaid
+            val currentRecords = records.filter { isSameMonth(it.date, month) }
+            val currentPayments = payments.filter { isSameMonth(it.date, month) }
+            val totalBill = currentRecords.sumOf { it.amount }
+            val totalPaid = currentPayments.sumOf { it.amount }
+            val currentNet = totalBill - totalPaid
+            
+            val totalBalance = records.sumOf { it.amount } - payments.sumOf { it.amount }
+            val previousBalance = totalBalance - currentNet
             
             sb.append("\n------------------\n")
-            sb.append(if (isUrdu) "*کل بل:* $totalBill PKR\n" else "*Total Bill:* $totalBill PKR\n")
-            sb.append(if (isUrdu) "*کل ادائیگی:* $totalPaid PKR\n" else "*Total Paid:* $totalPaid PKR\n")
-            sb.append(if (isUrdu) "*بقیہ بیلنس:* $net PKR\n" else "*Net Balance:* $net PKR\n")
+            if (previousBalance != 0.0) {
+                sb.append(if (isUrdu) "*پچھلا بقایا:* ${previousBalance.toInt()} PKR\n" else "*Prev. Balance:* ${previousBalance.toInt()} PKR\n")
+            }
+            sb.append(if (isUrdu) "*اس مہینے کا بل:* ${totalBill.toInt()} PKR\n" else "*Monthly Bill:* ${totalBill.toInt()} PKR\n")
+            sb.append(if (isUrdu) "*ادائیگی:* ${totalPaid.toInt()} PKR\n" else "*Monthly Paid:* ${totalPaid.toInt()} PKR\n")
+            sb.append(if (isUrdu) "*کل واجب الادا:* ${totalBalance.toInt()} PKR\n" else "*Total Payable:* ${totalBalance.toInt()} PKR\n")
 
             val intent = Intent(Intent.ACTION_SEND).apply {
                 type = "text/plain"
@@ -524,6 +544,19 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
                 set(Calendar.MONTH, monthYear.month)
                 set(Calendar.DAY_OF_MONTH, 1)
             }
+            val currentNet = records.sumOf { it.amount } - payments.filter { p -> 
+                val c = Calendar.getInstance().apply { timeInMillis = p.date }
+                c.get(Calendar.YEAR) == monthYear.year && c.get(Calendar.MONTH) == monthYear.month 
+            }.sumOf { it.amount }
+            
+            // For sharePdfForMonth, we need the total balance up to that month...
+            // Actually, usually users want the "Grand Total to Date".
+            // Let's stick to the user's request: "include previously remaining money".
+            val grandRecords = dao.getRecordsForCustomerSync(customer.id)
+            val grandPayments = dao.getPaymentsForCustomerSync(customer.id)
+            val grandTotalBalance = grandRecords.sumOf { it.amount } - grandPayments.sumOf { it.amount }
+            val previousBalance = grandTotalBalance - currentNet
+
             val pdfManager = PdfManager(context)
             val file = pdfManager.generateCustomerReport(
                 milkmanName = milkmanName.value,
@@ -531,7 +564,8 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
                 records = records,
                 payments = payments,
                 month = cal,
-                isUrdu = isUrdu
+                isUrdu = isUrdu,
+                previousBalance = previousBalance
             )
             if (file != null) {
                 try {

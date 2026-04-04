@@ -11,5 +11,6 @@ data class DeliveryRecord(
     val quantity: Double,
     val type: String, // Delivered, Naga, etc.
     val isExtra: Boolean = false,
-    val amount: Double
+    val amount: Double,
+    val rate: Double = 0.0
 )

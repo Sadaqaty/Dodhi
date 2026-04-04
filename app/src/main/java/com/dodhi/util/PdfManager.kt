@@ -23,7 +23,8 @@ class PdfManager(context: Context) {
         records: List<DeliveryRecord>,
         payments: List<Payment>,
         month: Calendar,
-        isUrdu: Boolean = false
+        isUrdu: Boolean = false,
+        previousBalance: Double = 0.0
     ): File? {
         val pdfDocument = PdfDocument()
         val pageInfo = PdfDocument.PageInfo.Builder(595, 842, 1).create() // A4 Size
@@ -153,27 +154,32 @@ class PdfManager(context: Context) {
             paint.textSize = 12f
             paint.typeface = Typeface.DEFAULT
             
-            val totalBill = recordsInMonth.sumOf { it.amount }
-            val totalPaid = paymentsInMonth.sumOf { it.amount }
-            val netBalance = totalBill - totalPaid
+            val currentBill = recordsInMonth.sumOf { it.amount }
+            val currentPaid = paymentsInMonth.sumOf { it.amount }
+            val totalPayable = previousBalance + currentBill - currentPaid
             
-            val billLabel = if (isUrdu) "کل بل:" else "Total Bill:"
-            val paidLabel = if (isUrdu) "کل ادائیگی:" else "Total Paid:"
-            val balanceLabelLabel = if (isUrdu) "بقیہ رقم:" else "Net Balance:"
+            val prevBalanceLabel = if (isUrdu) "پچھلا بقایا:" else "Prev. Balance:"
+            val billLabel = if (isUrdu) "اس مہینے کا بل:" else "Monthly Bill:"
+            val paidLabel = if (isUrdu) "ادائیگی:" else "Amt. Paid:"
+            val balanceLabelLabel = if (isUrdu) "کل واجب الادا:" else "Total Payable:"
             
+            canvas.drawText(prevBalanceLabel, 365f, y, paint)
+            canvas.drawText("%.0f".format(previousBalance), 480f, y, paint)
+            
+            y += 18f
             canvas.drawText(billLabel, 365f, y, paint)
-            canvas.drawText("%.0f".format(totalBill), 480f, y, paint)
+            canvas.drawText("%.0f".format(currentBill), 480f, y, paint)
             
-            y += 20f
+            y += 18f
             canvas.drawText(paidLabel, 365f, y, paint)
-            canvas.drawText("%.0f".format(totalPaid), 480f, y, paint)
+            canvas.drawText("%.0f".format(currentPaid), 480f, y, paint)
             
             y += 25f
             paint.textSize = 14f
             paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
             paint.color = accentColor
             canvas.drawText(balanceLabelLabel, 365f, y, paint)
-            canvas.drawText("%.0f".format(netBalance), 480f, y, paint)
+            canvas.drawText("%.0f".format(totalPayable), 480f, y, paint)
 
             // Final Stamp/Thank you
             paint.color = Color.rgb(180, 180, 180)

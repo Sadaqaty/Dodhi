@@ -12,6 +12,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import kotlinx.coroutines.launch
@@ -51,97 +53,9 @@ import java.util.*
 @Composable
 fun CustomerDetailScreen(viewModel: DashboardViewModel, customerId: Long, onBack: () -> Unit) {
     val customer by viewModel.getCustomer(customerId).collectAsState(initial = null)
-    var selectedTab by remember { mutableStateOf(0) }
-    val tabs = listOf(stringResource(R.string.hisaab), stringResource(R.string.payment), stringResource(R.string.settings))
-
-    Scaffold(
-        topBar = {
-            Column {
-                TopAppBar(
-                    title = { Text(customer?.name ?: "", fontWeight = FontWeight.Bold) },
-                    navigationIcon = {
-                        IconButton(onClick = onBack) {
-                            Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                        }
-                    },
-                    actions = {
-                        var showReportDialog by remember { mutableStateOf(false) }
-                        val context = LocalContext.current
-                        
-                        IconButton(onClick = { showReportDialog = true }) {
-                            Icon(Icons.Default.Share, contentDescription = "Generate Report", tint = Color.Black)
-                        }
-
-                        if (showReportDialog) {
-                            ReportGenerationDialog(
-                                onDismiss = { showReportDialog = false },
-                                onGenerate = { type, isUrdu ->
-                                    customer?.let {
-                                        if (type == "PDF") {
-                                            viewModel.sharePdfReport(context, it, isUrdu)
-                                        } else {
-                                            viewModel.shareTextReport(context, it, isUrdu)
-                                        }
-                                    }
-                                    showReportDialog = false
-                                }
-                            )
-                        }
-
-                        IconButton(onClick = { 
-                            customer?.let { 
-                                viewModel.deleteCustomer(it)
-                                onBack()
-                            }
-                        }) {
-                            Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.delete_customer), tint = Color.Red)
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = GrassGreen)
-                )
-                TabRow(
-                    selectedTabIndex = selectedTab,
-                    containerColor = GrassGreen,
-                    contentColor = Color.Black,
-                    indicator = { tabPositions ->
-                        TabRowDefaults.Indicator(
-                            Modifier.tabIndicatorOffset(tabPositions[selectedTab]),
-                            color = EarthBrown
-                        )
-                    }
-                ) {
-                    tabs.forEachIndexed { index, title ->
-                        Tab(
-                            selected = selectedTab == index,
-                            onClick = { selectedTab = index },
-                            text = { Text(title, fontWeight = FontWeight.Bold) }
-                        )
-                    }
-                }
-            }
-        }
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .padding(padding)
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-        ) {
-            when (selectedTab) {
-                0 -> HisaabTab(viewModel, customerId)
-                1 -> PaymentsTab(viewModel, customerId)
-                2 -> SettingsTab(viewModel, customerId)
-            }
-        }
-    }
-}
-
-@Composable
-fun HisaabTab(viewModel: DashboardViewModel, customerId: Long) {
     val records by viewModel.getRecordsForCustomer(customerId).collectAsState(initial = emptyList())
     val payments by viewModel.getPaymentsForCustomer(customerId).collectAsState(initial = emptyList())
-    val customer by viewModel.getCustomer(customerId).collectAsState(initial = null)
-    
+
     val khataItems = remember(records, payments) {
         val list = mutableListOf<KhataItem>()
         list.addAll(records.map { KhataItem.Delivery(it) })
@@ -149,201 +63,119 @@ fun HisaabTab(viewModel: DashboardViewModel, customerId: Long) {
         list.sortedByDescending { it.date }
     }
 
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        item {
-            customer?.let { CustomerSummaryHeader(it, viewModel) }
-        }
-        
-        item {
-            Text(
-                stringResource(R.string.payment_history), 
-                fontWeight = FontWeight.Bold, 
-                color = EarthBrown,
-                modifier = Modifier.padding(top = 8.dp)
-            )
-        }
-
-        if (khataItems.isEmpty()) {
-            item {
-                Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
-                    Text(stringResource(R.string.no_records), color = Color.Gray)
-                }
-            }
-        } else {
-            items(khataItems) { item ->
-                KhataRow(item, viewModel, customerId)
-            }
-        }
-
-        // Removed broken legacy ExtraMilkDialog logic
-        
-        item { Spacer(modifier = Modifier.height(80.dp)) }
-    }
-    
-    // Sticky Bottom Summary Bar
-    Box(modifier = Modifier.fillMaxSize()) {
-        Surface(
-            modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth(),
-            color = EarthBrown,
-            tonalElevation = 8.dp
-        ) {
-            val total by viewModel.getMonthlyTotal(customerId).collectAsState(initial = 0.0)
-            Row(
-                modifier = Modifier.padding(16.dp).fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(stringResource(R.string.total_amount), color = Color.LightGray)
-                Text("${total} ${stringResource(R.string.rupees)}", color = GrassGreen, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-            }
-        }
-    }
-}
-
-fun isSameDay(timestamp: Long, calendar: Calendar): Boolean {
-    val recordCal = Calendar.getInstance().apply { timeInMillis = timestamp }
-    val now = Calendar.getInstance()
-    return recordCal.get(Calendar.YEAR) == now.get(Calendar.YEAR) &&
-           recordCal.get(Calendar.DAY_OF_YEAR) == now.get(Calendar.DAY_OF_YEAR)
-}
-
-
-@Composable
-fun PaymentsTab(viewModel: DashboardViewModel, customerId: Long) {
-    val payments by viewModel.getPaymentsForCustomer(customerId).collectAsState(initial = emptyList())
-    val customer by viewModel.getCustomer(customerId).collectAsState(initial = null)
-    
-    var amount by remember { mutableStateOf("") }
-
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(bottom = 100.dp)
-    ) {
-        item {
-            customer?.let { cust ->
-                val balance by viewModel.getCustomerBalance(cust.id).collectAsState(initial = 0.0)
-                Card(
-                    modifier = Modifier.fillMaxWidth().padding(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = EarthBrown)
-                ) {
-                    Column(modifier = Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(
-                            text = stringResource(if (cust.isProvider) R.string.you_owe else R.string.they_owe), 
-                            color = Color.LightGray
-                        )
-                        Text("${balance} ${stringResource(R.string.rupees)}", fontSize = 32.sp, fontWeight = FontWeight.Bold, color = GrassGreen)
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(customer?.name ?: "", fontWeight = FontWeight.Bold) },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
-                }
-                
-                // Payment Entry
-                Card(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White)
-                ) {
-                    Row(
-                        modifier = Modifier.padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        Box(modifier = Modifier.weight(1f)) {
-                            PremiumTextField(value = amount, onValueChange = { amount = it }, label = stringResource(R.string.amount), isNumber = true)
-                        }
-                        Button(
-                            onClick = {
-                                if (amount.isNotEmpty()) {
-                                    viewModel.addPayment(cust.id, amount.toDoubleOrNull() ?: 0.0)
-                                    amount = ""
-                                }
-                            },
-                            colors = ButtonDefaults.buttonColors(containerColor = GrassGreen)
-                        ) {
-                            Text(
-                                text = stringResource(if (cust.isProvider) R.string.payment_given else R.string.payment_received), 
-                                color = Color.Black
-                            )
-                        }
-                    }
-                }
-            }
-        }
-        
-        item {
-            Text(
-                text = stringResource(R.string.payment_history),
-                modifier = Modifier.padding(16.dp),
-                fontWeight = FontWeight.Bold,
-                color = EarthBrown
-            )
-        }
-
-        items(payments.sortedByDescending { it.date }) { payment ->
-            Box(modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
-                KhataRow(KhataItem.PaymentItem(payment), viewModel, customerId)
-            }
-        }
-    }
-}
-
-
-@Composable
-fun SettingsTab(viewModel: DashboardViewModel, customerId: Long) {
-    val customer by viewModel.getCustomer(customerId).collectAsState(initial = null)
-    
-    val scrollState = rememberScrollState()
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(scrollState)
-            .padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        customer?.let { cust ->
-            var dailyQuantity by remember { mutableStateOf(cust.defaultQuantity.toString()) }
-            var rate by remember { mutableStateOf((cust.customRate ?: cust.rate).toString()) }
-
-            Text(stringResource(R.string.customer_settings), style = MaterialTheme.typography.headlineSmall, color = EarthBrown)
-            
-            PremiumTextField(value = dailyQuantity, onValueChange = { dailyQuantity = it }, label = "Daily Quantity", isNumber = true)
-            PremiumTextField(value = rate, onValueChange = { rate = it }, label = stringResource(R.string.rate_per_liter), isNumber = true)
-            
-            Button(
-                onClick = {
-                    viewModel.updateCustomerSettings(
-                        cust, 
-                        dailyQuantity.toDoubleOrNull() ?: 0.0, 
-                        rate.toDoubleOrNull()
-                    )
                 },
-                modifier = Modifier.fillMaxWidth().height(56.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = GrassGreen)
-            ) {
-                Text(stringResource(R.string.save_changes), color = Color.Black, fontWeight = FontWeight.Bold)
+                actions = {
+                    var showReportDialog by remember { mutableStateOf(false) }
+                    var showSettingsDialog by remember { mutableStateOf(false) }
+                    val context = LocalContext.current
+                    
+                    IconButton(onClick = { showReportDialog = true }) {
+                        Icon(Icons.Default.Share, contentDescription = "Generate Report")
+                    }
+                    
+                    IconButton(onClick = { showSettingsDialog = true }) {
+                        Icon(Icons.Default.Settings, contentDescription = "Settings")
+                    }
+
+                    if (showReportDialog) {
+                        ReportGenerationDialog(
+                            onDismiss = { showReportDialog = false },
+                            onGenerate = { type, isUrdu ->
+                                customer?.let {
+                                    if (type == "PDF") viewModel.sharePdfReport(context, it, isUrdu)
+                                    else viewModel.shareTextReport(context, it, isUrdu)
+                                }
+                                showReportDialog = false
+                            }
+                        )
+                    }
+
+                    if (showSettingsDialog && customer != null) {
+                        CustomerSettingsDialog(
+                            customer = customer!!,
+                            onDismiss = { showSettingsDialog = false },
+                            onSave = { qty, rate ->
+                                viewModel.updateCustomerSettings(customer!!, qty, rate)
+                                showSettingsDialog = false
+                            }
+                        )
+                    }
+
+                    IconButton(onClick = { 
+                        customer?.let { 
+                            viewModel.deleteCustomer(it)
+                            onBack()
+                        }
+                    }) {
+                        Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.delete_customer), tint = Color.Red)
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = GrassGreen, titleContentColor = Color.White, navigationIconContentColor = Color.White, actionIconContentColor = Color.White)
+            )
+        }
+    ) { padding ->
+        LazyColumn(
+            modifier = Modifier
+                .padding(padding)
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            item {
+                customer?.let { PremiumBillHeader(it, viewModel) }
+            }
+
+            item {
+                customer?.let { QuickPaymentEntry(it, viewModel) }
+            }
+
+            item {
+                Text(
+                    stringResource(R.string.hisaab),
+                    fontWeight = FontWeight.Bold,
+                    color = EarthBrown,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
+
+            if (khataItems.isEmpty()) {
+                item {
+                    Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
+                        Text(stringResource(R.string.no_records), color = Color.Gray)
+                    }
+                }
+            } else {
+                items(khataItems) { item ->
+                    KhataRow(item, viewModel, customerId)
+                }
             }
         }
-        
-        Spacer(modifier = Modifier.height(100.dp))
     }
 }
 
-
 @Composable
-fun CustomerSummaryHeader(customer: Customer, viewModel: DashboardViewModel) {
-    val total by viewModel.getMonthlyTotal(customer.id).collectAsState(initial = 0.0)
+fun PremiumBillHeader(customer: Customer, viewModel: DashboardViewModel) {
+    val monthlyBill by viewModel.getMonthlyBill(customer.id).collectAsState(initial = 0.0)
+    val monthlyLiters by viewModel.getMonthlyLiters(customer.id).collectAsState(initial = 0.0)
     val balance by viewModel.getCustomerBalance(customer.id).collectAsState(initial = 0.0)
-    val totalLiters by viewModel.getTotalLiters(customer.id).collectAsState(initial = 0.0)
+    
     val rupees = stringResource(R.string.rupees)
-
-    // Same semantics as dashboard: consumer positive = to receive (green), provider positive = to give (red)
+    
     val balanceColor = when {
         balance == 0.0 -> Color.Gray
-        customer.isProvider -> if (balance > 0) Color(0xFFF44336) else Color(0xFF4CAF50)
-        else -> if (balance > 0) Color(0xFF4CAF50) else Color(0xFFF44336)
+        customer.isProvider -> if (balance > 0) Color(0xFFD32F2F) else Color(0xFF2E7D32)
+        else -> if (balance > 0) Color(0xFF2E7D32) else Color(0xFFD32F2F)
     }
+
     val balanceLabel = when {
         balance == 0.0 -> "Settled"
         customer.isProvider -> if (balance > 0) "To Give" else "Overpaid"
@@ -351,51 +183,106 @@ fun CustomerSummaryHeader(customer: Customer, viewModel: DashboardViewModel) {
     }
 
     Card(
-        modifier = Modifier.fillMaxWidth().padding(16.dp),
-        colors = CardDefaults.cardColors(containerColor = EarthBrown),
-        shape = MaterialTheme.shapes.large
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        border = BorderStroke(1.dp, EarthBrown.copy(alpha = 0.1f))
     ) {
-        Column(modifier = Modifier.padding(24.dp)) {
-            // Financial row
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
+        Column(modifier = Modifier.padding(20.dp)) {
+            // Main Stats Row
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                // Column 1: Milk
                 Column {
-                    Text(stringResource(R.string.monthly_report), color = Color.LightGray, fontSize = 14.sp)
-                    Text("$total $rupees", color = GrassGreen, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                    Text("Monthly Milk", color = Color.Gray, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                    Text("${monthlyLiters.toInt()} L", fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = EarthBrown)
                 }
+                // Column 2: Bill
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("Monthly Bill", color = Color.Gray, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                    Text("${monthlyBill.toInt()} $rupees", fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = EarthBrown)
+                }
+                // Column 3: Balance
                 Column(horizontalAlignment = Alignment.End) {
-                    Text(stringResource(R.string.outstanding), color = Color.LightGray, fontSize = 14.sp)
-                    Text(
-                        "${kotlin.math.abs(balance).toInt()} $rupees",
-                        color = balanceColor,
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(balanceLabel, color = balanceColor.copy(alpha = 0.8f), fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                    Text("Remaining", color = Color.Gray, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                    Text("${kotlin.math.abs(balance).toInt()} $rupees", fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = balanceColor)
+                    Text(balanceLabel.uppercase(), fontSize = 9.sp, fontWeight = FontWeight.Black, color = balanceColor)
                 }
             }
-
-            Box(modifier = Modifier.fillMaxWidth().height(1.dp).background(Color.White.copy(alpha = 0.2f)).padding(vertical = 12.dp))
-
-            // Total Liters row
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                val litersLabel = if (customer.isProvider) "Total Milk Received" else "Total Milk Given"
-                Text("$litersLabel: ", color = Color.LightGray, fontSize = 14.sp)
-                Text(
-                    "${totalLiters.toInt()} L",
-                    color = Color.White,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
-                )
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            Divider(color = Color.LightGray.copy(alpha = 0.3f))
+            Spacer(modifier = Modifier.height(12.dp))
+            
+            // Sub-info: Rate
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Text("Rate per Liter:", color = Color.Gray, fontSize = 12.sp)
+                Text("${(customer.customRate ?: customer.rate).toInt()} $rupees", fontWeight = FontWeight.Bold, color = EarthBrown, fontSize = 12.sp)
             }
         }
     }
+}
+
+@Composable
+fun QuickPaymentEntry(customer: Customer, viewModel: DashboardViewModel) {
+    var amount by remember { mutableStateOf("") }
+    
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = GrassGreen.copy(alpha = 0.1f)),
+        border = BorderStroke(1.dp, GrassGreen.copy(alpha = 0.2f))
+    ) {
+        Row(
+            modifier = Modifier.padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Box(modifier = Modifier.weight(1f)) {
+                PremiumTextField(
+                    value = amount, 
+                    onValueChange = { amount = it }, 
+                    label = "Add Payment (PKR)", 
+                    isNumber = true
+                )
+            }
+            Button(
+                onClick = {
+                    if (amount.isNotEmpty()) {
+                        viewModel.addPayment(customer.id, amount.toDoubleOrNull() ?: 0.0)
+                        amount = ""
+                    }
+                },
+                modifier = Modifier.height(56.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = GrassGreen)
+            ) {
+                Text("SAVE", color = Color.White, fontWeight = FontWeight.Bold)
+            }
+        }
+    }
+}
+
+@Composable
+fun CustomerSettingsDialog(customer: Customer, onDismiss: () -> Unit, onSave: (Double, Double?) -> Unit) {
+    var dailyQuantity by remember { mutableStateOf(customer.defaultQuantity.toString()) }
+    var rate by remember { mutableStateOf((customer.customRate ?: customer.rate).toString()) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Customer Settings", fontWeight = FontWeight.Bold) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                PremiumTextField(value = dailyQuantity, onValueChange = { dailyQuantity = it }, label = "Daily Quantity (L)", isNumber = true)
+                PremiumTextField(value = rate, onValueChange = { rate = it }, label = "Rate per Liter (PKR)", isNumber = true)
+            }
+        },
+        confirmButton = {
+            Button(onClick = { onSave(dailyQuantity.toDoubleOrNull() ?: 0.0, rate.toDoubleOrNull()) }, colors = ButtonDefaults.buttonColors(containerColor = GrassGreen)) {
+                Text("Save", color = Color.White)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Cancel", color = Color.Gray) }
+        }
+    )
 }
 
 @Composable

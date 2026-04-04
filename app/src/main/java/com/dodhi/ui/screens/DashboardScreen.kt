@@ -57,7 +57,8 @@ fun DashboardScreen(
     onAllTimeReportsClick: () -> Unit,
     onReportsClick: () -> Unit,
     onAddMemberClick: () -> Unit,
-    onDailyRunClick: () -> Unit
+    onDailyRunClick: () -> Unit,
+    onCustomerClick: (Long) -> Unit
 ) {
     var showLanguageSheet by remember { mutableStateOf(false) }
 
@@ -218,7 +219,9 @@ fun DashboardScreen(
             
             items(filteredCustomers) { customer ->
                 Box(modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)) {
-                    PremiumCustomerSummaryCard(customer, viewModel)
+                    PremiumCustomerSummaryCard(customer, viewModel) {
+                        onCustomerClick(customer.id)
+                    }
                 }
             }
         }
@@ -230,7 +233,7 @@ fun DashboardScreen(
 }
 
 @Composable
-fun PremiumCustomerSummaryCard(customer: Customer, viewModel: DashboardViewModel) {
+fun PremiumCustomerSummaryCard(customer: Customer, viewModel: DashboardViewModel, onClick: () -> Unit) {
     val balance by viewModel.getCustomerBalance(customer.id).collectAsState(initial = 0.0)
     
     // Semantics: 
@@ -252,7 +255,7 @@ fun PremiumCustomerSummaryCard(customer: Customer, viewModel: DashboardViewModel
         modifier = Modifier
             .fillMaxWidth()
             .clip(SerratedEdgeShape(serrationCount = 15))
-            .clickable { },
+            .clickable { onClick() },
         colors = CardDefaults.cardColors(containerColor = ParchiPaper),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         border = BorderStroke(1.dp, ClayTerracotta.copy(alpha = 0.2f))

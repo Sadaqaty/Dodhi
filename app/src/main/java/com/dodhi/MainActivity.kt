@@ -46,7 +46,8 @@ class MainActivity : AppCompatActivity() {
                                 onAllTimeReportsClick = { navController.navigate("all_time_reports") },
                                 onReportsClick = { navController.navigate("report") },
                                 onAddMemberClick = { navController.navigate("add_customer") },
-                                onDailyRunClick = { navController.navigate("daily_run") }
+                                onDailyRunClick = { navController.navigate("daily_run") },
+                                onCustomerClick = { customerId -> navController.navigate("customer_detail/$customerId") }
                             ) 
                         }
                         composable("all_time_reports") {
