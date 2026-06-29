@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -33,7 +34,7 @@ import androidx.compose.ui.platform.LocalContext
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DailyRunScreen(viewModel: DashboardViewModel, onBack: () -> Unit) {
-    val customersByLocality by viewModel.customersByLocality.collectAsState(initial = emptyMap())
+    val customers by viewModel.customers.collectAsState(initial = emptyList())
     val progress by viewModel.getDailyProgress().collectAsState(initial = DashboardViewModel.Progress(0.0, 0.0))
     val selectedDate by viewModel.selectedDate.collectAsState()
     val context = LocalContext.current
@@ -59,6 +60,12 @@ fun DailyRunScreen(viewModel: DashboardViewModel, onBack: () -> Unit) {
         selectedDate.get(Calendar.DAY_OF_MONTH)
     )
     
+    val providers = customers.filter { it.isProvider }
+    val consumers = customers.filter { !it.isProvider }
+
+    var selectedTabIndex by remember { mutableStateOf(0) }
+    val tabs = listOf(stringResource(R.string.providers), stringResource(R.string.consumers))
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -106,29 +113,34 @@ fun DailyRunScreen(viewModel: DashboardViewModel, onBack: () -> Unit) {
                 }
             }
 
+            TabRow(
+                selectedTabIndex = selectedTabIndex,
+                containerColor = Color.White,
+                contentColor = GrassGreen,
+                indicator = { tabPositions ->
+                    TabRowDefaults.Indicator(
+                        Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
+                        color = GrassGreen
+                    )
+                }
+            ) {
+                tabs.forEachIndexed { index, title ->
+                    Tab(
+                        selected = selectedTabIndex == index,
+                        onClick = { selectedTabIndex = index },
+                        text = { Text(title, fontWeight = if (selectedTabIndex == index) FontWeight.Bold else FontWeight.Normal) }
+                    )
+                }
+            }
+
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(bottom = 16.dp)
             ) {
-                customersByLocality.forEach { (locality, customers) ->
-                    item {
-                        Surface(
-                            color = EarthBrown.copy(alpha = 0.05f),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text(
-                                text = locality.ifEmpty { stringResource(R.string.miscellaneous) },
-                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                                fontWeight = FontWeight.Bold,
-                                color = EarthBrown,
-                                fontSize = 14.sp
-                            )
-                        }
-                    }
-                    
-                    items(customers) { customer ->
-                        RouteCustomerRow(customer, viewModel)
-                    }
+                val currentList = if (selectedTabIndex == 0) providers else consumers
+                
+                items(currentList) { customer ->
+                    RouteCustomerRow(customer, viewModel)
                 }
             }
         }

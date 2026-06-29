@@ -82,6 +82,13 @@
     <string name="enter_quantity">مقدار درج کریں (لیٹر)</string>
     <string name="confirm">اوکے</string>
 
+    <!-- Action Descriptions -->
+    <string name="no_records">کوئی ریکارڈ نہیں ملا (حساب صاف ہے)</string>
+    <string name="milk_collection_desc">روزانہ دودھ کے فوری ریکارڈ درج کریں</string>
+    <string name="reports_desc">تفصیلی کھاتے دیکھیں اور شیئر کریں</string>
+    <string name="add_customer_desc">نیا ذریعہ یا صارف رجسٹر کریں</string>
+    <string name="daily_run_desc">اپنی مرضی کی مقداروں کے ساتھ راستہ شروع کریں</string>
+
     <!-- Khata Records Screen -->
     <string name="khata_records">کھاتہ ریکارڈ</string>
     <string name="khata_records_subtitle">ماہانہ تاریخ</string>
@@ -102,4 +109,55 @@
     <string name="to_receive">لینے ہیں</string>
     <string name="advance">پیشگی</string>
     <string name="clear">صاف</string>
+
+    <string name="buyer">خریدار</string>
+    <string name="seller">بیچنے والا</string>
+    <string name="buying_section">خریداری (بیچنے والوں سے)</string>
+    <string name="selling_section">فروخت (خریداروں کو)</string>
+    
+    <!-- Tour Strings -->
+    <string name="tour_welcome_title">دودهی ایپ میں خوش آمدید!</string>
+    <string name="tour_welcome_desc">آپ کا ڈیجیٹل ڈیری کھاتہ۔ آئیے اسے استعمال کرنا سیکھتے ہیں۔</string>
+    <string name="tour_add_title">پہلا قدم: ممبرز شامل کریں</string>
+    <string name="tour_add_desc">ان لوگوں کو شامل کریں جن سے آپ دودھ خریدتے ہیں یا جنہیں بیچتے ہیں۔</string>
+    <string name="tour_run_title">دوسرا قدم: ڈیلی رن</string>
+    <string name="tour_run_desc">روزانہ کی مقدار یہاں درج کریں۔ یہ خود بخود حساب کر دے گا۔</string>
+    <string name="tour_reports_title">تیسرا قدم: رپورٹ اور شیئرنگ</string>
+    <string name="tour_reports_desc">باقاعدہ رپورٹس دیکھیں اور پی ڈی ایف رسید شیئر کریں۔</string>
+    <string name="skip">چھوڑیں</string>
+    <string name="next">اگلا</string>
+    <string name="finish">ختم</string>
+
+    <string name="app_music">ایپ میوزک</string>
+    <string name="music_on">میوزک آن ہے</string>
+    <string name="music_off">میوزک آف ہے</string>
+    <string name="profile_settings">پروفائل سیٹنگز</string>
+    <string name="app_preferences">ایپ کی ترجیحات</string>
+
+    <!-- About Screen -->
+    <string name="about_dodhi">دودهی ایپ کے بارے میں</string>
+    <string name="version_label">ورژن 1.2.0 (Stable)</string>
+    <string name="innovation_title">فارمنگ میں جدت</string>
+    <string name="app_description">دودهی ایک پریمیم ڈیری مینجمنٹ ایپ ہے جو دودھ کی روایتی سپلائی چین کو جدید بنانے کے لیے بنائی گئی ہے۔ یہ دودھ بیچنے والوں کو ڈیجیٹل کھاتہ، رئیل ٹائم تجزیہ اور محفوظ ریکارڈ رکھنے کی سہولت فراہم کرتی ہے۔</string>
+    <string name="crafted_by">تیار کردہ</string>
+    <string name="fixare_studio">فکسارے اسٹوڈیو</string>
+    <string name="studio_tagline">ڈیجیٹل ایکسی لینس۔ انوویٹڈ۔</string>
+    <string name="developer_lab">ڈویلپر اور لیب</string>
+    <string name="lead_developer">لیڈ ڈویلپر @ فکسارے</string>
+    <string name="contact">رابطہ</string>
+    <string name="visit_website_msg">مزید پریمیم تجربات کے لیے fixare.studio ملاحظہ کریں۔</string>
+    <string name="visit_website_btn">ویب سائٹ دیکھیں</string>
+
+    <!-- Dashboard Reports -->
+    <string name="monthly_overview">ماہانہ خلاصہ</string>
+    <string name="total_sales">کل فروخت</string>
+    <string name="total_bought">کل خریداری</string>
+    <string name="cash_flow">کیش فلو</string>
+
+    <string name="bill_label">بل</string>
+    <string name="paid_label">ادائیگی</string>
+    <string name="due_label">بقایا</string>
+    <string name="customers_label">گاہک</string>
+    <string name="pkr_label" translatable="false">PKR</string>
+    <string name="liter_short">ایل</string>
 </resources>

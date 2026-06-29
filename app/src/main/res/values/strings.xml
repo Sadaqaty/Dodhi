@@ -109,4 +109,55 @@
     <string name="to_receive">To Receive</string>
     <string name="advance">Advance</string>
     <string name="clear">Clear</string>
+
+    <string name="buyer">Buyer</string>
+    <string name="seller">Seller</string>
+    <string name="buying_section">Buying (from Sellers)</string>
+    <string name="selling_section">Selling (to Buyers)</string>
+    
+    <!-- Tour Strings -->
+    <string name="tour_welcome_title">Welcome to Dodhi!</string>
+    <string name="tour_welcome_desc">Your digital dairy khata. Let\'s learn how to use it.</string>
+    <string name="tour_add_title">Step 1: Add Members</string>
+    <string name="tour_add_desc">Add people you buy milk from (Sellers) or sell to (Buyers).</string>
+    <string name="tour_run_title">Step 2: Daily Run</string>
+    <string name="tour_run_desc">Every morning/evening, enter liters here. It automatically calculates the bill.</string>
+    <string name="tour_reports_title">Step 3: Reports &amp; Sharing</string>
+    <string name="tour_reports_desc">Check balances, payment history, and share professional PDF receipts.</string>
+    <string name="skip">Skip</string>
+    <string name="next">Next</string>
+    <string name="finish">Finish</string>
+
+    <string name="app_music">App Music</string>
+    <string name="music_on">Music is On</string>
+    <string name="music_off">Music is Off</string>
+    <string name="profile_settings">Profile Settings</string>
+    <string name="app_preferences">App Preferences</string>
+
+    <!-- About Screen -->
+    <string name="about_dodhi">About Dodhi</string>
+    <string name="version_label">Version 1.2.0 (Stable)</string>
+    <string name="innovation_title">Innovation in Farming</string>
+    <string name="app_description">Dodhi is a premium dairy management suite designed to modernize traditional milk supply chains. Built for precision and ease, it empowers milkmen to manage their business with professional digital khata, real-time analytics, and secure history tracking.</string>
+    <string name="crafted_by">Crafted by</string>
+    <string name="fixare_studio">FIXARE STUDIO</string>
+    <string name="studio_tagline">Digital Excellence. Innovated.</string>
+    <string name="developer_lab">Developer &amp; Lab</string>
+    <string name="lead_developer">Lead Developer @ Fixare</string>
+    <string name="contact">Contact</string>
+    <string name="visit_website_msg">Visit fixare.studio for more premium experiences.</string>
+    <string name="visit_website_btn">VISIT WEBSITE</string>
+
+    <!-- Dashboard Reports -->
+    <string name="monthly_overview">Monthly Overview</string>
+    <string name="total_sales">Total Sales</string>
+    <string name="total_bought">Total Bought</string>
+    <string name="cash_flow">Cash Flow</string>
+
+    <string name="bill_label">Bill</string>
+    <string name="paid_label">Paid</string>
+    <string name="due_label">Due</string>
+    <string name="customers_label">customers</string>
+    <string name="pkr_label" translatable="false">PKR</string>
+    <string name="liter_short">L</string>
 </resources>

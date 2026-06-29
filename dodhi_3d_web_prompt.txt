@@ -1,0 +1,46 @@
+# Ultra-High Fidelity 3D Website Prompt: Dodhi Dairy Suite
+
+## 🌌 Core Concept: "The Living Digital Heritage"
+This is not just a landing page; it's a **volumetric 3D experience**. The goal is to immerse the user in a modern, digital version of a peaceful village morning (Golden Hour). The interface should feel like it's floating within a real, deep space.
+
+---
+
+## 🖼️ Multi-Layered Volumetric Depth (Parallax)
+The page must utilize at least 5 distinct planes of depth to create an intense 3D feel:
+1.  **Layer 1 (Foreground - Overlays)**: Floating particles, dust motes dancing in light shafts, and out-of-focus blades of grass that move slightly with the mouse.
+2.  **Layer 2 (The Interface - Mid-Foreground)**: Floating "Glassmorphic" UI cards (Khata records, Reports) that have 3D thickness and cast soft shadows onto the environment behind them.
+3.  **Layer 3 (The Subject - Midground)**: 3D models or high-res cutouts of grazing cattle and a modern glass-walled farmhouse. These should rotate slightly (Magnetic effect) as the cursor moves.
+4.  **Layer 4 (The Environment - Mid-Background)**: A lush, sun-drenched valley texture (using the app's `village_heritage_header` as a reference). This layer moves slower than the foreground for depth.
+5.  **Layer 5 (Deep Background)**: Soft, hazy mountains and a cinematic sunrise sky. This layer should have a "Gaussian Blur" effect that increases with distance.
+
+---
+
+## ✨ Atmospheric & Cinematic Detail
+- **God-Rays (Volumetric Lighting)**: Dynamic light shafts (Tyndall effect) streaming from the top-left, intersecting the 3D UI cards. Use a light golden tint (#FFD700 at 10% opacity).
+- **Ambient Life**: Subtle 3D animations—butterflies near the foreground, birds in the deep background, and swaying wheat fields.
+- **Chromatic Aberration**: A very subtle lens-refraction effect at the edges of the screen to give it a "Shot on Film" premium look.
+- **Depth of Field (DoF)**: Implement a dynamic blur that focuses on the section the user is currently reading/hovering over.
+
+---
+
+## 🎨 Typography & Interaction (3D Physics)
+- **Headings**: Use 3D Text geometry for titles. When hovered, the letters should have a gentle "wave" or "float" animation.
+- **Magnetic Buttons**: Buttons should "tug" at the cursor when it gets close, with a 3D "press" animation that shifts them deeper into the Z-axis.
+- **Scroll Mapping**: 
+    - **Step 1 (The Wake-Up)**: As the user scrolls, the sun rises higher, changing the lighting from warm orange to bright gold.
+    - **Step 2 (The Data Flow)**: Abstract 3D "milk stream" particles flow from the environment into the UI cards to symbolize data collection.
+
+---
+
+## 📝 Section Walkthrough
+1.  **The Entry (Hero)**: A cinematic zoom-out from a 3D milk drop into the full village landscape. "DODHI" appears in giant, translucent glass letters.
+2.  **The Features (Digital Khata)**: 3D interactive cards that the user can "flip" or "rotate" to see details.
+3.  **The Studio (Fixare Studio)**: A dedicated "Laboratory" section. The background shifts to a sleek, dark-mode 3D studio environment where a holographic Fixare logo glows.
+4.  **The Footer**: A 3D "Metal" plate at the bottom with embossed copyright credits and links.
+
+---
+
+## 🛠️ Performance & Tech Specs
+- **Engine**: Three.js / React Three Fiber with **Drei** for specialized helpers.
+- **Optimization**: Use **Bake shadows** for the environment to save GPU; keep dynamic lights only for the UI cards.
+- **Asset Loading**: Implement a "Premium Loader" that shows a 3D rotating milk can while textures load (1-2 seconds max).

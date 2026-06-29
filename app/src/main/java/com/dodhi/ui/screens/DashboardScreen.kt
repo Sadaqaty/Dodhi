@@ -1,20 +1,12 @@
 package com.dodhi.ui.screens
 
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
@@ -23,9 +15,10 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.foundation.Image
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.res.painterResource
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.filled.Settings
@@ -49,6 +42,9 @@ import com.dodhi.ui.viewmodel.DashboardViewModel
 import com.dodhi.ui.theme.*
 import com.dodhi.ui.components.PremiumTextField
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -63,7 +59,19 @@ fun DashboardScreen(
     onCustomerClick: (Long) -> Unit,
     onAboutClick: () -> Unit
 ) {
-    var showLanguageSheet by remember { mutableStateOf(false) }
+    var showSettingsSheet by remember { mutableStateOf(false) }
+    var showTour by remember { mutableStateOf(false) }
+
+    val milkmanName by viewModel.milkmanName.collectAsState()
+    val prefs = androidx.compose.ui.platform.LocalContext.current.getSharedPreferences("dodhi_prefs", android.content.Context.MODE_PRIVATE)
+    
+    // Check if it's first time
+    LaunchedEffect(Unit) {
+        val isFirstTime = prefs.getBoolean("is_first_time", true)
+        if (isFirstTime) {
+            showTour = true
+        }
+    }
 
     // Refresh to today on entry to ensure totals/actions are correct
     LaunchedEffect(Unit) {
@@ -136,7 +144,7 @@ fun DashboardScreen(
                         IconButton(onClick = onAboutClick) {
                             Icon(Icons.Default.Info, contentDescription = "About", tint = Color.White)
                         }
-                        IconButton(onClick = { showLanguageSheet = true }) {
+                        IconButton(onClick = { showSettingsSheet = true }) {
                             Icon(Icons.Default.Settings, contentDescription = "Settings", tint = Color.White)
                         }
                     }
@@ -235,11 +243,142 @@ fun DashboardScreen(
             }
         }
 
-        if (showLanguageSheet) {
-            SettingsSheet(viewModel = viewModel, onDismiss = { showLanguageSheet = false })
+        if (showSettingsSheet) {
+            SettingsSheet(viewModel = viewModel, onDismiss = { showSettingsSheet = false })
+        }
+        
+        if (showTour) {
+            AppTourDialog(
+                onFinish = {
+                    prefs.edit().putBoolean("is_first_time", false).apply()
+                    showTour = false
+                },
+                onAddClick = onAddMemberClick,
+                onRunClick = onDailyRunClick,
+                onReportsClick = onReportsClick
+            )
         }
     }
 }
+
+@Composable
+fun AppTourDialog(
+    onFinish: () -> Unit,
+    onAddClick: () -> Unit,
+    onRunClick: () -> Unit,
+    onReportsClick: () -> Unit
+) {
+    var step by remember { mutableStateOf(0) }
+    val steps = listOf(
+        TourStep(R.string.tour_welcome_title, R.string.tour_welcome_desc, R.drawable.cow_illustration),
+        TourStep(R.string.tour_add_title, R.string.tour_add_desc, R.drawable.ic_add_customer_premium),
+        TourStep(R.string.tour_run_title, R.string.tour_run_desc, R.drawable.ic_milk_collection_premium),
+        TourStep(R.string.tour_reports_title, R.string.tour_reports_desc, R.drawable.ic_reports_premium)
+    )
+
+    val infiniteTransition = rememberInfiniteTransition(label = "pulse")
+    val pulseScale by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 1.05f,
+        animationSpec = infiniteRepeatable(tween(1000), RepeatMode.Reverse),
+        label = "scale"
+    )
+
+    Dialog(
+        onDismissRequest = {}, 
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth(0.92f)
+                .wrapContentHeight()
+                .padding(16.dp),
+            shape = RoundedCornerShape(28.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.White),
+            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Step Indicator
+                Row(modifier = Modifier.padding(bottom = 24.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    steps.forEachIndexed { index, _ ->
+                        Box(
+                            modifier = Modifier
+                                .size(if (index == step) 24.dp else 8.dp, 8.dp)
+                                .clip(CircleShape)
+                                .background(if (index == step) GrassGreen else Color.LightGray)
+                        )
+                    }
+                }
+
+                Box(contentAlignment = Alignment.Center, modifier = Modifier.size(140.dp)) {
+                    // Pulsing effect background
+                    Box(modifier = Modifier.fillMaxSize().scale(pulseScale).clip(CircleShape).background(GrassGreen.copy(alpha = 0.05f)))
+                    
+                    Image(
+                        painter = painterResource(id = steps[step].icon),
+                        contentDescription = null,
+                        modifier = Modifier.size(100.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+                
+                Text(
+                    text = stringResource(steps[step].title),
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = EarthBrown,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                )
+                
+                Spacer(modifier = Modifier.height(12.dp))
+                
+                Text(
+                    text = stringResource(steps[step].description),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = Color.Gray,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                    lineHeight = 22.sp
+                )
+
+                Spacer(modifier = Modifier.height(32.dp))
+                
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    TextButton(onClick = onFinish) {
+                        Text(stringResource(R.string.skip), color = Color.Gray)
+                    }
+                    
+                    Button(
+                        onClick = {
+                            if (step < steps.size - 1) {
+                                step++
+                            } else {
+                                onFinish()
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = GrassGreen),
+                        shape = RoundedCornerShape(12.dp),
+                        contentPadding = PaddingValues(horizontal = 24.dp, vertical = 12.dp)
+                    ) {
+                        Text(
+                            text = if (step < steps.size - 1) stringResource(R.string.next) else stringResource(R.string.finish),
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+data class TourStep(val title: Int, val description: Int, val icon: Int)
 
 @Composable
 fun PremiumCustomerSummaryCard(customer: Customer, viewModel: DashboardViewModel, onClick: () -> Unit) {
@@ -366,46 +505,124 @@ fun ActionCard(
 @Composable
 fun SettingsSheet(viewModel: DashboardViewModel, onDismiss: () -> Unit) {
     val milkmanName by viewModel.milkmanName.collectAsState()
+    val isMusicEnabled by viewModel.isMusicEnabled.collectAsState()
     var tempName by remember { mutableStateOf(milkmanName) }
     
-    ModalBottomSheet(onDismissRequest = onDismiss) {
-        Column(modifier = Modifier.padding(24.dp).fillMaxWidth()) {
-            Text(stringResource(R.string.settings), fontWeight = FontWeight.Bold, fontSize = 22.sp, color = EarthBrown)
-            Spacer(modifier = Modifier.height(24.dp))
-            
-            PremiumTextField(
-                value = tempName, 
-                onValueChange = { 
-                    tempName = it
-                    viewModel.updateMilkmanName(it)
-                }, 
-                label = stringResource(R.string.milkman_name)
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        containerColor = Color.White,
+        dragHandle = { BottomSheetDefaults.DragHandle(color = Color.LightGray) }
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(horizontal = 24.dp, vertical = 8.dp)
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+        ) {
+            Text(
+                text = stringResource(R.string.settings),
+                fontWeight = FontWeight.ExtraBold,
+                fontSize = 28.sp,
+                color = EarthBrown
             )
             
             Spacer(modifier = Modifier.height(32.dp))
             
-            Text(stringResource(R.string.select_language), fontWeight = FontWeight.Bold, fontSize = 16.sp, color = EarthBrown)
-            Spacer(modifier = Modifier.height(16.dp))
+            // Section 1: Profile
+            SettingsSectionHeader(stringResource(R.string.profile_settings))
+            Card(
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                border = BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.3f))
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    PremiumTextField(
+                        value = tempName, 
+                        onValueChange = { 
+                            tempName = it
+                            viewModel.updateMilkmanName(it)
+                        }, 
+                        label = stringResource(R.string.milkman_name)
+                    )
+                }
+            }
             
-            val currentLang = AppCompatDelegate.getApplicationLocales().toLanguageTags()
+            Spacer(modifier = Modifier.height(24.dp))
             
-            ListItem(
-                headlineContent = { Text("English", fontWeight = FontWeight.Medium) },
-                modifier = Modifier.clickable {
-                    AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags("en"))
-                    onDismiss()
-                },
-                trailingContent = { if (currentLang != "ur") Icon(Icons.Default.Check, null, tint = GrassGreen) }
-            )
-            ListItem(
-                headlineContent = { Text("اردو (Urdu)", fontWeight = FontWeight.Medium) },
-                modifier = Modifier.clickable {
-                    AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags("ur"))
-                    onDismiss()
-                },
-                trailingContent = { if (currentLang == "ur") Icon(Icons.Default.Check, null, tint = GrassGreen) }
-            )
+            // Section 2: App Preferences
+            SettingsSectionHeader(stringResource(R.string.app_preferences))
+            Card(
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                border = BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.3f))
+            ) {
+                Column {
+                    // Music Toggle
+                    ListItem(
+                        headlineContent = { Text(stringResource(R.string.app_music), fontWeight = FontWeight.Bold) },
+                        supportingContent = { Text(if (isMusicEnabled) stringResource(R.string.music_on) else stringResource(R.string.music_off)) },
+                        leadingContent = { 
+                            Icon(
+                                imageVector = Icons.Default.Info, 
+                                contentDescription = null,
+                                tint = if (isMusicEnabled) GrassGreen else Color.Gray,
+                                modifier = Modifier.size(24.dp)
+                            ) 
+                        },
+                        trailingContent = {
+                            Switch(
+                                checked = isMusicEnabled,
+                                onCheckedChange = { viewModel.toggleMusic(it) },
+                                colors = SwitchDefaults.colors(checkedThumbColor = GrassGreen, checkedTrackColor = GrassGreen.copy(alpha = 0.3f))
+                            )
+                        }
+                    )
+                    
+                    Divider(modifier = Modifier.padding(horizontal = 16.dp), color = Color.LightGray.copy(alpha = 0.2f))
+                    
+                    // Language Selection
+                    LanguageSettingRow()
+                }
+            }
+            
+            Spacer(modifier = Modifier.height(48.dp))
         }
     }
 }
 
+@Composable
+fun SettingsSectionHeader(title: String) {
+    Text(
+        text = title,
+        fontSize = 14.sp,
+        fontWeight = FontWeight.Bold,
+        color = Color.Gray,
+        modifier = Modifier.padding(bottom = 12.dp, start = 4.dp)
+    )
+}
+
+@Composable
+fun LanguageSettingRow() {
+    val currentLang = AppCompatDelegate.getApplicationLocales().toLanguageTags()
+    
+    Column {
+        Text(
+            text = stringResource(R.string.select_language),
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+            fontWeight = FontWeight.Bold,
+            fontSize = 16.sp
+        )
+        ListItem(
+            headlineContent = { Text("English", fontWeight = FontWeight.Medium) },
+            modifier = Modifier.clickable {
+                AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags("en"))
+            },
+            trailingContent = { if (currentLang != "ur") Icon(Icons.Default.Check, null, tint = GrassGreen) }
+        )
+        ListItem(
+            headlineContent = { Text("اردو (Urdu)", fontWeight = FontWeight.Medium) },
+            modifier = Modifier.clickable {
+                AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags("ur"))
+            },
+            trailingContent = { if (currentLang == "ur") Icon(Icons.Default.Check, null, tint = GrassGreen) }
+        )
+    }
+}

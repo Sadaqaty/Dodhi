@@ -40,9 +40,17 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
     private val _milkmanName = MutableStateFlow(prefs.getString("milkman_name", "Dodhi Village") ?: "Dodhi Village")
     val milkmanName: StateFlow<String> = _milkmanName.asStateFlow()
 
+    private val _isMusicEnabled = MutableStateFlow(prefs.getBoolean("music_enabled", true))
+    val isMusicEnabled: StateFlow<Boolean> = _isMusicEnabled.asStateFlow()
+
     fun updateMilkmanName(name: String) {
         _milkmanName.value = name
         prefs.edit().putString("milkman_name", name).apply()
+    }
+
+    fun toggleMusic(enabled: Boolean) {
+        _isMusicEnabled.value = enabled
+        prefs.edit().putBoolean("music_enabled", enabled).apply()
     }
 
     val customers: StateFlow<List<Customer>> = dao.getAllCustomers()
@@ -128,13 +136,20 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
             if (customer == null) return@combine 0.0
             val recordSum = records.sumOf { it.amount }
             val paymentSum = payments.sumOf { it.amount }
+            
+            // Core Balance Logic: 
+            // records.amount is the financial value of milk (Quantity * Rate at that time)
+            // payments.amount is actual cash exchange
+            
             if (customer.isProvider) {
-                // For providers, record amount is what we OWE them, payment is what we PAID them.
-                // Balance = We Owe - We Paid
+                // SELLER: We buy milk. recordSum is what we owe them for milk.
+                // paymentSum is what we already paid them.
+                // Balance > 0 means we still owe them.
                 recordSum - paymentSum
             } else {
-                // For consumers, record amount is what they OWE us, payment is what they PAID us.
-                // Balance = They Owe - They Paid
+                // BUYER: We sell milk. recordSum is what they owe us for milk.
+                // paymentSum is what they already paid us.
+                // Balance > 0 means they still owe us.
                 recordSum - paymentSum
             }
         }
@@ -286,29 +301,34 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
         val end = Calendar.getInstance().timeInMillis
         
         return combine(
+            customers,
             dao.getRecordsInPeriod(start, end),
-            dao.getPaymentsForCustomerInRange(start, end), // Need to add this to DAO
-            dao.getMilkSourcesInPeriod(start, end)
-        ) { records, payments, sources ->
-            val marketValue = records.filter { it.type != "Naga" }.sumOf { it.amount }
-            val cashCollected = payments.sumOf { it.amount }
-            val totalSourced = sources.sumOf { it.quantity }
-            val totalSold = records.filter { it.type != "Naga" }.sumOf { it.quantity }
+            dao.getPaymentsForCustomerInRange(start, end),
+        ) { customerList, records, payments ->
+            val providerIds = customerList.filter { it.isProvider }.map { it.id }.toSet()
+            
+            val sales = records.filter { it.customerId !in providerIds && it.type != "Naga" }.sumOf { it.amount }
+            val purchases = records.filter { it.customerId in providerIds && it.type != "Naga" }.sumOf { it.amount }
+            
+            val collected = payments.filter { it.customerId !in providerIds }.sumOf { it.amount }
+            val paid = payments.filter { it.customerId in providerIds }.sumOf { it.amount }
             
             CollectionSummary(
-                marketValue = marketValue,
-                cashCollected = cashCollected,
-                outstanding = marketValue - cashCollected, // This is simplified for the month
-                waste = totalSourced - totalSold
+                marketValue = sales, // Re-using existing field for Sales
+                cashCollected = collected, // Re-using existing field for Collected
+                totalPurchases = purchases,
+                cashPaid = paid
             )
         }
     }
 
     data class CollectionSummary(
-        val marketValue: Double,
-        val cashCollected: Double,
-        val outstanding: Double,
-        val waste: Double
+        val marketValue: Double, // Total Sales (Consumers)
+        val cashCollected: Double, // Cash from Consumers
+        val totalPurchases: Double, // Total Purchases (Providers)
+        val cashPaid: Double, // Cash to Providers
+        val outstanding: Double = 0.0, // Deprecated
+        val waste: Double = 0.0 // Deprecated
     )
 
     private fun getStartOfCurrentMonth(): Long {
@@ -351,6 +371,8 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun updateCustomerSettings(customer: Customer, quantity: Double, rate: Double?) {
         viewModelScope.launch {
+            // When updating customer settings, we only update the BASE rate.
+            // Future records will use this new rate.
             dao.insertCustomer(customer.copy(defaultQuantity = quantity, customRate = rate))
         }
     }
@@ -390,6 +412,10 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
                 targetQuantity = 0.0
             }
 
+            // RATE HANDLING:
+            // We capture the rate AT THE TIME of the record.
+            // If the Dodhi changes his global rate tomorrow, old records remain unaffected
+            // because their amount is already pre-calculated and stored.
             val targetRate = if (type == "Extra" && existing != null) {
                 if (existing.rate > 0) existing.rate else (customer.customRate ?: customer.rate)
             } else {

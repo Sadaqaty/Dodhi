@@ -187,13 +187,40 @@ fun MonthReportCard(
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(monthLabel, fontWeight = FontWeight.Bold, fontSize = 18.sp, color = ClayTerracotta)
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
                         StatChip("${summary.totalLiters.toInt()} L", HeritageOlive)
-                        StatChip("${summary.customerCount} customers", EarthBrown)
-                        if (summary.nagaCount > 0) StatChip("${summary.nagaCount} Naga", Color(0xFFB71C1C))
+                        StatChip("${summary.customerCount} customers", Color.Gray)
+                        
+                        if (summary.nagaCount > 0) {
+                            Box(
+                                modifier = Modifier
+                                    .background(Color(0xFFFFEBEE), MaterialTheme.shapes.small)
+                                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Text(
+                                        text = summary.nagaCount.toString(),
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color(0xFFD32F2F)
+                                    )
+                                    Text(
+                                        text = stringResource(R.string.naga),
+                                        fontSize = 9.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color(0xFFD32F2F)
+                                    )
+                                }
+                            }
+                        }
                     }
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
                     Text("Bill: ${summary.totalAmount.toInt()} PKR  •  Paid: ${summary.totalPaid.toInt()} PKR",
                         fontSize = 13.sp, color = Color.Gray)
                 }
@@ -243,9 +270,21 @@ fun MonthReportCard(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(monthLabel, fontWeight = FontWeight.Bold, fontSize = 18.sp, color = ClayTerracotta)
                     Spacer(modifier = Modifier.height(6.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.CenterVertically) {
                         StatChip("${totalLiters.toInt()} L", HeritageOlive)
-                        if (nagas > 0) StatChip("$nagas Naga", Color(0xFFB71C1C))
+                        if (nagas > 0) {
+                            Box(
+                                modifier = Modifier
+                                    .background(Color(0xFFFFEBEE), MaterialTheme.shapes.small)
+                                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Text(text = nagas.toString(), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(0xFFD32F2F))
+                                    Text(text = stringResource(R.string.naga), fontSize = 9.sp, fontWeight = FontWeight.Bold, color = Color(0xFFD32F2F))
+                                }
+                            }
+                        }
                     }
                     Text("Bill: ${totalAmount.toInt()} PKR", fontSize = 13.sp, color = Color.Gray)
                 }

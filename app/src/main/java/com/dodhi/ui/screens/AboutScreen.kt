@@ -38,7 +38,7 @@ fun AboutScreen(onBack: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("About Dodhi", fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(R.string.about_dodhi), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = null)
@@ -87,7 +87,7 @@ fun AboutScreen(onBack: () -> Unit) {
                         color = Color.White
                     )
                     Text(
-                        text = "Version 1.2.0 (Stable)",
+                        text = stringResource(R.string.version_label),
                         fontSize = 14.sp,
                         color = Color.White.copy(alpha = 0.8f)
                     )
@@ -96,9 +96,9 @@ fun AboutScreen(onBack: () -> Unit) {
 
             Column(modifier = Modifier.padding(24.dp)) {
                 // App Description Card
-                AboutCard(title = "Innovation in Farming") {
+                AboutCard(title = stringResource(R.string.innovation_title)) {
                     Text(
-                        text = "Dodhi is a premium dairy management suite designed to modernize traditional milk supply chains. Built for precision and ease, it empowers milkmen to manage their business with professional digital khata, real-time analytics, and secure history tracking.",
+                        text = stringResource(R.string.app_description),
                         fontSize = 14.sp,
                         lineHeight = 22.sp,
                         color = EarthBrown.copy(alpha = 0.7f)
@@ -113,7 +113,7 @@ fun AboutScreen(onBack: () -> Unit) {
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "Crafted by",
+                        text = stringResource(R.string.crafted_by),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         color = GrassGreen,
@@ -121,14 +121,14 @@ fun AboutScreen(onBack: () -> Unit) {
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "FIXARE STUDIO",
+                        text = stringResource(R.string.fixare_studio),
                         fontSize = 28.sp,
                         fontWeight = FontWeight.ExtraBold,
                         color = EarthBrown,
                         letterSpacing = 4.sp
                     )
                     Text(
-                        text = "Digital Excellence. Innovated.",
+                        text = stringResource(R.string.studio_tagline),
                         fontSize = 10.sp,
                         color = Color.Gray
                     )
@@ -137,7 +137,7 @@ fun AboutScreen(onBack: () -> Unit) {
                 Spacer(modifier = Modifier.height(32.dp))
 
                 // Developer Section
-                AboutCard(title = "Developer & Lab") {
+                AboutCard(title = stringResource(R.string.developer_lab)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
                             modifier = Modifier
@@ -150,7 +150,7 @@ fun AboutScreen(onBack: () -> Unit) {
                         Spacer(modifier = Modifier.width(16.dp))
                         Column {
                             Text("Sadaqat Ali", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                            Text("Lead Developer @ Fixare", fontSize = 12.sp, color = Color.Gray)
+                            Text(stringResource(R.string.lead_developer), fontSize = 12.sp, color = Color.Gray)
                         }
                     }
                     Spacer(modifier = Modifier.height(16.dp))
@@ -165,7 +165,7 @@ fun AboutScreen(onBack: () -> Unit) {
                         }
                         Spacer(modifier = Modifier.width(16.dp))
                         Column {
-                            Text("Contact", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                            Text(stringResource(R.string.contact), fontWeight = FontWeight.Bold, fontSize = 16.sp)
                             Text("hi.sadaqat@gmail.com", fontSize = 12.sp, color = Color.Gray)
                         }
                     }
@@ -184,7 +184,7 @@ fun AboutScreen(onBack: () -> Unit) {
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "Visit fixare.studio for more premium experiences.",
+                            text = stringResource(R.string.visit_website_msg),
                             color = Color.White.copy(alpha = 0.8f),
                             fontSize = 13.sp,
                             textAlign = TextAlign.Center
@@ -195,7 +195,7 @@ fun AboutScreen(onBack: () -> Unit) {
                             colors = ButtonDefaults.buttonColors(containerColor = NatureGreen),
                             shape = RoundedCornerShape(8.dp)
                         ) {
-                            Text("VISIT WEBSITE", fontWeight = FontWeight.Bold)
+                            Text(stringResource(R.string.visit_website_btn), fontWeight = FontWeight.Bold)
                         }
                     }
                 }
