@@ -80,7 +80,7 @@ class PdfManager(context: Context) {
             paint.textSize = 11f
             paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
             
-            val headers = if (isUrdu) listOf("تاریخ", "تفصیل", "مقدار", "رقم") else listOf("DATE", "DESCRIPTION", "QUANTITY", "AMOUNT (PKR)")
+            val headers = if (isUrdu) listOf("تاریخ", "تفصیل", "مقدار", "رقم") else listOf("DATE", "DESCRIPTION", "QUANTITY", "AMOUNT (Rs.)")
             canvas.drawText(headers[0], 60f, y + 22f, paint)
             canvas.drawText(headers[1], 150f, y + 22f, paint)
             canvas.drawText(headers[2], 350f, y + 22f, paint)

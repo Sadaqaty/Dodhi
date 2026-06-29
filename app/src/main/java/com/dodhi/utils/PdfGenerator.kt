@@ -35,7 +35,7 @@ object PdfGenerator {
             y += 20f
         }
         
-        canvas.drawText("Total: ${records.sumOf { it.amount }} PKR", 20f, y + 20f, paint)
+        canvas.drawText("Total: ${records.sumOf { it.amount }} Rs.", 20f, y + 20f, paint)
         
         pdfDocument.finishPage(page)
         

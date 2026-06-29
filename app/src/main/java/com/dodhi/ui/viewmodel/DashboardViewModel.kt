@@ -278,9 +278,9 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
             *گاہک:* ${customer.name}
             *مہینہ:* $month
             
-            *اس مہینے کا بل:* ${totalMonthVal.toInt()} PKR
-            *پچھلا بقایا:* ${(balanceVal - totalMonthVal).toInt()} PKR
-            *کل واجب الادا:* ${balanceVal.toInt()} PKR
+            *اس مہینے کا بل:* ${totalMonthVal.toInt()} روپے
+            *پچھلا بقایا:* ${(balanceVal - totalMonthVal).toInt()} روپے
+            *کل واجب الادا:* ${balanceVal.toInt()} روپے
             --------------------------
             *دودهی ایپ (Dodhi App)*
             """.trimIndent()
@@ -788,14 +788,14 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
                 val paid = custPayments.sumOf { it.amount }
                 val liters = custRecords.sumOf { it.quantity }
                 sb.append("👤 *${customer.name}*\n")
-                sb.append("   ${liters.toInt()} L  •  Bill: ${bill.toInt()} PKR  •  Paid: ${paid.toInt()} PKR  •  Due: ${(bill - paid).toInt()} PKR\n\n")
+                sb.append("   ${liters.toInt()} L  •  Bill: ${bill.toInt()} Rs.  •  Paid: ${paid.toInt()} Rs.  •  Due: ${(bill - paid).toInt()} Rs.\n\n")
             }
             val totalBill = records.filter { it.type != "Naga" }.sumOf { it.amount }
             val totalPaid = payments.sumOf { it.amount }
             sb.append("=".repeat(30) + "\n")
-            sb.append("*Total Bill: ${totalBill.toInt()} PKR*\n")
-            sb.append("*Total Collected: ${totalPaid.toInt()} PKR*\n")
-            sb.append("*Outstanding: ${(totalBill - totalPaid).toInt()} PKR*\n")
+            sb.append("*Total Bill: ${totalBill.toInt()} Rs.*\n")
+            sb.append("*Total Collected: ${totalPaid.toInt()} Rs.*\n")
+            sb.append("*Outstanding: ${(totalBill - totalPaid).toInt()} Rs.*\n")
             val intent = Intent(Intent.ACTION_SEND).apply {
                 type = "text/plain"
                 putExtra(Intent.EXTRA_TEXT, sb.toString())

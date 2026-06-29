@@ -204,11 +204,22 @@ fun PremiumReportCard(customer: com.dodhi.data.model.Customer, total: Double, ba
     ) {
         Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(1f)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(text = customer.name, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = EarthBrown)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    CustomerTypeTag(customer.isProvider)
-                }
+                 Row(
+                     verticalAlignment = Alignment.CenterVertically,
+                     modifier = Modifier.fillMaxWidth()
+                 ) {
+                     Text(
+                         text = customer.name, 
+                         fontSize = 18.sp, 
+                         fontWeight = FontWeight.Bold, 
+                         color = EarthBrown,
+                         modifier = Modifier.weight(1f, fill = false),
+                         maxLines = 1,
+                         overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                     )
+                     Spacer(modifier = Modifier.width(8.dp))
+                     CustomerTypeTag(customer.isProvider)
+                 }
                 Text(text = customer.locality.ifEmpty { stringResource(R.string.miscellaneous) }, fontSize = 12.sp, color = Color.Gray)
             }
             Column(horizontalAlignment = Alignment.End) {

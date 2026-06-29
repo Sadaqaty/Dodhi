@@ -422,7 +422,14 @@ fun PremiumCustomerSummaryCard(customer: Customer, viewModel: DashboardViewModel
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                Text(text = customer.name, fontWeight = FontWeight.ExtraBold, fontSize = 18.sp, color = ClayTerracotta)
+                Text(
+                    text = customer.name, 
+                    fontWeight = FontWeight.ExtraBold, 
+                    fontSize = 18.sp, 
+                    color = ClayTerracotta,
+                    maxLines = 1,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                )
                 Text(text = if (customer.isProvider) stringResource(R.string.providers) else stringResource(R.string.consumers), fontSize = 12.sp, color = EarthBrown.copy(alpha = 0.6f))
             }
             Column(horizontalAlignment = Alignment.End) {

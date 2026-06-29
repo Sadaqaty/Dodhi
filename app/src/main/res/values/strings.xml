@@ -167,4 +167,123 @@
     <string name="export_data_desc">Share or save a JSON backup of all data</string>
     <string name="import_data">Import Data Backup</string>
     <string name="import_data_desc">Restore database from a JSON backup file</string>
+
+    <!-- Input Helper Descriptions -->
+    <string name="sell_mode_desc">Selling Mode: You sell milk to this buyer and receive payments.</string>
+    <string name="buy_mode_desc">Buying Mode: You buy milk from this seller/source and pay them.</string>
+    <string name="customer_name_desc">e.g., Atta Muhammad, Rasheed parawari</string>
+    <string name="locality_desc">e.g., Okara, Patuki, Lahore</string>
+    <string name="rate_desc">Price per liter of milk (e.g., 180 Rs.)</string>
+    <string name="quantity_desc">Standard liters delivered or received daily (e.g., 5.0 L)</string>
+
+    <!-- Randomized Reminder Templates (English) -->
+    <string-array name="reminder_titles">
+        <item>Honest Sustenance! 🌟</item>
+        <item>Evening Tea Time! ☕🥛</item>
+        <item>A Friendly Reminder! 😊</item>
+        <item>Ledger &amp; Integrity! 📝✨</item>
+        <item>Childhood Joy! 🪁</item>
+        <item>The Gift of Milk! 🥛🎁</item>
+        <item>Evening Warmth! 🌅</item>
+        <item>White Gold! 🥛✨</item>
+        <item>Hard Worker\'s Pride! 💪</item>
+        <item>Tea and Friendship! ☕🤝</item>
+        <item>No More Paper! 📱</item>
+        <item>Peace of Mind! 🕊️</item>
+        <item>Keep it Clean! ✨</item>
+        <item>Sustaining the Nation! 🚜</item>
+        <item>Quick Check! ⏱️</item>
+        <item>Daily Achievement! 🏆</item>
+        <item>Pure Livelihood! 🌸</item>
+        <item>The Village Heartbeat! 🌾</item>
+        <item>Joyful Accounting! 😄</item>
+        <item>Digital Ledger! ⚡</item>
+        <item>True Honesty! 🌟</item>
+        <item>Sweet Tea! ☕🍬</item>
+        <item>Sunset Reflection! 🌌</item>
+        <item>Healthy Growth! 🥛🌱</item>
+        <item>The Way of Success! 🔑</item>
+        <item>Reliable Partner! 🤝</item>
+        <item>Fresh Start Tomorrow! ☀️</item>
+        <item>Inner Child Peace! 🪁</item>
+        <item>Colloquial Truth! 📜</item>
+        <item>Milk and Butter! 🧈</item>
+        <item>Every Litre Counts! 🥛</item>
+        <item>Honest Bookkeeper! 📝</item>
+        <item>Tea Time Peace! ☕</item>
+        <item>Proud Milkman! 🥛👑</item>
+        <item>Smart Business! 💡</item>
+        <item>Fields and Farms! 🚜</item>
+        <item>Evening Blessing! 🌸</item>
+        <item>No Forgotten Litres! 🥛❌</item>
+        <item>Bright Future! ✨</item>
+        <item>True Service! 🤝</item>
+        <item>Purity and Pride! 🌟</item>
+        <item>Easy Bookkeeping! 📱</item>
+        <item>Daily Milestone! 🏁</item>
+        <item>Heart of the Home! 🏠</item>
+        <item>Honest Profits! 💰</item>
+        <item>Blessing in Sustenance! 🕊️</item>
+        <item>The 5 PM Bell! 🔔</item>
+        <item>Always on Time! ⏰</item>
+        <item>Ledger Harmony! 🎼</item>
+        <item>Parchi Ready! 📄</item>
+        <item>Clear Mind! 🧘</item>
+        <item>Golden Rule! 🔑</item>
+    </string-array>
+    
+    <string-array name="reminder_messages">
+        <item>Time to fill today\'s ledger. Earning a clean livelihood is a beautiful blessing.</item>
+        <item>Relax with a cup of tea, but remember to record today\'s milk ledger first!</item>
+        <item>Your hard work brings smiles (and tea) to many homes! Please record today\'s entries.</item>
+        <item>Clean bookkeeping makes long friendships. Take a second to enter today\'s records.</item>
+        <item>Let\'s make bookkeeping as simple and joyful as flying a kite. Fill today\'s records!</item>
+        <item>You bring nourishment and health to families every single day. Let\'s log today\'s records.</item>
+        <item>As the sun sets, take a quick moment to update your digital register.</item>
+        <item>Milk is white gold, and you are its guardian! Log today\'s collection now.</item>
+        <item>Earning honestly is a true badge of honor. Keep your ledger accurate today!</item>
+        <item>A good cup of tea depends on good milk, and good business depends on clean accounts.</item>
+        <item>Ditch the old diaries and keep your records safe in your pocket. Tap to log.</item>
+        <item>Sleeping is easier when your ledger is clean and complete. Enter today\'s details.</item>
+        <item>A clean ledger means long and healthy customer relationships. Update today\'s entry.</item>
+        <item>Your hard work keeps the community healthy and strong. Log today\'s records.</item>
+        <item>It takes less than 30 seconds to record your daily run. Tap to log now.</item>
+        <item>Another productive day is almost over! Complete your records to wrap it up.</item>
+        <item>Your work is pure and blessed. Keep your accounting just as pure.</item>
+        <item>From green fields to the customer\'s stove, your journey is vital. Log today\'s run.</item>
+        <item>Smiling through the hard work makes the day fly. Let\'s update your records!</item>
+        <item>Keep your business modern and reliable. Tap to write today\'s entries.</item>
+        <item>Honesty brings blessings to your home and shop. Log today\'s deliveries.</item>
+        <item>Every cup of tea in town has a bit of your sweat and dedication. Fill the ledger.</item>
+        <item>The stars are coming out. Take a brief moment to finish today\'s bookkeeping.</item>
+        <item>Providing milk is helping children grow strong. Record your valuable work.</item>
+        <item>An accurate ledger is the first step toward a prosperous business. Write today\'s entries.</item>
+        <item>Your customers trust your word and your milk. Log today\'s ledger to match.</item>
+        <item>Clear today\'s work today so you can start tomorrow fresh and unburdened.</item>
+        <item>Keep your mind free from worry by completing your accounting now.</item>
+        <item>Clear accounts make long friendships. Don\'t forget to enter today\'s ledger.</item>
+        <item>Your hard work yields sweet butter and cream. Write your records now.</item>
+        <item>Small actions create great results. Make sure every litre is written down.</item>
+        <item>Keep your standards high and your ledger updated. Log today\'s data.</item>
+        <item>Enjoy your evening tea with a peaceful mind. Complete your khata entries.</item>
+        <item>Be proud of the nourishment you deliver. Keep your records up to date.</item>
+        <item>Work smart, live well. Use your app to record today\'s transactions.</item>
+        <item>You bridge the gap between fresh farms and busy towns. Log today\'s collection.</item>
+        <item>May your business grow and your health stay strong. Log today\'s details.</item>
+        <item>Memory fades, but the digital ledger stays forever. Tap to update.</item>
+        <item>Each logged day brings you closer to organized success. Update today.</item>
+        <item>Serving your community with pure milk is noble. Complete today\'s run.</item>
+        <item>Purity in milk, purity in book-keeping. Fill in today\'s ledger.</item>
+        <item>No more pens lost in the mud. Just tap and save today\'s entries.</item>
+        <item>Finish today\'s duties completely before resting. Log your milk run.</item>
+        <item>Without you, breakfast doesn\'t start. Log your entries now.</item>
+        <item>Accurate calculations build trust and profits. Update your ledger.</item>
+        <item>May Allah bless your hard work and pure earnings. Log today\'s records.</item>
+        <item>It\'s 5:00 PM! Time to record today\'s milk ledger. Don\'t forget!</item>
+        <item>Just like your morning deliveries, keep your accounting punctual.</item>
+        <item>Keep your business flowing smoothly by logging daily entries.</item>
+        <item>Log today\'s entries so you can share beautiful digital parchis anytime.</item>
+        <item>Close your business day with a clean, fully logged register.</item>
+        <item>Log your daily milk entries on the same day to avoid errors. Tap here.</item>
+    </string-array>
 </resources>
