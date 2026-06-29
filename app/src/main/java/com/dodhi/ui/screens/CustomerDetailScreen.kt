@@ -26,11 +26,13 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.geometry.Size
 import android.content.Intent
 import android.net.Uri
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -79,6 +81,19 @@ fun CustomerDetailScreen(viewModel: DashboardViewModel, customerId: Long, onBack
                     
                     IconButton(onClick = { showReportDialog = true }) {
                         Icon(Icons.Default.Share, contentDescription = "Generate Report")
+                    }
+                    
+                    IconButton(onClick = {
+                        customer?.let {
+                            val isSystemUrdu = AppCompatDelegate.getApplicationLocales().toLanguageTags().contains("ur")
+                            viewModel.shareTextReportViaWhatsApp(context, it, isSystemUrdu)
+                        }
+                    }) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_whatsapp),
+                            contentDescription = "Share on WhatsApp",
+                            tint = Color.Unspecified
+                        )
                     }
                     
                     IconButton(onClick = { showSettingsDialog = true }) {
@@ -240,7 +255,7 @@ fun QuickPaymentEntry(customer: Customer, viewModel: DashboardViewModel) {
                 PremiumTextField(
                     value = amount, 
                     onValueChange = { amount = it }, 
-                    label = "Add Payment (PKR)", 
+                    label = "Add Payment (${stringResource(R.string.rupees)})",
                     isNumber = true
                 )
             }
@@ -271,7 +286,7 @@ fun CustomerSettingsDialog(customer: Customer, onDismiss: () -> Unit, onSave: (D
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 PremiumTextField(value = dailyQuantity, onValueChange = { dailyQuantity = it }, label = "Daily Quantity (L)", isNumber = true)
-                PremiumTextField(value = rate, onValueChange = { rate = it }, label = "Rate per Liter (PKR)", isNumber = true)
+                PremiumTextField(value = rate, onValueChange = { rate = it }, label = "Rate per Liter (${stringResource(R.string.rupees)})", isNumber = true)
             }
         },
         confirmButton = {

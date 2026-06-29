@@ -19,14 +19,14 @@
     <string name="empty_name_error">Please enter a name</string>
     <string name="invalid_rate_error">Enter a valid rate</string>
     <string name="all_customers">Customers</string>
-    <string name="providers">Milk Sources</string>
-    <string name="consumers">Milk Consumers</string>
+    <string name="providers">Milk Sellers (Suppliers)</string>
+    <string name="consumers">Milk Buyers (Customers)</string>
     <string name="milk_source">Milk Source</string>
     <string name="cancel">Cancel</string>
     <string name="no_customers">No customers found. Add a customer.</string>
     <string name="name">Name</string>
     <string name="add_milk_source">Add Milk Source</string>
-    <string name="rupees" translatable="false">PKR</string>
+    <string name="rupees" translatable="false">Rs.</string>
     <string name="add_to_ledger">Add to Ledger</string>
     <string name="default_quantity">Default Quantity</string>
     <string name="naga_count">Naga Count</string>
@@ -158,6 +158,13 @@
     <string name="paid_label">Paid</string>
     <string name="due_label">Due</string>
     <string name="customers_label">customers</string>
-    <string name="pkr_label" translatable="false">PKR</string>
+    <string name="pkr_label" translatable="false">Rs.</string>
     <string name="liter_short">L</string>
+    
+    <!-- Backup & Restore -->
+    <string name="backup_restore">Backup &amp; Restore</string>
+    <string name="export_data">Export Data Backup</string>
+    <string name="export_data_desc">Share or save a JSON backup of all data</string>
+    <string name="import_data">Import Data Backup</string>
+    <string name="import_data_desc">Restore database from a JSON backup file</string>
 </resources>

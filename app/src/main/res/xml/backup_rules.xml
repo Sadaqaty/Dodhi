@@ -3,5 +3,5 @@
     <include domain="database" path="dodhi_database"/>
     <include domain="database" path="dodhi_database-shm"/>
     <include domain="database" path="dodhi_database-wal"/>
-    <include domain="sharedpref" path="dodhi_prefs.xml"/>
+    <include domain="sharedpref" path="."/>
 </full-backup-content>

@@ -30,6 +30,12 @@ import java.text.SimpleDateFormat
 import java.util.*
 import android.app.DatePickerDialog
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import android.view.SoundEffectConstants
+import androidx.appcompat.app.AppCompatDelegate
+import com.dodhi.ui.theme.ClayTerracotta
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -151,7 +157,7 @@ fun DailyRunScreen(viewModel: DashboardViewModel, onBack: () -> Unit) {
 fun RouteCustomerRow(customer: Customer, viewModel: DashboardViewModel) {
     val records by viewModel.dailyRecords.collectAsState()
     val record = records.find { it.customerId == customer.id }
-    val isMarked = record != null // Any mark (delivered or naga)
+    val isMarked = record != null
     val isNaga = record?.type == "Naga"
     val isDelivered = record?.type == "Delivered"
 
@@ -163,106 +169,187 @@ fun RouteCustomerRow(customer: Customer, viewModel: DashboardViewModel) {
         if (isEditing && record != null) customQty = record.quantity.toString()
     }
 
-    val showInputMode = !isMarked || isEditing
+    val haptic = LocalHapticFeedback.current
+    val view = LocalView.current
 
-    // Determine card background color
+    fun triggerFeedback() {
+        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+        view.playSoundEffect(SoundEffectConstants.CLICK)
+    }
+
+    // Determine color coding
+    val stripColor = when {
+        isNaga -> Color(0xFFB71C1C)       // Red for Naga
+        isDelivered -> Color(0xFF2E7D32)  // Green for Delivered
+        else -> ClayTerracotta             // Terracotta/Ochre for Unmarked
+    }
+
     val cardColor = when {
-        isNaga -> Color(0xFFFFF3F3)       // light red for Naga
-        isDelivered -> Color(0xFFE8F5E9)  // light green for Delivered
+        isNaga -> Color(0xFFFFF3F3)
+        isDelivered -> Color(0xFFE8F5E9)
         else -> Color.White
     }
 
     Card(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
-        colors = CardDefaults.cardColors(containerColor = cardColor)
+        colors = CardDefaults.cardColors(containerColor = cardColor),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(customer.name, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                    if (isNaga && !isEditing) {
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = stringResource(R.string.naga),
-                            fontSize = 11.sp,
-                            color = Color(0xFFB71C1C),
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier
-                                .background(Color(0xFFFFCDD2), MaterialTheme.shapes.small)
-                                .padding(horizontal = 6.dp, vertical = 2.dp)
-                        )
-                    }
-                }
-                Spacer(modifier = Modifier.height(4.dp))
-                if (showInputMode) {
-                    OutlinedTextField(
-                        value = customQty,
-                        onValueChange = { customQty = it },
-                        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
-                            keyboardType = androidx.compose.ui.text.input.KeyboardType.Number
-                        ),
-                        modifier = Modifier.width(100.dp).height(55.dp),
-                        textStyle = androidx.compose.ui.text.TextStyle(fontSize = 14.sp),
-                        label = { Text("Liters", fontSize = 11.sp) },
-                        colors = OutlinedTextFieldDefaults.colors(
-                            unfocusedBorderColor = Color.LightGray,
-                            focusedBorderColor = EarthBrown
-                        )
-                    )
-                } else {
-                    // Show what was recorded
-                    val recordQty = record?.quantity ?: 0.0
-                    Text(
-                        text = if (isNaga) "0 L (Naga)" else "${recordQty} L",
-                        fontSize = 13.sp,
-                        color = if (isNaga) Color(0xFFB71C1C) else Color(0xFF2E7D32),
-                        fontWeight = FontWeight.SemiBold
-                    )
-                }
-            }
+        Row(modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min)) {
+            // Left color strip indicator
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .width(6.dp)
+                    .background(stripColor)
+            )
             
-            if (showInputMode) {
-                // Mark as Delivered button
-                IconButton(
-                    onClick = {
-                        val qty = customQty.toDoubleOrNull() ?: 0.0
-                        if (qty <= 0.0) {
-                            viewModel.markDelivered(customer, "Naga", 0.0)
-                        } else {
-                            viewModel.markDelivered(customer, "Delivered", qty)
+            Row(
+                modifier = Modifier.padding(16.dp).weight(1f),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(customer.name, fontWeight = FontWeight.Bold, fontSize = 18.sp, color = EarthBrown)
+                        if (isNaga) {
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = stringResource(R.string.naga),
+                                fontSize = 11.sp,
+                                color = Color(0xFFB71C1C),
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier
+                                    .background(Color(0xFFFFCDD2), MaterialTheme.shapes.small)
+                                    .padding(horizontal = 6.dp, vertical = 2.dp)
+                            )
                         }
-                        isEditing = false
                     }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.CheckCircle,
-                        contentDescription = "Mark as done",
-                        tint = Color.LightGray,
-                        modifier = Modifier.size(36.dp)
-                    )
-                }
-            } else {
-                // Status icon + small pencil to edit
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = if (isDelivered) Icons.Default.CheckCircle else Icons.Default.Close,
-                        contentDescription = null,
-                        tint = if (isDelivered) Color(0xFF2E7D32) else Color(0xFFB71C1C),
-                        modifier = Modifier.size(36.dp)
-                    )
-                    IconButton(
-                        onClick = { isEditing = true },
-                        modifier = Modifier.size(32.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = "Edit entry",
-                            tint = Color.Gray,
-                            modifier = Modifier.size(18.dp)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    
+                    if (isEditing) {
+                        OutlinedTextField(
+                            value = customQty,
+                            onValueChange = { customQty = it },
+                            keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                                keyboardType = androidx.compose.ui.text.input.KeyboardType.Number
+                            ),
+                            modifier = Modifier.width(110.dp).height(55.dp),
+                            textStyle = androidx.compose.ui.text.TextStyle(fontSize = 14.sp),
+                            label = { Text("Liters", fontSize = 11.sp) },
+                            colors = OutlinedTextFieldDefaults.colors(
+                                unfocusedBorderColor = Color.LightGray,
+                                focusedBorderColor = EarthBrown
+                            )
                         )
+                    } else {
+                        val recordQty = record?.quantity ?: customer.defaultQuantity
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = if (isMarked) {
+                                    if (isNaga) "0 L (${stringResource(R.string.naga)})" else "$recordQty L"
+                                } else {
+                                    "Default: $recordQty L"
+                                },
+                                fontSize = 14.sp,
+                                color = if (isMarked) {
+                                    if (isNaga) Color(0xFFB71C1C) else Color(0xFF2E7D32)
+                                } else {
+                                    Color.Gray
+                                },
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            if (!isMarked) {
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Icon(
+                                    imageVector = Icons.Default.Edit,
+                                    contentDescription = "Edit quantity",
+                                    tint = Color.Gray.copy(alpha = 0.6f),
+                                    modifier = Modifier
+                                        .size(16.dp)
+                                        .clickable { isEditing = true }
+                                )
+                            }
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                if (isEditing) {
+                    // Actions during edit mode
+                    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        IconButton(
+                            onClick = {
+                                val qty = customQty.toDoubleOrNull() ?: 0.0
+                                if (qty <= 0.0) {
+                                    viewModel.markDelivered(customer, "Naga", 0.0)
+                                } else {
+                                    viewModel.markDelivered(customer, "Delivered", qty)
+                                }
+                                triggerFeedback()
+                                isEditing = false
+                            }
+                        ) {
+                            Icon(Icons.Default.CheckCircle, contentDescription = "Save", tint = GrassGreen, modifier = Modifier.size(32.dp))
+                        }
+                        IconButton(onClick = { isEditing = false }) {
+                            Icon(Icons.Default.Close, contentDescription = "Cancel", tint = Color.Gray, modifier = Modifier.size(32.dp))
+                        }
+                    }
+                } else if (!isMarked) {
+                    // Zero-Keyboard Quick Actions
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        // Naga Button (Red)
+                        Button(
+                            onClick = {
+                                viewModel.markDelivered(customer, "Naga", 0.0)
+                                triggerFeedback()
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFCDD2)),
+                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                            modifier = Modifier.defaultMinSize(minWidth = 1.dp, minHeight = 1.dp)
+                        ) {
+                            Text(stringResource(R.string.naga), color = Color(0xFFB71C1C), fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                        }
+
+                        // Delivered Button (Green)
+                        Button(
+                            onClick = {
+                                viewModel.markDelivered(customer, "Delivered", customer.defaultQuantity)
+                                triggerFeedback()
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = GrassGreen),
+                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                            modifier = Modifier.defaultMinSize(minWidth = 1.dp, minHeight = 1.dp)
+                        ) {
+                            Text(
+                                text = if (AppCompatDelegate.getApplicationLocales().toLanguageTags().contains("ur")) "دودھ دیا" else "Delivered",
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 13.sp
+                            )
+                        }
+                    }
+                } else {
+                    // Marked state: Status Indicator + Pencil to change
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Icon(
+                            imageVector = if (isDelivered) Icons.Default.CheckCircle else Icons.Default.Close,
+                            contentDescription = null,
+                            tint = if (isDelivered) Color(0xFF2E7D32) else Color(0xFFB71C1C),
+                            modifier = Modifier.size(32.dp)
+                        )
+                        IconButton(
+                            onClick = { isEditing = true },
+                            modifier = Modifier.size(32.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = "Change Entry",
+                                tint = Color.Gray,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
                     }
                 }
             }

@@ -19,8 +19,8 @@
     <string name="empty_name_error">نام درج کرنا ضروری ہے</string>
     <string name="invalid_rate_error">درست قیمت درج کریں</string>
     <string name="all_customers">تمام کھاتے</string>
-    <string name="providers">دودھ کے ذرائع</string>
-    <string name="consumers">دودھ کے خریدار</string>
+    <string name="providers">دودھ بیچنے والے (سپلائر)</string>
+    <string name="consumers">دودھ خریدار (گاہک)</string>
     <string name="milk_source">دودھ کا ذریعہ</string>
     <string name="cancel">کینسل</string>
     <string name="no_customers">کوئی گاہک نہیں ملا۔ گاہک شامل کریں۔</string>
@@ -56,7 +56,7 @@
     <string name="customer_settings">کسٹمر سیٹنگز</string>
     <string name="save_changes">تبدیلی محفوظ کریں</string>
     <string name="net_balance">کل بقایا</string>
-    <string name="daily_run">ڈیلی رن</string>
+    <string name="daily_run">روزانہ اندراج</string>
     <string name="miscellaneous">متفرق</string>
     <string name="delivery_report">ڈیلیوری رپورٹ</string>
     <string name="delete_customer">گاہک ختم کریں</string>
@@ -87,7 +87,7 @@
     <string name="milk_collection_desc">روزانہ دودھ کے فوری ریکارڈ درج کریں</string>
     <string name="reports_desc">تفصیلی کھاتے دیکھیں اور شیئر کریں</string>
     <string name="add_customer_desc">نیا ذریعہ یا صارف رجسٹر کریں</string>
-    <string name="daily_run_desc">اپنی مرضی کی مقداروں کے ساتھ راستہ شروع کریں</string>
+    <string name="daily_run_desc">روزانہ صبح یا شام کے دودھ کا اندراج کریں</string>
 
     <!-- Khata Records Screen -->
     <string name="khata_records">کھاتہ ریکارڈ</string>
@@ -160,4 +160,11 @@
     <string name="customers_label">گاہک</string>
     <string name="pkr_label" translatable="false">PKR</string>
     <string name="liter_short">ایل</string>
+    
+    <!-- Backup & Restore -->
+    <string name="backup_restore">بیک اپ اور بحالی</string>
+    <string name="export_data">ڈیٹا بیک اپ ایکسپورٹ کریں</string>
+    <string name="export_data_desc">تمام ڈیٹا کا ایک JSON بیک اپ شیئر یا محفوظ کریں</string>
+    <string name="import_data">ڈیٹا بیک اپ امپورٹ کریں</string>
+    <string name="import_data_desc">JSON بیک اپ فائل سے ڈیٹا بیس بحال کریں</string>
 </resources>

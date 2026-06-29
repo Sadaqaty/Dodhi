@@ -8,6 +8,10 @@ import android.os.Environment
 import com.dodhi.data.DodhiDatabase
 import com.dodhi.data.model.Customer
 import com.dodhi.data.model.DeliveryRecord
+import com.dodhi.data.model.BackupData
+import com.google.gson.GsonBuilder
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -456,6 +460,95 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
+    fun exportDataBackup(context: Context) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                db.forceCheckpoint()
+                val customersList = dao.getAllCustomersSync()
+                val recordsList = dao.getAllRecordsSync()
+                val paymentsList = dao.getAllPaymentsSync()
+                val milkSourcesList = dao.getAllMilkSourcesSync()
+                val backupData = BackupData(
+                    customers = customersList,
+                    transactions = recordsList,
+                    payments = paymentsList,
+                    milkSources = milkSourcesList,
+                    timestamp = System.currentTimeMillis()
+                )
+                val gson = GsonBuilder().setPrettyPrinting().create()
+                val jsonString = gson.toJson(backupData)
+
+                val backupDir = File(context.cacheDir, "backups")
+                if (!backupDir.exists()) {
+                    backupDir.mkdirs()
+                }
+                val backupFile = File(backupDir, "dodhi_backup_${System.currentTimeMillis()}.json")
+                backupFile.writeText(jsonString)
+
+                val uri = FileProvider.getUriForFile(
+                    context.applicationContext,
+                    "${context.packageName}.fileprovider",
+                    backupFile
+                )
+
+                val intent = Intent(Intent.ACTION_SEND).apply {
+                    type = "application/json"
+                    putExtra(Intent.EXTRA_STREAM, uri)
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                }
+                val chooser = Intent.createChooser(intent, "Export Data Backup")
+                chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                context.startActivity(chooser)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun importDataBackup(context: Context, uri: Uri, onSuccess: () -> Unit, onError: (String) -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val contentResolver = context.contentResolver
+                val inputStream = contentResolver.openInputStream(uri)
+                if (inputStream == null) {
+                    withContext(Dispatchers.Main) {
+                        onError("Unable to open backup file")
+                    }
+                    return@launch
+                }
+                val jsonString = inputStream.bufferedReader().use { it.readText() }
+                
+                val gson = GsonBuilder().create()
+                val backupData = gson.fromJson(jsonString, BackupData::class.java)
+                
+                if (backupData == null || backupData.customers == null) {
+                    withContext(Dispatchers.Main) {
+                        onError("Invalid backup file structure")
+                    }
+                    return@launch
+                }
+                
+                dao.importBackup(
+                    customersList = backupData.customers,
+                    recordsList = backupData.transactions ?: emptyList(),
+                    paymentsList = backupData.payments ?: emptyList(),
+                    milkSourcesList = backupData.milkSources ?: emptyList()
+                )
+                
+                db.forceCheckpoint()
+                
+                withContext(Dispatchers.Main) {
+                    onSuccess()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                withContext(Dispatchers.Main) {
+                    onError(e.localizedMessage ?: "Unknown error occurred during import")
+                }
+            }
+        }
+    }
+
     fun sharePdfReport(context: Context, customer: Customer, isUrdu: Boolean) {
         viewModelScope.launch {
             val records = dao.getRecordsForCustomerSync(customer.id)
@@ -517,12 +610,12 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
                     "Extra" -> if (isUrdu) "اضافی" else "Extra"
                     else -> it.type
                 }
-                sb.append("${dateFormat.format(Date(it.date))}: $label - ${it.quantity}L - ${it.amount} PKR\n")
+                sb.append("${dateFormat.format(Date(it.date))}: $label - ${it.quantity}L - ${it.amount} Rs.\n")
             }
             
             payments.filter { isSameMonth(it.date, month) }.forEach {
                 val label = if (isUrdu) "رقم وصولی" else "Payment"
-                sb.append("${dateFormat.format(Date(it.date))}: $label - ${it.amount} PKR\n")
+                sb.append("${dateFormat.format(Date(it.date))}: $label - ${it.amount} Rs.\n")
             }
             
             val currentRecords = records.filter { isSameMonth(it.date, month) }
@@ -536,17 +629,75 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
             
             sb.append("\n------------------\n")
             if (previousBalance != 0.0) {
-                sb.append(if (isUrdu) "*پچھلا بقایا:* ${previousBalance.toInt()} PKR\n" else "*Prev. Balance:* ${previousBalance.toInt()} PKR\n")
+                sb.append(if (isUrdu) "*پچھلا بقایا:* ${previousBalance.toInt()} Rs.\n" else "*Prev. Balance:* ${previousBalance.toInt()} Rs.\n")
             }
-            sb.append(if (isUrdu) "*اس مہینے کا بل:* ${totalBill.toInt()} PKR\n" else "*Monthly Bill:* ${totalBill.toInt()} PKR\n")
-            sb.append(if (isUrdu) "*ادائیگی:* ${totalPaid.toInt()} PKR\n" else "*Monthly Paid:* ${totalPaid.toInt()} PKR\n")
-            sb.append(if (isUrdu) "*کل واجب الادا:* ${totalBalance.toInt()} PKR\n" else "*Total Payable:* ${totalBalance.toInt()} PKR\n")
+            sb.append(if (isUrdu) "*اس مہینے کا بل:* ${totalBill.toInt()} Rs.\n" else "*Monthly Bill:* ${totalBill.toInt()} Rs.\n")
+            sb.append(if (isUrdu) "*ادائیگی:* ${totalPaid.toInt()} Rs.\n" else "*Monthly Paid:* ${totalPaid.toInt()} Rs.\n")
+            sb.append(if (isUrdu) "*کل واجب الادا:* ${totalBalance.toInt()} Rs.\n" else "*Total Payable:* ${totalBalance.toInt()} Rs.\n")
 
             val intent = Intent(Intent.ACTION_SEND).apply {
                 type = "text/plain"
                 putExtra(Intent.EXTRA_TEXT, sb.toString())
             }
             context.startActivity(Intent.createChooser(intent, if (isUrdu) "ہساب شیئر کریں" else "Share Ledger"))
+        }
+    }
+
+    fun shareTextReportViaWhatsApp(context: Context, customer: Customer, isUrdu: Boolean) {
+        viewModelScope.launch {
+            val records = dao.getRecordsForCustomerSync(customer.id)
+            val payments = dao.getPaymentsForCustomerSync(customer.id)
+            val month = Calendar.getInstance()
+            
+            val reportTitle = if (isUrdu) "\n*ماہانہ ہساب - ${customer.name}*\n" else "\n*Monthly Ledger - ${customer.name}*\n"
+            val sb = java.lang.StringBuilder(reportTitle)
+            
+            val dateFormat = SimpleDateFormat("dd/MM")
+            records.filter { isSameMonth(it.date, month) }.forEach {
+                val label = when(it.type) {
+                    "Delivered" -> if (isUrdu) "ڈیلیوری" else "Delivered"
+                    "Extra" -> if (isUrdu) "اضافی" else "Extra"
+                    else -> it.type
+                }
+                sb.append("${dateFormat.format(Date(it.date))}: $label - ${it.quantity}L - ${it.amount} Rs.\n")
+            }
+            
+            payments.filter { isSameMonth(it.date, month) }.forEach {
+                val label = if (isUrdu) "رقم وصولی" else "Payment"
+                sb.append("${dateFormat.format(Date(it.date))}: $label - ${it.amount} Rs.\n")
+            }
+            
+            val currentRecords = records.filter { isSameMonth(it.date, month) }
+            val currentPayments = payments.filter { isSameMonth(it.date, month) }
+            val totalBill = currentRecords.sumOf { it.amount }
+            val totalPaid = currentPayments.sumOf { it.amount }
+            val currentNet = totalBill - totalPaid
+            
+            val totalBalance = records.sumOf { it.amount } - payments.sumOf { it.amount }
+            val previousBalance = totalBalance - currentNet
+            
+            sb.append("\n------------------\n")
+            if (previousBalance != 0.0) {
+                sb.append(if (isUrdu) "*پچھلا بقایا:* ${previousBalance.toInt()} Rs.\n" else "*Prev. Balance:* ${previousBalance.toInt()} Rs.\n")
+            }
+            sb.append(if (isUrdu) "*اس مہینے کا بل:* ${totalBill.toInt()} Rs.\n" else "*Monthly Bill:* ${totalBill.toInt()} Rs.\n")
+            sb.append(if (isUrdu) "*ادائیگی:* ${totalPaid.toInt()} Rs.\n" else "*Monthly Paid:* ${totalPaid.toInt()} Rs.\n")
+            sb.append(if (isUrdu) "*کل واجب الادا:* ${totalBalance.toInt()} Rs.\n" else "*Total Payable:* ${totalBalance.toInt()} Rs.\n")
+
+            val intent = Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_TEXT, sb.toString())
+                setPackage("com.whatsapp")
+            }
+            try {
+                context.startActivity(intent)
+            } catch (e: Exception) {
+                val generalIntent = Intent(Intent.ACTION_SEND).apply {
+                    type = "text/plain"
+                    putExtra(Intent.EXTRA_TEXT, sb.toString())
+                }
+                context.startActivity(Intent.createChooser(generalIntent, if (isUrdu) "ہساب شیئر کریں" else "Share Ledger"))
+            }
         }
     }
 

@@ -221,14 +221,14 @@ fun MonthReportCard(
                         }
                     }
                     Spacer(modifier = Modifier.height(12.dp))
-                    Text("Bill: ${summary.totalAmount.toInt()} PKR  •  Paid: ${summary.totalPaid.toInt()} PKR",
+                    Text("Bill: ${summary.totalAmount.toInt()} ${stringResource(R.string.rupees)}  •  Paid: ${summary.totalPaid.toInt()} ${stringResource(R.string.rupees)}",
                         fontSize = 13.sp, color = Color.Gray)
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     val balance = summary.balance
                     Column(horizontalAlignment = Alignment.End) {
                         Text(
-                            "${kotlin.math.abs(balance).toInt()} PKR",
+                            "${kotlin.math.abs(balance).toInt()} ${stringResource(R.string.rupees)}",
                             fontWeight = FontWeight.Bold,
                             fontSize = 16.sp,
                             color = if (balance > 0) Color(0xFF2E7D32) else if (balance < 0) Color(0xFFD32F2F) else Color.Gray
@@ -286,7 +286,7 @@ fun MonthReportCard(
                             }
                         }
                     }
-                    Text("Bill: ${totalAmount.toInt()} PKR", fontSize = 13.sp, color = Color.Gray)
+                    Text("Bill: ${totalAmount.toInt()} ${stringResource(R.string.rupees)}", fontSize = 13.sp, color = Color.Gray)
                 }
                 Icon(Icons.Default.KeyboardArrowRight, contentDescription = null, tint = Color.LightGray)
             }
@@ -348,14 +348,14 @@ fun MonthDetailView(
                         Spacer(modifier = Modifier.height(12.dp))
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                             SummaryStatColumn(stringResource(R.string.total_liters), "${summary.totalLiters.toInt()} L", GrassGreen)
-                            SummaryStatColumn(stringResource(R.string.total_bill), "${summary.totalAmount.toInt()} PKR", Color.White)
-                            SummaryStatColumn(stringResource(R.string.collected), "${summary.totalPaid.toInt()} PKR", Color(0xFF80CBC4))
+                            SummaryStatColumn(stringResource(R.string.total_bill), "${summary.totalAmount.toInt()} ${stringResource(R.string.rupees)}", Color.White)
+                            SummaryStatColumn(stringResource(R.string.collected), "${summary.totalPaid.toInt()} ${stringResource(R.string.rupees)}", Color(0xFF80CBC4))
                         }
                         Spacer(modifier = Modifier.height(8.dp))
                         val balance = summary.balance
                         Text(
-                            text = if (balance > 0) "${stringResource(R.string.outstanding)}: ${balance.toInt()} PKR"
-                                   else if (balance < 0) "${stringResource(R.string.overpaid)}: ${kotlin.math.abs(balance).toInt()} PKR"
+                            text = if (balance > 0) "${stringResource(R.string.outstanding)}: ${balance.toInt()} ${stringResource(R.string.rupees)}"
+                                   else if (balance < 0) "${stringResource(R.string.overpaid)}: ${kotlin.math.abs(balance).toInt()} ${stringResource(R.string.rupees)}"
                                    else stringResource(R.string.settled),
                             color = if (balance > 0) Color(0xFFFFCC80) else Color(0xFF80CBC4),
                             fontWeight = FontWeight.Bold,
@@ -393,7 +393,7 @@ fun MonthDetailView(
                         Column(modifier = Modifier.padding(14.dp)) {
                             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                                 Text(customer.name, fontWeight = FontWeight.Bold, color = ClayTerracotta)
-                                Text("${delivered.sumOf { it.amount }.toInt()} PKR", fontWeight = FontWeight.Bold, color = HeritageOlive)
+                                Text("${delivered.sumOf { it.amount }.toInt()} ${stringResource(R.string.rupees)}", fontWeight = FontWeight.Bold, color = HeritageOlive)
                             }
                             Text("${delivered.sumOf { it.quantity }.toInt()} L${if (nagas > 0) "  •  $nagas Naga" else ""}",
                                 fontSize = 13.sp, color = Color.Gray)
@@ -437,7 +437,7 @@ fun MonthDetailView(
                         val nagas = records.count { it.type == "Naga" }
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                             SummaryStatColumn(stringResource(R.string.total_liters), "${delivered.sumOf { it.quantity }.toInt()} L", GrassGreen)
-                            SummaryStatColumn(stringResource(R.string.total_bill), "${delivered.sumOf { it.amount }.toInt()} PKR", Color.White)
+                            SummaryStatColumn(stringResource(R.string.total_bill), "${delivered.sumOf { it.amount }.toInt()} ${stringResource(R.string.rupees)}", Color.White)
                             SummaryStatColumn(stringResource(R.string.naga_days), "$nagas", Color(0xFFFFCC80))
                         }
                         Spacer(modifier = Modifier.height(12.dp))
@@ -483,7 +483,7 @@ fun MonthDetailView(
                         if (!isNaga) {
                             Column(horizontalAlignment = Alignment.End) {
                                 Text("${record.quantity} L", fontWeight = FontWeight.Bold, color = HeritageOlive)
-                                Text("${record.amount.toInt()} PKR", fontSize = 13.sp, color = Color.Gray)
+                                Text("${record.amount.toInt()} ${stringResource(R.string.rupees)}", fontSize = 13.sp, color = Color.Gray)
                             }
                         } else {
                             Text("0 L", color = Color(0xFFB71C1C), fontWeight = FontWeight.Bold)

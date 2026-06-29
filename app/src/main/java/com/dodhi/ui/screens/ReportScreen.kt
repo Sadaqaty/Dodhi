@@ -22,6 +22,11 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Backup
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -31,6 +36,7 @@ fun ReportScreen(viewModel: DashboardViewModel, onCustomerClick: (Long) -> Unit)
     val customers by viewModel.customers.collectAsState()
     val summary by viewModel.getCollectionSummary().collectAsState(initial = null)
     val dailyVolume by viewModel.getDailyVolumeInRange().collectAsState(initial = emptyList())
+    val context = LocalContext.current
     
     Scaffold(
         topBar = {
@@ -39,7 +45,16 @@ fun ReportScreen(viewModel: DashboardViewModel, onCustomerClick: (Long) -> Unit)
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = GrassGreen,
                     titleContentColor = Color.White
-                )
+                ),
+                actions = {
+                    IconButton(onClick = { viewModel.exportDataBackup(context) }) {
+                        Icon(
+                            imageVector = Icons.Default.Backup,
+                            contentDescription = "Backup Data",
+                            tint = Color.White
+                        )
+                    }
+                }
             )
         }
     ) { padding ->
@@ -92,6 +107,7 @@ fun ReportScreen(viewModel: DashboardViewModel, onCustomerClick: (Long) -> Unit)
                     customer = customer,
                     total = total,
                     balance = balance,
+                    viewModel = viewModel,
                     onClick = { onCustomerClick(customer.id) }
                 )
             }
@@ -178,7 +194,7 @@ fun VolumeBarChart(data: List<DashboardViewModel.DayVolume>) {
 }
 
 @Composable
-fun PremiumReportCard(customer: com.dodhi.data.model.Customer, total: Double, balance: Double, onClick: () -> Unit) {
+fun PremiumReportCard(customer: com.dodhi.data.model.Customer, total: Double, balance: Double, viewModel: DashboardViewModel, onClick: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
         shape = MaterialTheme.shapes.large,
@@ -206,6 +222,24 @@ fun PremiumReportCard(customer: com.dodhi.data.model.Customer, total: Double, ba
                     fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = if (balance > 0) Color(0xFFD32F2F) else Color(0xFF2E7D32)
+                )
+            }
+            
+            Spacer(modifier = Modifier.width(12.dp))
+            
+            val context = LocalContext.current
+            IconButton(
+                onClick = {
+                    val isSystemUrdu = AppCompatDelegate.getApplicationLocales().toLanguageTags().contains("ur")
+                    viewModel.shareTextReportViaWhatsApp(context, customer, isSystemUrdu)
+                },
+                modifier = Modifier.size(36.dp)
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_whatsapp),
+                    contentDescription = "Share via WhatsApp",
+                    tint = Color.Unspecified,
+                    modifier = Modifier.size(24.dp)
                 )
             }
         }

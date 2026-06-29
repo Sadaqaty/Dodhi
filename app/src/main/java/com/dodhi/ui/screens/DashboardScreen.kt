@@ -28,6 +28,12 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Info
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
+import androidx.compose.ui.platform.LocalContext
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material.icons.filled.Backup
+import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.Icons
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -409,11 +415,13 @@ fun PremiumCustomerSummaryCard(customer: Customer, viewModel: DashboardViewModel
         border = BorderStroke(1.dp, ClayTerracotta.copy(alpha = 0.2f))
     ) {
         Row(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Column {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(text = customer.name, fontWeight = FontWeight.ExtraBold, fontSize = 18.sp, color = ClayTerracotta)
                 Text(text = if (customer.isProvider) stringResource(R.string.providers) else stringResource(R.string.consumers), fontSize = 12.sp, color = EarthBrown.copy(alpha = 0.6f))
             }
@@ -507,6 +515,23 @@ fun SettingsSheet(viewModel: DashboardViewModel, onDismiss: () -> Unit) {
     val milkmanName by viewModel.milkmanName.collectAsState()
     val isMusicEnabled by viewModel.isMusicEnabled.collectAsState()
     var tempName by remember { mutableStateOf(milkmanName) }
+    val context = LocalContext.current
+    val importLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        if (uri != null) {
+            viewModel.importDataBackup(
+                context = context,
+                uri = uri,
+                onSuccess = {
+                    android.widget.Toast.makeText(context, "Data imported successfully!", android.widget.Toast.LENGTH_LONG).show()
+                },
+                onError = { error ->
+                    android.widget.Toast.makeText(context, "Import failed: $error", android.widget.Toast.LENGTH_LONG).show()
+                }
+            )
+        }
+    }
     
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -580,6 +605,53 @@ fun SettingsSheet(viewModel: DashboardViewModel, onDismiss: () -> Unit) {
                     
                     // Language Selection
                     LanguageSettingRow()
+                }
+            }
+            
+            Spacer(modifier = Modifier.height(24.dp))
+            
+            // Section 3: Backup & Restore
+            SettingsSectionHeader(stringResource(R.string.backup_restore))
+            Card(
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                border = BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.3f))
+            ) {
+                Column {
+                    // Export Data
+                    ListItem(
+                        headlineContent = { Text(stringResource(R.string.export_data), fontWeight = FontWeight.Bold) },
+                        supportingContent = { Text(stringResource(R.string.export_data_desc)) },
+                        leadingContent = { 
+                            Icon(
+                                imageVector = Icons.Default.Backup, 
+                                contentDescription = null,
+                                tint = GrassGreen,
+                                modifier = Modifier.size(24.dp)
+                            ) 
+                        },
+                        modifier = Modifier.clickable {
+                            viewModel.exportDataBackup(context)
+                        }
+                    )
+                    
+                    Divider(modifier = Modifier.padding(horizontal = 16.dp), color = Color.LightGray.copy(alpha = 0.2f))
+                    
+                    // Import Data
+                    ListItem(
+                        headlineContent = { Text(stringResource(R.string.import_data), fontWeight = FontWeight.Bold) },
+                        supportingContent = { Text(stringResource(R.string.import_data_desc)) },
+                        leadingContent = { 
+                            Icon(
+                                imageVector = Icons.Default.Restore, 
+                                contentDescription = null,
+                                tint = ClayTerracotta,
+                                modifier = Modifier.size(24.dp)
+                            ) 
+                        },
+                        modifier = Modifier.clickable {
+                            importLauncher.launch("application/json")
+                        }
+                    )
                 }
             }
             

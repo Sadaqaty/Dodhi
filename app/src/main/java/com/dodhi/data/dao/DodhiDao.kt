@@ -59,4 +59,46 @@ interface DodhiDao {
 
     @Query("SELECT * FROM delivery_records ORDER BY date DESC")
     fun getAllRecords(): Flow<List<DeliveryRecord>>
+
+    @Query("SELECT * FROM customers")
+    suspend fun getAllCustomersSync(): List<Customer>
+
+    @Query("SELECT * FROM delivery_records")
+    suspend fun getAllRecordsSync(): List<DeliveryRecord>
+
+    @Query("SELECT * FROM payments")
+    suspend fun getAllPaymentsSync(): List<Payment>
+
+    @Query("SELECT * FROM milk_sources")
+    suspend fun getAllMilkSourcesSync(): List<MilkSource>
+
+    @Query("DELETE FROM customers")
+    suspend fun clearCustomers()
+
+    @Query("DELETE FROM delivery_records")
+    suspend fun clearRecords()
+
+    @Query("DELETE FROM payments")
+    suspend fun clearPayments()
+
+    @Query("DELETE FROM milk_sources")
+    suspend fun clearMilkSources()
+
+    @Transaction
+    suspend fun importBackup(
+        customersList: List<Customer>,
+        recordsList: List<DeliveryRecord>,
+        paymentsList: List<Payment>,
+        milkSourcesList: List<MilkSource>
+    ) {
+        clearCustomers()
+        clearRecords()
+        clearPayments()
+        clearMilkSources()
+
+        customersList.forEach { insertCustomer(it) }
+        recordsList.forEach { insertRecord(it) }
+        paymentsList.forEach { insertPayment(it) }
+        milkSourcesList.forEach { insertMilkSource(it) }
+    }
 }

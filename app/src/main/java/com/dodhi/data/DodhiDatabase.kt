@@ -17,6 +17,10 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 abstract class DodhiDatabase : RoomDatabase() {
     abstract fun dodhiDao(): DodhiDao
 
+    fun forceCheckpoint() {
+        this.openHelper.writableDatabase.query("PRAGMA wal_checkpoint(FULL)").close()
+    }
+
     companion object {
         @Volatile
         private var INSTANCE: DodhiDatabase? = null
