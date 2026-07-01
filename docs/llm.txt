@@ -1,0 +1,22 @@
+# Dodhi App - Static Product Web Portal
+
+Dodhi is Pakistan’s first high-performance, bilingual digital register designed specifically for milkmen (Dodhis) and dairy distributors.
+
+## Project Information
+- **Developer**: Fixare Studio (https://fixare.studio)
+- **Domain**: https://dodhi.fixare.studio
+- **License**: Proprietary / Handcrafted
+
+## Web Portal Pages
+- **Home (index.html)**: Overview of the application, zero-keyboard route entries, Urdu WhatsApp billing receipt card format, and direct Android APK download.
+- **Features (features.html)**: Interactive walkthroughs detailing daily delivery logs, customizable customer rate sheets, accounting summaries, and 50+ poetical reminders.
+- **About (about.html)**: Explanations of how technology respects agricultural heritage, trust-based local business practices, and team information.
+- **Privacy Policy (privacy.html)**: In-depth policy page outlining the zero data collection strategy and local device data retention.
+
+## Core Application Capabilities
+1. **Zero-Keyboard Entries**: Deliver order logs via one-tap prompts with pre-loaded typical quantities.
+2. **Custom Customer Rates**: Set independent Buffalo and Cow milk rates per liter for individual customer accounts.
+3. **Roman-Urdu WhatsApp Sharing**: Output instant monthly billing receipt statements directly into customer WhatsApp chats.
+4. **Cinematic PDF Statements**: Generate itemized invoices showing cumulative balances, delivery dates, and collections.
+5. **Tea-Time Poetical Reminders**: Daily notifications sent at 5:00 PM containing humorous poetry and cultural sayings in Urdu/English.
+6. **Offline-First Storage & Google Auto Backup**: Secure, private storage in local Android Room (SQLite) database with Google Silent Auto Backup for data loss prevention and manual JSON backup/restore exports.

@@ -299,14 +299,14 @@
                 </section>
 
                 <section>
-                    <h2>3. Data Backups & File Sharing</h2>
+                    <h2>3. Data Backups, Google Auto Backup & File Sharing</h2>
                     <p>
-                        The application provides a feature allowing you to export your data as a backup JSON file (`dodhi_backup_[timestamp].json`).
+                        To ensure data persistence and prevent accidental data loss, Dodhi utilizes a combination of manual and automated backup systems:
                     </p>
                     <ul>
-                        <li>This backup file is generated locally on your device.</li>
-                        <li>You retain complete ownership and control of this file. It is only shared or uploaded when you explicitly choose to do so using the Android share sheet (e.g. exporting to your own Google Drive, Dropbox, or sending via WhatsApp).</li>
-                        <li>Importing a backup file reads data solely from the local file you select. No network connection is utilized.</li>
+                        <li><strong>Google Auto Backup (Google Silent Backup):</strong> Dodhi supports the standard Android Auto Backup service. If you have backup enabled on your Android device, your local SQLite database and preferences are silently backed up to your private Google Drive storage (associated with your Google account) when your device is charging, connected to Wi-Fi, and idle. This backup is fully encrypted, sandboxed, and managed by Google. The developers of Dodhi have **zero access** to this backup data. If you change, reset, or lose your phone, your database will be restored automatically upon re-installing the app.</li>
+                        <li><strong>Manual JSON Exports:</strong> The application also provides an option to manually export your data as a backup JSON file (`dodhi_backup_[timestamp].json`). This backup file is generated locally. You retain complete ownership and control over it, and it is only shared or uploaded when you explicitly trigger the Android share dialog (e.g., sending it via WhatsApp, Email, or saving it to your preferred cloud drive).</li>
+                        <li><strong>Manual Restores:</strong> Importing a backup file reads data solely from the local file you select. No network connection or external servers are utilized.</li>
                     </ul>
                 </section>
 
