@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Features | Dodhi App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
+    <link rel="stylesheet" href="./style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: var(--bg-offset);
+            color: var(--text);
+            overflow-y: auto !important;
+        }
+
+        .features-section {
+            padding: clamp(60px, 8vw, 100px) 0;
+        }
+
+        .feature-showcase-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+
+        @media (max-width: 1024px) {
+            .feature-showcase-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .feature-showcase-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .feature-showcase-card {
+            background: #fff;
+            border-radius: 20px;
+            padding: 40px 30px;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .feature-showcase-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent);
+            box-shadow: var(--shadow-premium);
+        }
+
+        .feature-icon-wrapper {
+            width: 70px;
+            height: 70px;
+            border-radius: 16px;
+            background: rgba(27, 59, 67, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            margin-bottom: 25px;
+            color: var(--primary);
+        }
+
+        .feature-showcase-card h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .feature-showcase-card p {
+            font-size: 15px;
+            line-height: 1.6;
+            color: var(--text-light);
+            margin: 0;
+        }
+
+        /* Detail split styling */
+        .interactive-split {
+            background: #fff;
+            border-radius: 32px;
+            border: 1px solid var(--border);
+            padding: 50px;
+            margin-top: 60px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.02);
+        }
+
+        @media (max-width: 768px) {
+            .interactive-split {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body class="normal-scroll">
+
+    <!-- Navigation Header -->
+    <header class="nav-header">
+        <div class="nav-container">
+            <a href="./index.html" class="nav-logo">
+                🍶 Dodhi <span>App</span>
+            </a>
+            <button class="nav-toggle" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <ul class="nav-links">
+                <li><a href="./index.html">Home</a></li>
+                <li><a href="./features.html" class="active">Features</a></li>
+                <li><a href="./about.html">About</a></li>
+                <li><a href="./privacy.html">Privacy</a></li>
+                <li><a href="./index.html#about-fixare" class="nav-cta">Studio</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <!-- Subpage Hero -->
+    <section class="subpage-hero">
+        <div class="hero-glow-1"></div>
+        <div class="hero-glow-2"></div>
+        <div class="container">
+            <div class="badge" style="color: var(--accent);">PREMIUM UTILITIES</div>
+            <h1>Digital Registers Redefined</h1>
+            <p>Every feature of Dodhi is engineered specifically to match the pacing and culture of traditional milkmen, providing maximum ease with minimal typing.</p>
+        </div>
+    </section>
+
+    <!-- Features Showcase -->
+    <section class="features-section">
+        <div class="container">
+            <div class="feature-showcase-grid">
+                
+                <!-- Card 1 -->
+                <div class="feature-showcase-card">
+                    <div class="feature-icon-wrapper">🚀</div>
+                    <h3>Zero-Keyboard Entries</h3>
+                    <p>Designed for milkmen on the move. Daily milk quantities default to the customer's typical amount. Log your entire route with simple taps in less than a minute.</p>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="feature-showcase-card">
+                    <div class="feature-icon-wrapper">🗣️</div>
+                    <h3>Bilingual English & Urdu</h3>
+                    <p>Form fields, button descriptions, and help menus adjust automatically to your system's selected language. Easy for village milkmen and city distributors alike.</p>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="feature-showcase-card">
+                    <div class="feature-icon-wrapper">💰</div>
+                    <h3>Custom Rate Sheets</h3>
+                    <p>Set personalized buffalo and cow milk rates per liter for every individual customer. The app automatically calculates delivery amounts based on customized rates.</p>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="feature-showcase-card">
+                    <div class="feature-icon-wrapper">🗒️</div>
+                    <h3>Digital Khata Ledgers</h3>
+                    <p>High-fidelity recording of daily deliveries, extra sales, and payment receipts. A unified database matches standard accounting rules automatically.</p>
+                </div>
+
+                <!-- Card 5 -->
+                <div class="feature-showcase-card">
+                    <div class="feature-icon-wrapper">🔔</div>
+                    <h3>52+ Poetical Reminders</h3>
+                    <p>Receive notifications at 5:00 PM if entries are forgotten. Features charming Urdu/English poetry, local sayings, and lighthearted tea-time humor with custom vibrations.</p>
+                </div>
+
+                <!-- Card 6 -->
+                <div class="feature-showcase-card">
+                    <div class="feature-icon-wrapper">📄</div>
+                    <h3>Urdu WhatsApp Parchi</h3>
+                    <p>Share monthly statements and itemized ledgers directly to customers' WhatsApp in clean, readable Roman-Urdu formats with Rs. calculation details.</p>
+                </div>
+
+                <!-- Card 7 -->
+                <div class="feature-showcase-card">
+                    <div class="feature-icon-wrapper">🖨️</div>
+                    <h3>Cinematic PDF Export</h3>
+                    <p>Generate professionally styled PDF statements complete with monthly summaries, previous balance carryovers, payments received, and total payable amounts.</p>
+                </div>
+
+                <!-- Card 8 -->
+                <div class="feature-showcase-card">
+                    <div class="feature-icon-wrapper">🔒</div>
+                    <h3>Offline & Private</h3>
+                    <p>Dodhi does not use cloud databases or remote servers. All your ledger statistics remain completely secure and offline in your local Android Room database.</p>
+                </div>
+
+                <!-- Card 9 -->
+                <div class="feature-showcase-card">
+                    <div class="feature-icon-wrapper">🔄</div>
+                    <h3>JSON Backup & Restore</h3>
+                    <p>Export your ledger as a secure backup JSON file and save it to Google Drive or send it via email to transfer data between devices seamlessly.</p>
+                </div>
+
+            </div>
+
+            <!-- Detailed Spotlight Section -->
+            <div class="interactive-split split">
+                <div class="text">
+                    <div class="badge">SPOTLIGHT</div>
+                    <h3 class="premium-heading-small">Bilingual Dynamic Interface</h3>
+                    <p class="premium-p">Dodhi supports local needs. When creating customers or tracking milk quantities, the interface adapts to Urdu or English language modes seamlessly. Descriptions utilize resource strings to guide users without cluttering the premium interface.</p>
+                </div>
+                <div class="visual">
+                    <div class="asset-container" style="background: var(--primary); padding: 50px; border-radius: 24px; text-align: center; color: #fff;">
+                        <div style="font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 800; color: var(--accent); margin-bottom: 20px;">نئے گاہک کا اندراج</div>
+                        <p style="color: rgba(255,255,255,0.7); max-width: 400px; margin: 0 auto 30px auto; font-size: 15px; line-height: 1.6;">"Add Customer form is bilingual. Form descriptions auto-translate to English or Urdu based on your phone language."</p>
+                        <div style="background: rgba(255,255,255,0.1); border-radius: 12px; padding: 15px; font-weight: 600; display: inline-block;">Rs. 180 / Liter (default)</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Unified Premium Footer -->
+    <footer class="footer-static">
+        <div class="container">
+            <div class="grid-footer">
+                <div>
+                    <h4>🍶 Dodhi App</h4>
+                    <p style="margin-top: 10px;">
+                        Handcrafted by Fixare Studio, combining agricultural heritage with high-performance digital precision. Settle accounts instantly, and record milk deliveries with one-tap ease.
+                    </p>
+                </div>
+                <div>
+                    <h4>Navigation</h4>
+                    <ul>
+                        <li><a href="./index.html">Home</a></li>
+                        <li><a href="./features.html">Features</a></li>
+                        <li><a href="./about.html">About Developer</a></li>
+                        <li><a href="./privacy.html">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Connect</h4>
+                    <ul>
+                        <li><a href="https://fixare.studio">Fixare Studio</a></li>
+                        <li><a href="mailto:info@fixare.studio">Email Support</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <div>© 2026 Fixare Studio. All Rights Reserved.</div>
+                <div>
+                    <a href="./privacy.html">Privacy</a>
+                    <a href="https://fixare.studio">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <script src="./script.js"></script>
+</body>
+</html>

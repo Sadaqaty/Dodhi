@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy | Dodhi App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
+    <link rel="stylesheet" href="./style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: var(--bg-offset);
+            color: var(--text);
+            overflow-y: auto !important; /* Enable normal scroll */
+        }
+        
+        /* Unified Premium Header */
+        header.nav-header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            padding: 20px 0;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 0 clamp(20px, 5vw, 80px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .nav-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            font-weight: 900;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .nav-logo span {
+            color: var(--accent);
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+            align-items: center;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-light);
+            font-weight: 600;
+            font-size: 14px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover, .nav-links a.active {
+            color: var(--primary);
+        }
+        
+        .nav-cta {
+            background: var(--primary);
+            color: #fff !important;
+            padding: 12px 24px;
+            border-radius: 8px;
+            transition: all 0.3s !important;
+        }
+        
+        .nav-cta:hover {
+            background: var(--accent) !important;
+            transform: translateY(-2px);
+        }
+        
+        .policy-content {
+            padding: clamp(60px, 8vw, 100px) 0;
+        }
+        
+        .policy-card {
+            background: #fff;
+            border-radius: 24px;
+            padding: clamp(30px, 6vw, 60px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.02);
+            border: 1px solid var(--border);
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .policy-card section {
+            margin-bottom: 40px;
+        }
+        
+        .policy-card section:last-child {
+            margin-bottom: 0;
+        }
+        
+        .policy-card h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 8px;
+            display: inline-block;
+        }
+        
+        .policy-card p, .policy-card ul {
+            font-size: 16px;
+            line-height: 1.8;
+            color: var(--text-light);
+            margin-bottom: 20px;
+        }
+        
+        .policy-card ul {
+            padding-left: 20px;
+        }
+        
+        .policy-card li {
+            margin-bottom: 10px;
+        }
+        
+        /* Footer styling for normal pages */
+        .footer-static {
+            background: var(--primary);
+            color: #fff;
+            padding: 80px 0 40px 0;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .footer-static .grid-footer {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 60px;
+        }
+        
+        @media (max-width: 768px) {
+            .footer-static .grid-footer {
+                grid-template-columns: 1fr;
+            }
+            .nav-links {
+                display: none; /* simple mobile toggle hidden for simplicity, or we can use styling */
+            }
+        }
+        
+        .footer-static h4 {
+            font-family: 'Playfair Display', serif;
+            font-size: 20px;
+            color: var(--accent);
+            margin-bottom: 20px;
+        }
+        
+        .footer-static p {
+            color: rgba(255,255,255,0.6);
+            line-height: 1.6;
+            max-width: 400px;
+        }
+        
+        .footer-static ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .footer-static ul li {
+            margin-bottom: 12px;
+        }
+        
+        .footer-static ul a {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-static ul a:hover {
+            color: #fff;
+        }
+        
+        .footer-bottom {
+            border-top: 1px solid rgba(255,255,255,0.08);
+            padding-top: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            color: rgba(255,255,255,0.4);
+        }
+        
+        .footer-bottom a {
+            color: rgba(255,255,255,0.4);
+            text-decoration: none;
+            margin-left: 20px;
+        }
+        
+        .footer-bottom a:hover {
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Header -->
+    <header class="nav-header">
+        <div class="nav-container">
+            <a href="./index.html" class="nav-logo">
+                🍶 Dodhi <span>App</span>
+            </a>
+            <button class="nav-toggle" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <ul class="nav-links">
+                <li><a href="./index.html">Home</a></li>
+                <li><a href="./features.html">Features</a></li>
+                <li><a href="./about.html">About</a></li>
+                <li><a href="./privacy.html" class="active">Privacy</a></li>
+                <li><a href="./index.html#about-fixare" class="nav-cta">Studio</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <!-- Hero Title -->
+    <section class="subpage-hero">
+        <div class="hero-glow-1"></div>
+        <div class="hero-glow-2"></div>
+        <div class="container">
+            <h1>Privacy Policy</h1>
+            <p>Effective Date: July 1, 2026</p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="policy-content">
+        <div class="container">
+            <div class="policy-card">
+                <section>
+                    <h2>1. Overview</h2>
+                    <p>
+                        Welcome to **Dodhi**, a digital ledger application developed by **Fixare Studio** designed specifically for traditional milkmen to record and manage customer deliveries, payments, and balances.
+                    </p>
+                    <p>
+                        We respect your privacy and are committed to protecting it. This Privacy Policy details how we handle information in the Dodhi app.
+                    </p>
+                </section>
+                
+                <section>
+                    <h2>2. Offline-First & Zero Data Collection</h2>
+                    <p>
+                        **Dodhi is an offline-first mobile application.**
+                    </p>
+                    <p>
+                        All records, customer details, milk deliveries, payments, custom rates, and settings are stored locally on your device in a secure SQLite database (via Android Room Database).
+                    </p>
+                    <ul>
+                        <li>We **do not** host external servers, databases, or cloud sync systems.</li>
+                        <li>We **do not** collect, store, or transmit your personal data or your customers' data.</li>
+                        <li>All financial figures and ledger data remain entirely on your device and are never shared with us or any third parties.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>3. Data Backups & File Sharing</h2>
+                    <p>
+                        The application provides a feature allowing you to export your data as a backup JSON file (`dodhi_backup_[timestamp].json`).
+                    </p>
+                    <ul>
+                        <li>This backup file is generated locally on your device.</li>
+                        <li>You retain complete ownership and control of this file. It is only shared or uploaded when you explicitly choose to do so using the Android share sheet (e.g. exporting to your own Google Drive, Dropbox, or sending via WhatsApp).</li>
+                        <li>Importing a backup file reads data solely from the local file you select. No network connection is utilized.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>4. Device Permissions</h2>
+                    <p>
+                        To provide essential features, the app requests the following system permissions:
+                    </p>
+                    <ul>
+                        <li><strong>POST_NOTIFICATIONS (Android 13+):</strong> Used to schedule daily entry reminders at 5:00 PM local time. These notifications are scheduled locally via Android's WorkManager; no external push server is used.</li>
+                        <li><strong>Storage/File Access:</strong> Required to write backup files to your designated document directories and read them during backup restorations.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>5. Security</h2>
+                    <p>
+                        Since your data resides on your own mobile device, the security of your ledger relies on your device's security. We recommend setting a secure screen lock (PIN, pattern, or biometrics) on your phone to prevent unauthorized access to your records.
+                    </p>
+                </section>
+
+                <section>
+                    <h2>6. Children's Privacy</h2>
+                    <p>
+                        Our application does not collect any personal data, and is safe for use by individuals of all ages.
+                    </p>
+                </section>
+
+                <section>
+                    <h2>7. Changes to this Policy</h2>
+                    <p>
+                        We may update this Privacy Policy from time to time to reflect modifications in application functionality or regulatory compliance. Any updates will be posted directly to our official website.
+                    </p>
+                </section>
+
+                <section>
+                    <h2>8. Contact Us</h2>
+                    <p>
+                        If you have any questions or suggestions regarding our Privacy Policy, please feel free to reach out to us:
+                    </p>
+                    <p style="font-weight: 600; color: var(--primary);">
+                        Email: info@fixare.studio<br>
+                        Website: https://fixare.studio
+                    </p>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- Unified Premium Footer -->
+    <footer class="footer-static">
+        <div class="container">
+            <div class="grid-footer">
+                <div>
+                    <h4>🍶 Dodhi App</h4>
+                    <p style="margin-top: 10px;">
+                        Handcrafted by Fixare Studio, combining agricultural heritage with high-performance digital precision. Settle accounts instantly, and record milk deliveries with one-tap ease.
+                    </p>
+                </div>
+                <div>
+                    <h4>Navigation</h4>
+                    <ul>
+                        <li><a href="./index.html">Home</a></li>
+                        <li><a href="./features.html">Features</a></li>
+                        <li><a href="./about.html">About Developer</a></li>
+                        <li><a href="./privacy.html">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Connect</h4>
+                    <ul>
+                        <li><a href="https://fixare.studio">Fixare Studio</a></li>
+                        <li><a href="mailto:info@fixare.studio">Email Support</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <div>© 2026 Fixare Studio. All Rights Reserved.</div>
+                <div>
+                    <a href="./privacy.html">Privacy</a>
+                    <a href="https://fixare.studio">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <script src="./script.js"></script>
+</body>
+</html>
