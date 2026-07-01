@@ -3,7 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dodhi | The Intelligent Dairy Management Suite</title>
+    <title>Dodhi App | The Intelligent Dairy Register & Khata Ledger</title>
+    <meta name="description" content="Dodhi is the leading digital dairy register & khata ledger app for Pakistani milkmen. Track daily routes, manage cow/buffalo milk deliveries, send Urdu bills on WhatsApp, and generate professional PDF statements offline. No internet required.">
+    <meta name="keywords" content="dodhi, dairy register, milkman khata, milk book app, pakistani milkmen, milk delivery ledger, whatsapp billing, cow milk manager, buffalo milk manager, fixare studio">
+    <meta name="author" content="Fixare Studio">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://dodhi.fixare.studio/index.html">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://dodhi.fixare.studio/index.html">
+    <meta property="og:title" content="Dodhi App | The Intelligent Dairy Register & Khata Ledger">
+    <meta property="og:description" content="Dodhi is the leading digital dairy register & khata ledger app for Pakistani milkmen. Track daily routes, manage cow/buffalo milk deliveries, send Urdu bills on WhatsApp, and generate professional PDF statements offline. No internet required.">
+    <meta property="og:image" content="https://dodhi.fixare.studio/assets/og-image.jpg">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://dodhi.fixare.studio/index.html">
+    <meta property="twitter:title" content="Dodhi App | The Intelligent Dairy Register & Khata Ledger">
+    <meta property="twitter:description" content="Dodhi is the leading digital dairy register & khata ledger app for Pakistani milkmen. Track daily routes, manage cow/buffalo milk deliveries, send Urdu bills on WhatsApp, and generate professional PDF statements offline. No internet required.">
+    <meta property="twitter:image" content="https://dodhi.fixare.studio/assets/og-image.jpg">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
     <link rel="stylesheet" href="./style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -16,21 +36,23 @@
     <!-- Navigation Header Overlay -->
     <header class="nav-header nav-header-dark" style="position: absolute; width: 100%; top: 0; left: 0; background: rgba(0, 0, 0, 0.2); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.05); z-index: 1000;">
         <div class="nav-container">
-            <a href="./index.html" class="nav-logo" style="color: #fff;">
+            <a href="./index.html" id="nav-logo" class="nav-logo" style="color: #fff;">
                 🍶 Dodhi <span style="color: var(--accent);">App</span>
             </a>
-            <button class="nav-toggle" aria-label="Toggle navigation">
+            <button id="nav-toggle-btn" class="nav-toggle" aria-label="Toggle navigation">
                 <span></span>
                 <span></span>
                 <span></span>
             </button>
-            <ul class="nav-links">
-                <li><a href="./index.html" class="active" style="color: #fff;">Home</a></li>
-                <li><a href="./features.html" style="color: rgba(255,255,255,0.7);">Features</a></li>
-                <li><a href="./about.html" style="color: rgba(255,255,255,0.7);">About</a></li>
-                <li><a href="./privacy.html" style="color: rgba(255,255,255,0.7);">Privacy</a></li>
-                <li><a href="#about-fixare" class="nav-cta" style="color: #fff;">Studio</a></li>
-            </ul>
+            <nav class="nav-navigation" aria-label="Main Navigation">
+                <ul class="nav-links">
+                    <li><a href="./index.html" id="nav-link-home" class="active" style="color: #fff;">Home</a></li>
+                    <li><a href="./features.html" id="nav-link-features" style="color: rgba(255,255,255,0.7);">Features</a></li>
+                    <li><a href="./about.html" id="nav-link-about" style="color: rgba(255,255,255,0.7);">About</a></li>
+                    <li><a href="./privacy.html" id="nav-link-privacy" style="color: rgba(255,255,255,0.7);">Privacy</a></li>
+                    <li><a href="#about-fixare" id="nav-link-studio" class="nav-cta" style="color: #fff;">Studio</a></li>
+                </ul>
+            </nav>
         </div>
     </header>
 
@@ -53,8 +75,8 @@
                         Preserve the sacred trust of your digital ledger with zero-keyboard route entries, custom rates, automatic tea-time reminder alerts, and instant WhatsApp billing.
                     </p>
                     <div class="hero-actions">
-                        <a href="./app-release.apk" class="btn-premium" download>DOWNLOAD RELEASE APK</a>
-                        <a href="./features.html" class="btn-premium outline">EXPLORE FEATURES</a>
+                        <a href="./app-release.apk" id="hero-btn-download" class="btn-premium" download>DOWNLOAD RELEASE APK</a>
+                        <a href="./features.html" id="hero-btn-features" class="btn-premium outline">EXPLORE FEATURES</a>
                     </div>
                 </div>
 
