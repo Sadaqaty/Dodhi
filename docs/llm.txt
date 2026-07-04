@@ -19,4 +19,4 @@ Dodhi is Pakistan’s first high-performance, bilingual digital register designe
 3. **Roman-Urdu WhatsApp Sharing**: Output instant monthly billing receipt statements directly into customer WhatsApp chats.
 4. **Cinematic PDF Statements**: Generate itemized invoices showing cumulative balances, delivery dates, and collections.
 5. **Tea-Time Poetical Reminders**: Daily notifications sent at 5:00 PM containing humorous poetry and cultural sayings in Urdu/English.
-6. **Offline-First Storage & Google Auto Backup**: Secure, private storage in local Android Room (SQLite) database with Google Silent Auto Backup for data loss prevention and manual JSON backup/restore exports.
+6. **Offline-First Storage**: Secure, private storage in local Android Room (SQLite) database with JSON file backup capabilities.
