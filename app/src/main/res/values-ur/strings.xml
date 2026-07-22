@@ -115,18 +115,26 @@
     <string name="buying_section">خریداری (بیچنے والوں سے)</string>
     <string name="selling_section">فروخت (خریداروں کو)</string>
     
+    <!-- Language Selection -->
+    <string name="choose_language">اپنی زبان منتخب کریں</string>
+    <string name="choose_language_desc">ایپ کے لیے اپنی پسندیدہ زبان منتخب کریں</string>
+    <string name="english">English</string>
+    <string name="urdu">اردو</string>
+
     <!-- Tour Strings -->
     <string name="tour_welcome_title">دودهی ایپ میں خوش آمدید!</string>
-    <string name="tour_welcome_desc">آپ کا ڈیجیٹل ڈیری کھاتہ۔ آئیے اسے استعمال کرنا سیکھتے ہیں۔</string>
-    <string name="tour_add_title">پہلا قدم: ممبرز شامل کریں</string>
-    <string name="tour_add_desc">ان لوگوں کو شامل کریں جن سے آپ دودھ خریدتے ہیں یا جنہیں بیچتے ہیں۔</string>
-    <string name="tour_run_title">دوسرا قدم: ڈیلی رن</string>
-    <string name="tour_run_desc">روزانہ کی مقدار یہاں درج کریں۔ یہ خود بخود حساب کر دے گا۔</string>
-    <string name="tour_reports_title">تیسرا قدم: رپورٹ اور شیئرنگ</string>
-    <string name="tour_reports_desc">باقاعدہ رپورٹس دیکھیں اور پی ڈی ایف رسید شیئر کریں۔</string>
+    <string name="tour_welcome_desc">آپ کا ڈیجیٹل ڈیری کھاتہ جو دودھ کے کاروبار کو آسان اور درست بناتا ہے۔ آئیے شروع کرتے ہیں!</string>
+    <string name="tour_add_title">گاہک اور سپلائرز شامل کریں</string>
+    <string name="tour_add_desc">پہلے ان لوگوں کو شامل کریں جنہیں آپ دودھ بیچتے ہیں (خریدار) یا جن سے خریدتے ہیں (سپلائر)۔ ان کی روزانہ مقدار اور فی لیٹر قیمت مقرر کریں۔</string>
+    <string name="tour_run_title">روزانہ اندراج</string>
+    <string name="tour_run_desc">ہر صبح یا شام، ڈیلی رن کھولیں اور ہر گاہک کے لیے دیا گیا یا ناغہ دبائیں۔ ایپ خود بخود بل حساب کر لے گی۔</string>
+    <string name="tour_reports_title">رپورٹس اور شیئرنگ</string>
+    <string name="tour_reports_desc">اپنا ماہانہ منافع، بقایا بیلنس دیکھیں اور واٹس ایپ کے ذریعے پی ڈی ایف یا ٹیکسٹ رپورٹ شیئر کریں۔</string>
+    <string name="tour_backup_title">بیک اپ اور بحالی</string>
+    <string name="tour_backup_desc">آپ کا ڈیٹا محفوظ ہے! سیٹنگز سے کبھی بھی بیک اپ ایکسپورٹ کریں اور کسی بھی ڈیوائس پر بحال کریں۔</string>
     <string name="skip">چھوڑیں</string>
     <string name="next">اگلا</string>
-    <string name="finish">ختم</string>
+    <string name="finish">شروع کریں</string>
 
     <string name="app_music">ایپ میوزک</string>
     <string name="music_on">میوزک آن ہے</string>

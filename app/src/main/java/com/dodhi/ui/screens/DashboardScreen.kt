@@ -66,16 +66,17 @@ fun DashboardScreen(
     onAboutClick: () -> Unit
 ) {
     var showSettingsSheet by remember { mutableStateOf(false) }
+    var showLanguagePicker by remember { mutableStateOf(false) }
     var showTour by remember { mutableStateOf(false) }
 
     val milkmanName by viewModel.milkmanName.collectAsState()
     val prefs = androidx.compose.ui.platform.LocalContext.current.getSharedPreferences("dodhi_prefs", android.content.Context.MODE_PRIVATE)
-    
+
     // Check if it's first time
     LaunchedEffect(Unit) {
         val isFirstTime = prefs.getBoolean("is_first_time", true)
         if (isFirstTime) {
-            showTour = true
+            showLanguagePicker = true
         }
     }
 
@@ -252,7 +253,18 @@ fun DashboardScreen(
         if (showSettingsSheet) {
             SettingsSheet(viewModel = viewModel, onDismiss = { showSettingsSheet = false })
         }
-        
+
+        // Language picker shows first on first launch
+        if (showLanguagePicker) {
+            LanguagePickerDialog(
+                onSelectLanguage = { languageTag ->
+                    AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(languageTag))
+                    showLanguagePicker = false
+                    showTour = true
+                }
+            )
+        }
+
         if (showTour) {
             AppTourDialog(
                 onFinish = {
@@ -268,6 +280,88 @@ fun DashboardScreen(
 }
 
 @Composable
+fun LanguagePickerDialog(onSelectLanguage: (String) -> Unit) {
+    Dialog(
+        onDismissRequest = {},
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth(0.88f)
+                .wrapContentHeight()
+                .padding(16.dp),
+            shape = RoundedCornerShape(24.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.White),
+            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // App Icon
+                Box(
+                    modifier = Modifier
+                        .size(72.dp)
+                        .clip(CircleShape)
+                        .background(GrassGreen.copy(alpha = 0.1f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        painter = painterResource(id = R.mipmap.ic_launcher_foreground),
+                        contentDescription = null,
+                        modifier = Modifier.size(40.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                Text(
+                    text = stringResource(R.string.choose_language),
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = EarthBrown,
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = stringResource(R.string.choose_language_desc),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Gray,
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(28.dp))
+
+                // English Button
+                Button(
+                    onClick = { onSelectLanguage("en") },
+                    modifier = Modifier.fillMaxWidth().height(56.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = GrassGreen),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Text("English", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Urdu Button
+                OutlinedButton(
+                    onClick = { onSelectLanguage("ur") },
+                    modifier = Modifier.fillMaxWidth().height(56.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = EarthBrown),
+                    border = BorderStroke(2.dp, EarthBrown.copy(alpha = 0.3f)),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Text("اردو", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                }
+            }
+        }
+    }
+}
+
+@Composable
 fun AppTourDialog(
     onFinish: () -> Unit,
     onAddClick: () -> Unit,
@@ -276,22 +370,23 @@ fun AppTourDialog(
 ) {
     var step by remember { mutableStateOf(0) }
     val steps = listOf(
-        TourStep(R.string.tour_welcome_title, R.string.tour_welcome_desc, R.drawable.cow_illustration),
-        TourStep(R.string.tour_add_title, R.string.tour_add_desc, R.drawable.ic_add_customer_premium),
-        TourStep(R.string.tour_run_title, R.string.tour_run_desc, R.drawable.ic_milk_collection_premium),
-        TourStep(R.string.tour_reports_title, R.string.tour_reports_desc, R.drawable.ic_reports_premium)
+        TourStep(R.string.tour_welcome_title, R.string.tour_welcome_desc, R.drawable.cow_illustration, GrassGreen),
+        TourStep(R.string.tour_add_title, R.string.tour_add_desc, R.drawable.ic_add_customer_premium, Color(0xFF2196F3)),
+        TourStep(R.string.tour_run_title, R.string.tour_run_desc, R.drawable.ic_milk_collection_premium, ClayTerracotta),
+        TourStep(R.string.tour_reports_title, R.string.tour_reports_desc, R.drawable.ic_reports_premium, HeritageOlive),
+        TourStep(R.string.tour_backup_title, R.string.tour_backup_desc, R.drawable.ic_reports_premium, EarthBrown)
     )
 
     val infiniteTransition = rememberInfiniteTransition(label = "pulse")
     val pulseScale by infiniteTransition.animateFloat(
         initialValue = 1f,
-        targetValue = 1.05f,
-        animationSpec = infiniteRepeatable(tween(1000), RepeatMode.Reverse),
+        targetValue = 1.08f,
+        animationSpec = infiniteRepeatable(tween(1200), RepeatMode.Reverse),
         label = "scale"
     )
 
     Dialog(
-        onDismissRequest = {}, 
+        onDismissRequest = {},
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
         Card(
@@ -308,59 +403,91 @@ fun AppTourDialog(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // Step Indicator
-                Row(modifier = Modifier.padding(bottom = 24.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    steps.forEachIndexed { index, _ ->
+                Row(
+                    modifier = Modifier.padding(bottom = 20.dp),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    steps.forEachIndexed { index, tourStep ->
                         Box(
                             modifier = Modifier
-                                .size(if (index == step) 24.dp else 8.dp, 8.dp)
-                                .clip(CircleShape)
-                                .background(if (index == step) GrassGreen else Color.LightGray)
+                                .height(6.dp)
+                                .width(if (index == step) 32.dp else 12.dp)
+                                .clip(RoundedCornerShape(3.dp))
+                                .background(if (index == step) tourStep.color else Color.LightGray.copy(alpha = 0.5f))
                         )
                     }
                 }
 
+                // Icon with animated background
                 Box(contentAlignment = Alignment.Center, modifier = Modifier.size(140.dp)) {
-                    // Pulsing effect background
-                    Box(modifier = Modifier.fillMaxSize().scale(pulseScale).clip(CircleShape).background(GrassGreen.copy(alpha = 0.05f)))
-                    
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .scale(pulseScale)
+                            .clip(CircleShape)
+                            .background(steps[step].color.copy(alpha = 0.08f))
+                    )
                     Image(
                         painter = painterResource(id = steps[step].icon),
                         contentDescription = null,
-                        modifier = Modifier.size(100.dp)
+                        modifier = Modifier.size(80.dp)
                     )
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
-                
+
+                // Step number badge
+                Surface(
+                    color = steps[step].color.copy(alpha = 0.1f),
+                    shape = RoundedCornerShape(20.dp)
+                ) {
+                    Text(
+                        text = if (step == 0) "✦" else "${stringResource(R.string.next)} $step/${steps.size - 1}",
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = steps[step].color
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
                 Text(
                     text = stringResource(steps[step].title),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.ExtraBold,
                     color = EarthBrown,
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                    textAlign = TextAlign.Center
                 )
-                
+
                 Spacer(modifier = Modifier.height(12.dp))
-                
+
                 Text(
                     text = stringResource(steps[step].description),
                     style = MaterialTheme.typography.bodyLarge,
                     color = Color.Gray,
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                    textAlign = TextAlign.Center,
                     lineHeight = 22.sp
                 )
 
-                Spacer(modifier = Modifier.height(32.dp))
-                
+                Spacer(modifier = Modifier.height(28.dp))
+
+                // Buttons
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    TextButton(onClick = onFinish) {
-                        Text(stringResource(R.string.skip), color = Color.Gray)
+                    if (step > 0) {
+                        TextButton(onClick = { step-- }) {
+                            Text("← " + stringResource(R.string.next), color = Color.Gray)
+                        }
+                    } else {
+                        TextButton(onClick = onFinish) {
+                            Text(stringResource(R.string.skip), color = Color.Gray)
+                        }
                     }
-                    
+
                     Button(
                         onClick = {
                             if (step < steps.size - 1) {
@@ -369,13 +496,14 @@ fun AppTourDialog(
                                 onFinish()
                             }
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = GrassGreen),
+                        colors = ButtonDefaults.buttonColors(containerColor = steps[step].color),
                         shape = RoundedCornerShape(12.dp),
-                        contentPadding = PaddingValues(horizontal = 24.dp, vertical = 12.dp)
+                        contentPadding = PaddingValues(horizontal = 28.dp, vertical = 12.dp)
                     ) {
                         Text(
                             text = if (step < steps.size - 1) stringResource(R.string.next) else stringResource(R.string.finish),
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
                         )
                     }
                 }
@@ -384,7 +512,7 @@ fun AppTourDialog(
     }
 }
 
-data class TourStep(val title: Int, val description: Int, val icon: Int)
+data class TourStep(val title: Int, val description: Int, val icon: Int, val color: Color)
 
 @Composable
 fun PremiumCustomerSummaryCard(customer: Customer, viewModel: DashboardViewModel, onClick: () -> Unit) {

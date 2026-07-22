@@ -115,18 +115,26 @@
     <string name="buying_section">Buying (from Sellers)</string>
     <string name="selling_section">Selling (to Buyers)</string>
     
+    <!-- Language Selection -->
+    <string name="choose_language">Choose Your Language</string>
+    <string name="choose_language_desc">Select your preferred language for the app</string>
+    <string name="english">English</string>
+    <string name="urdu">اردو (Urdu)</string>
+
     <!-- Tour Strings -->
     <string name="tour_welcome_title">Welcome to Dodhi!</string>
-    <string name="tour_welcome_desc">Your digital dairy khata. Let\'s learn how to use it.</string>
-    <string name="tour_add_title">Step 1: Add Members</string>
-    <string name="tour_add_desc">Add people you buy milk from (Sellers) or sell to (Buyers).</string>
-    <string name="tour_run_title">Step 2: Daily Run</string>
-    <string name="tour_run_desc">Every morning/evening, enter liters here. It automatically calculates the bill.</string>
-    <string name="tour_reports_title">Step 3: Reports &amp; Sharing</string>
-    <string name="tour_reports_desc">Check balances, payment history, and share professional PDF receipts.</string>
+    <string name="tour_welcome_desc">Your digital dairy khata that makes managing milk business simple and accurate. Let\'s get you started!</string>
+    <string name="tour_add_title">Add Customers &amp; Suppliers</string>
+    <string name="tour_add_desc">Start by adding people you sell milk to (Buyers) or buy milk from (Sellers). Set their daily quantity and rate per liter.</string>
+    <string name="tour_run_title">Daily Run</string>
+    <string name="tour_run_desc">Every morning or evening, open Daily Run and tap Delivered or Naga for each customer. The app calculates your bill automatically.</string>
+    <string name="tour_reports_title">Reports &amp; Sharing</string>
+    <string name="tour_reports_desc">Check your monthly profit, outstanding balances, and share professional PDF or text reports via WhatsApp.</string>
+    <string name="tour_backup_title">Backup &amp; Restore</string>
+    <string name="tour_backup_desc">Your data is safe! Export a backup anytime from Settings and restore it on any device.</string>
     <string name="skip">Skip</string>
     <string name="next">Next</string>
-    <string name="finish">Finish</string>
+    <string name="finish">Get Started</string>
 
     <string name="app_music">App Music</string>
     <string name="music_on">Music is On</string>
