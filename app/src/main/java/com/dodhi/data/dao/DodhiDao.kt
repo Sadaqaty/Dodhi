@@ -91,6 +91,7 @@ interface DodhiDao {
         paymentsList: List<Payment>,
         milkSourcesList: List<MilkSource>
     ) {
+        // Wipe and replace — caller must validate data first
         clearCustomers()
         clearRecords()
         clearPayments()
