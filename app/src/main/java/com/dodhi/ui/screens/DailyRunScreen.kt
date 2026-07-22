@@ -107,7 +107,7 @@ fun DailyRunScreen(viewModel: DashboardViewModel, onBack: () -> Unit) {
                                 modifier = Modifier.clickable { datePickerDialog.show() }
                             )
                         }
-                        Text("${progress.delivered.toInt()} / ${progress.expected.toInt()} L", color = EarthBrown, fontWeight = FontWeight.Bold)
+                        Text("${progress.delivered} / ${progress.expected} L", color = EarthBrown, fontWeight = FontWeight.Bold)
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                     LinearProgressIndicator(
