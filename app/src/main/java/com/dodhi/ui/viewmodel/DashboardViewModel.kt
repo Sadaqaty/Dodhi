@@ -303,36 +303,54 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
     fun getCollectionSummary(): Flow<CollectionSummary> {
         val start = getStartOfCurrentMonth()
         val end = Calendar.getInstance().timeInMillis
-        
+
         return combine(
             customers,
             dao.getRecordsInPeriod(start, end),
             dao.getPaymentsForCustomerInRange(start, end),
         ) { customerList, records, payments ->
             val providerIds = customerList.filter { it.isProvider }.map { it.id }.toSet()
-            
-            val sales = records.filter { it.customerId !in providerIds && it.type != "Naga" }.sumOf { it.amount }
-            val purchases = records.filter { it.customerId in providerIds && it.type != "Naga" }.sumOf { it.amount }
-            
+
+            val consumerRecords = records.filter { it.customerId !in providerIds && it.type != "Naga" }
+            val providerRecords = records.filter { it.customerId in providerIds && it.type != "Naga" }
+
+            val sales = consumerRecords.sumOf { it.amount }
+            val purchases = providerRecords.sumOf { it.amount }
+
             val collected = payments.filter { it.customerId !in providerIds }.sumOf { it.amount }
             val paid = payments.filter { it.customerId in providerIds }.sumOf { it.amount }
-            
+
+            val totalLiters = consumerRecords.sumOf { it.quantity }
+            val nagaCount = records.count { it.type == "Naga" }
+            val activeCustomerIds = records.filter { it.type != "Naga" }.map { it.customerId }.distinct()
+            val activeCustomers = activeCustomerIds.size
+
             CollectionSummary(
-                marketValue = sales, // Re-using existing field for Sales
-                cashCollected = collected, // Re-using existing field for Collected
+                totalSales = sales,
+                cashCollected = collected,
+                toCollect = sales - collected,
                 totalPurchases = purchases,
-                cashPaid = paid
+                cashPaid = paid,
+                toPay = purchases - paid,
+                netProfit = sales - purchases,
+                totalLiters = totalLiters,
+                activeCustomers = activeCustomers,
+                nagaCount = nagaCount
             )
         }
     }
 
     data class CollectionSummary(
-        val marketValue: Double, // Total Sales (Consumers)
-        val cashCollected: Double, // Cash from Consumers
-        val totalPurchases: Double, // Total Purchases (Providers)
-        val cashPaid: Double, // Cash to Providers
-        val outstanding: Double = 0.0, // Deprecated
-        val waste: Double = 0.0 // Deprecated
+        val totalSales: Double,
+        val cashCollected: Double,
+        val toCollect: Double,
+        val totalPurchases: Double,
+        val cashPaid: Double,
+        val toPay: Double,
+        val netProfit: Double,
+        val totalLiters: Double,
+        val activeCustomers: Int,
+        val nagaCount: Int
     )
 
     private fun getStartOfCurrentMonth(): Long {

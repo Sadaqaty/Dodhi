@@ -18,8 +18,6 @@ import androidx.compose.ui.unit.sp
 import com.dodhi.R
 import com.dodhi.ui.theme.*
 import com.dodhi.ui.viewmodel.DashboardViewModel
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
@@ -37,7 +35,7 @@ fun ReportScreen(viewModel: DashboardViewModel, onCustomerClick: (Long) -> Unit)
     val summary by viewModel.getCollectionSummary().collectAsState(initial = null)
     val dailyVolume by viewModel.getDailyVolumeInRange().collectAsState(initial = emptyList())
     val context = LocalContext.current
-    
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -66,19 +64,29 @@ fun ReportScreen(viewModel: DashboardViewModel, onCustomerClick: (Long) -> Unit)
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // 1. Financial Summary Grid
+            // 1. Profit Summary Banner
+            item {
+                ProfitBanner(summary)
+            }
+
+            // 2. Quick Stats Row
+            item {
+                QuickStatsRow(summary)
+            }
+
+            // 3. Cash Flow Section
             item {
                 Text(
-                    text = stringResource(R.string.monthly_overview),
+                    text = "Cash Flow",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = EarthBrown
                 )
-                Spacer(modifier = Modifier.height(12.dp))
-                BusinessSummaryGrid(summary)
+                Spacer(modifier = Modifier.height(8.dp))
+                CashFlowSection(summary)
             }
-            
-            // 2. Volume Chart
+
+            // 4. Volume Chart
             item {
                 Text(
                     text = stringResource(R.string.delivery_volume),
@@ -86,11 +94,11 @@ fun ReportScreen(viewModel: DashboardViewModel, onCustomerClick: (Long) -> Unit)
                     fontWeight = FontWeight.Bold,
                     color = EarthBrown
                 )
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(8.dp))
                 VolumeBarChart(dailyVolume)
             }
-            
-            // 3. Customer Reports
+
+            // 5. Customer Reports
             item {
                 Text(
                     text = stringResource(R.string.all_customers),
@@ -99,7 +107,7 @@ fun ReportScreen(viewModel: DashboardViewModel, onCustomerClick: (Long) -> Unit)
                     color = EarthBrown
                 )
             }
-            
+
             items(customers) { customer ->
                 val total by viewModel.getMonthlyBill(customer.id).collectAsState(initial = 0.0)
                 val balance by viewModel.getCustomerBalance(customer.id).collectAsState(initial = 0.0)
@@ -116,51 +124,141 @@ fun ReportScreen(viewModel: DashboardViewModel, onCustomerClick: (Long) -> Unit)
 }
 
 @Composable
-fun BusinessSummaryGrid(summary: DashboardViewModel.CollectionSummary?) {
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
-            SummaryCard(
-                label = stringResource(R.string.total_sales),
-                value = "${summary?.marketValue?.toInt() ?: 0} ${stringResource(R.string.rupees)}",
-                color = GrassGreen,
-                modifier = Modifier.weight(1f)
+fun ProfitBanner(summary: DashboardViewModel.CollectionSummary?) {
+    val netProfit = summary?.netProfit ?: 0.0
+    val isProfit = netProfit >= 0
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isProfit) GrassGreen else Color(0xFFD32F2F)
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = if (isProfit) "This Month's Profit" else "This Month's Loss",
+                color = Color.White.copy(alpha = 0.85f),
+                fontSize = 13.sp,
+                fontWeight = FontWeight.SemiBold
             )
-            SummaryCard(
-                label = stringResource(R.string.collected),
-                value = "${summary?.cashCollected?.toInt() ?: 0} ${stringResource(R.string.rupees)}",
-                color = HeritageOlive,
-                modifier = Modifier.weight(1f)
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "${netProfit.toInt()} ${stringResource(R.string.rupees)}",
+                color = Color.White,
+                fontSize = 36.sp,
+                fontWeight = FontWeight.ExtraBold
             )
-        }
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
-            SummaryCard(
-                label = stringResource(R.string.total_bought),
-                value = "${summary?.totalPurchases?.toInt() ?: 0} ${stringResource(R.string.rupees)}",
-                color = ClayTerracotta,
-                modifier = Modifier.weight(1f)
-            )
-            SummaryCard(
-                label = stringResource(R.string.payment_given),
-                value = "${summary?.cashPaid?.toInt() ?: 0} ${stringResource(R.string.rupees)}",
-                color = EarthBrown,
-                modifier = Modifier.weight(1f)
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Sales: ${(summary?.totalSales ?: 0.0).toInt()}  •  Purchases: ${(summary?.totalPurchases ?: 0.0).toInt()}",
+                color = Color.White.copy(alpha = 0.8f),
+                fontSize = 12.sp
             )
         }
     }
 }
 
 @Composable
-fun SummaryCard(label: String, value: String, color: Color, modifier: Modifier) {
+fun QuickStatsRow(summary: DashboardViewModel.CollectionSummary?) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        QuickStatCard(
+            label = "Milk Sold",
+            value = "${summary?.totalLiters ?: 0.0} L",
+            color = GrassGreen,
+            modifier = Modifier.weight(1f)
+        )
+        QuickStatCard(
+            label = "Customers",
+            value = "${summary?.activeCustomers ?: 0}",
+            color = HeritageOlive,
+            modifier = Modifier.weight(1f)
+        )
+        QuickStatCard(
+            label = "Off Days",
+            value = "${summary?.nagaCount ?: 0}",
+            color = Color(0xFFD32F2F),
+            modifier = Modifier.weight(1f)
+        )
+    }
+}
+
+@Composable
+fun QuickStatCard(label: String, value: String, color: Color, modifier: Modifier) {
     Card(
         modifier = modifier,
-        colors = CardDefaults.cardColors(containerColor = color.copy(alpha = 0.05f)),
-        shape = MaterialTheme.shapes.medium,
-        border = BorderStroke(1.dp, color.copy(alpha = 0.2f))
+        colors = CardDefaults.cardColors(containerColor = color.copy(alpha = 0.08f)),
+        shape = RoundedCornerShape(12.dp),
+        border = BorderStroke(1.dp, color.copy(alpha = 0.15f))
+    ) {
+        Column(
+            modifier = Modifier.padding(12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(label, fontSize = 11.sp, fontWeight = FontWeight.SemiBold, color = color.copy(alpha = 0.7f))
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(value, fontSize = 20.sp, fontWeight = FontWeight.ExtraBold, color = color)
+        }
+    }
+}
+
+@Composable
+fun CashFlowSection(summary: DashboardViewModel.CollectionSummary?) {
+    val toCollect = summary?.toCollect ?: 0.0
+    val toPay = summary?.toPay ?: 0.0
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        border = BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.3f))
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(label, fontSize = 11.sp, fontWeight = FontWeight.Bold, color = color.copy(alpha = 0.8f))
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(value, fontSize = 18.sp, fontWeight = FontWeight.ExtraBold, color = color)
+            // To Collect
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text("To Collect", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color.Gray)
+                    Text("from customers", fontSize = 10.sp, color = Color.Gray.copy(alpha = 0.6f))
+                }
+                Text(
+                    text = "${toCollect.toInt()} ${stringResource(R.string.rupees)}",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = if (toCollect > 0) Color(0xFFD32F2F) else GrassGreen
+                )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+            Divider(color = Color.LightGray.copy(alpha = 0.3f))
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // To Pay
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text("To Pay", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color.Gray)
+                    Text("to providers", fontSize = 10.sp, color = Color.Gray.copy(alpha = 0.6f))
+                }
+                Text(
+                    text = "${toPay.toInt()} ${stringResource(R.string.rupees)}",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = if (toPay > 0) ClayTerracotta else GrassGreen
+                )
+            }
         }
     }
 }
@@ -168,26 +266,50 @@ fun SummaryCard(label: String, value: String, color: Color, modifier: Modifier) 
 @Composable
 fun VolumeBarChart(data: List<DashboardViewModel.DayVolume>) {
     val maxVolume = (data.maxByOrNull { it.volume }?.volume ?: 10.0).coerceAtLeast(1.0)
-    
+    val dayFmt = remember { SimpleDateFormat("dd", Locale.getDefault()) }
+
     Card(
-        modifier = Modifier.fillMaxWidth().height(160.dp),
+        modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         border = BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.3f))
     ) {
-        Row(
-            modifier = Modifier.fillMaxSize().padding(20.dp),
-            verticalAlignment = Alignment.Bottom,
-            horizontalArrangement = Arrangement.spacedBy(6.dp)
-        ) {
-            data.takeLast(14).forEach { day ->
-                val barHeight = (day.volume / maxVolume).toFloat()
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight(barHeight.coerceAtLeast(0.05f))
-                        .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
-                        .background(GrassGreen)
-                )
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                val totalVolume = data.sumOf { it.volume }
+                Text("${totalVolume} L total", fontSize = 13.sp, color = EarthBrown, fontWeight = FontWeight.Bold)
+                Text("${data.size} days", fontSize = 12.sp, color = Color.Gray)
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth().height(120.dp),
+                verticalAlignment = Alignment.Bottom,
+                horizontalArrangement = Arrangement.spacedBy(3.dp)
+            ) {
+                data.takeLast(21).forEach { day ->
+                    val barHeight = (day.volume / maxVolume).toFloat()
+                    Column(
+                        modifier = Modifier.weight(1f).fillMaxHeight(),
+                        verticalArrangement = Arrangement.Bottom,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .fillMaxHeight(barHeight.coerceAtLeast(0.04f))
+                                .clip(RoundedCornerShape(topStart = 3.dp, topEnd = 3.dp))
+                                .background(GrassGreen)
+                        )
+                        Text(
+                            text = dayFmt.format(Date(day.date)),
+                            fontSize = 8.sp,
+                            color = Color.Gray,
+                            modifier = Modifier.padding(top = 2.dp)
+                        )
+                    }
+                }
             }
         }
     }
@@ -209,9 +331,9 @@ fun PremiumReportCard(customer: com.dodhi.data.model.Customer, total: Double, ba
                      modifier = Modifier.fillMaxWidth()
                  ) {
                      Text(
-                         text = customer.name, 
-                         fontSize = 18.sp, 
-                         fontWeight = FontWeight.Bold, 
+                         text = customer.name,
+                         fontSize = 18.sp,
+                         fontWeight = FontWeight.Bold,
                          color = EarthBrown,
                          modifier = Modifier.weight(1f, fill = false),
                          maxLines = 1,
@@ -224,8 +346,8 @@ fun PremiumReportCard(customer: com.dodhi.data.model.Customer, total: Double, ba
             }
             Column(horizontalAlignment = Alignment.End) {
                 Text(
-                    text = "${total.toInt()} ${stringResource(R.string.rupees)}", 
-                    fontWeight = FontWeight.ExtraBold, 
+                    text = "${total.toInt()} ${stringResource(R.string.rupees)}",
+                    fontWeight = FontWeight.ExtraBold,
                     color = if (customer.isProvider) ClayTerracotta else GrassGreen
                 )
                 Text(
@@ -235,9 +357,9 @@ fun PremiumReportCard(customer: com.dodhi.data.model.Customer, total: Double, ba
                     color = if (balance > 0) Color(0xFFD32F2F) else Color(0xFF2E7D32)
                 )
             }
-            
+
             Spacer(modifier = Modifier.width(12.dp))
-            
+
             val context = LocalContext.current
             IconButton(
                 onClick = {
@@ -261,7 +383,7 @@ fun PremiumReportCard(customer: com.dodhi.data.model.Customer, total: Double, ba
 fun CustomerTypeTag(isProvider: Boolean) {
     val text = if (isProvider) stringResource(R.string.seller) else stringResource(R.string.buyer)
     val color = if (isProvider) EarthBrown else GrassGreen
-    
+
     Surface(
         color = color.copy(alpha = 0.1f),
         shape = RoundedCornerShape(4.dp),
