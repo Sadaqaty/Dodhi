@@ -523,21 +523,102 @@ fun SettingsSheet(viewModel: DashboardViewModel, onDismiss: () -> Unit) {
     val isMusicEnabled by viewModel.isMusicEnabled.collectAsState()
     var tempName by remember { mutableStateOf(milkmanName) }
     val context = LocalContext.current
+    var showImportConfirm by remember { mutableStateOf(false) }
+    var pendingBackupData by remember { mutableStateOf<com.dodhi.data.model.BackupData?>(null) }
+    var importError by remember { mutableStateOf<String?>(null) }
+
     val importLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         if (uri != null) {
-            viewModel.importDataBackup(
-                context = context,
-                uri = uri,
-                onSuccess = {
-                    android.widget.Toast.makeText(context, "Data imported successfully!", android.widget.Toast.LENGTH_LONG).show()
-                },
-                onError = { error ->
-                    android.widget.Toast.makeText(context, "Import failed: $error", android.widget.Toast.LENGTH_LONG).show()
+            viewModel.previewImportBackup(context, uri) { backupData, error ->
+                if (error != null) {
+                    importError = error
+                    showImportConfirm = true
+                } else if (backupData != null) {
+                    pendingBackupData = backupData
+                    importError = null
+                    showImportConfirm = true
                 }
-            )
+            }
         }
+    }
+
+    // Import confirmation dialog
+    if (showImportConfirm) {
+        AlertDialog(
+            onDismissRequest = {
+                showImportConfirm = false
+                pendingBackupData = null
+                importError = null
+            },
+            title = {
+                Text(
+                    text = if (importError != null) "Import Error" else "Confirm Import",
+                    fontWeight = FontWeight.Bold,
+                    color = if (importError != null) Color.Red else EarthBrown
+                )
+            },
+            text = {
+                if (importError != null) {
+                    Text(importError!!, color = Color.Gray)
+                } else {
+                    val data = pendingBackupData
+                    Column {
+                        Text(
+                            text = "This will REPLACE all current data with the backup.",
+                            color = Color(0xFFD32F2F),
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        data?.let {
+                            Text("Customers: ${it.customers?.size ?: 0}", fontSize = 14.sp)
+                            Text("Records: ${it.transactions?.size ?: 0}", fontSize = 14.sp)
+                            Text("Payments: ${it.payments?.size ?: 0}", fontSize = 14.sp)
+                            Spacer(modifier = Modifier.height(8.dp))
+                            val date = java.text.SimpleDateFormat("dd MMM yyyy, hh:mm a", java.util.Locale.getDefault())
+                                .format(java.util.Date(it.timestamp))
+                            Text("Backup from: $date", fontSize = 12.sp, color = Color.Gray)
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                if (importError == null) {
+                    Button(
+                        onClick = {
+                            pendingBackupData?.let { data ->
+                                viewModel.executeImportBackup(context, data,
+                                    onSuccess = {
+                                        showImportConfirm = false
+                                        pendingBackupData = null
+                                        importError = null
+                                        android.widget.Toast.makeText(context, "Data imported successfully!", android.widget.Toast.LENGTH_LONG).show()
+                                    },
+                                    onError = { error ->
+                                        showImportConfirm = false
+                                        pendingBackupData = null
+                                        android.widget.Toast.makeText(context, "Import failed: $error", android.widget.Toast.LENGTH_LONG).show()
+                                    }
+                                )
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD32F2F))
+                    ) {
+                        Text("Replace All Data", color = Color.White, fontWeight = FontWeight.Bold)
+                    }
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    showImportConfirm = false
+                    pendingBackupData = null
+                    importError = null
+                }) {
+                    Text("Cancel", color = Color.Gray)
+                }
+            }
+        )
     }
     
     ModalBottomSheet(

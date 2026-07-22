@@ -459,23 +459,7 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun exportToCsv(context: Context) {
-        viewModelScope.launch {
-            val customers = dao.getAllCustomers().first()
-            val csvBuilder = StringBuilder()
-            csvBuilder.append("Name,Rate,DefaultQuantity\n")
-            customers.forEach {
-                csvBuilder.append("${it.name},${it.rate},${it.defaultQuantity}\n")
-            }
-            
-            val fileName = "dodhi_khata_backup_${System.currentTimeMillis()}.csv"
-            try {
-                val file = File(context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), fileName)
-                file.writeText(csvBuilder.toString())
-                // In a real app, you'd use FileProvider to share this via Intent
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
+        // Removed — superseded by JSON backup/restore
     }
 
     fun exportDataBackup(context: Context) {
@@ -486,20 +470,34 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
                 val recordsList = dao.getAllRecordsSync()
                 val paymentsList = dao.getAllPaymentsSync()
                 val milkSourcesList = dao.getAllMilkSourcesSync()
+
+                if (customersList.isEmpty()) {
+                    withContext(Dispatchers.Main) {
+                        android.widget.Toast.makeText(context, "No data to export", android.widget.Toast.LENGTH_SHORT).show()
+                    }
+                    return@launch
+                }
+
                 val backupData = BackupData(
                     customers = customersList,
                     transactions = recordsList,
                     payments = paymentsList,
                     milkSources = milkSourcesList,
-                    timestamp = System.currentTimeMillis()
+                    timestamp = System.currentTimeMillis(),
+                    version = 1
                 )
                 val gson = GsonBuilder().setPrettyPrinting().create()
                 val jsonString = gson.toJson(backupData)
 
                 val backupDir = File(context.cacheDir, "backups")
-                if (!backupDir.exists()) {
-                    backupDir.mkdirs()
-                }
+                if (!backupDir.exists()) backupDir.mkdirs()
+
+                // Clean up old backup files (keep last 3)
+                backupDir.listFiles()?.filter { it.name.startsWith("dodhi_backup_") && it.name.endsWith(".json") }
+                    ?.sortedByDescending { it.lastModified() }
+                    ?.drop(3)
+                    ?.forEach { it.delete() }
+
                 val backupFile = File(backupDir, "dodhi_backup_${System.currentTimeMillis()}.json")
                 backupFile.writeText(jsonString)
 
@@ -519,49 +517,76 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
                 context.startActivity(chooser)
             } catch (e: Exception) {
                 e.printStackTrace()
+                withContext(Dispatchers.Main) {
+                    android.widget.Toast.makeText(context, "Export failed: ${e.localizedMessage}", android.widget.Toast.LENGTH_LONG).show()
+                }
             }
         }
     }
 
-    fun importDataBackup(context: Context, uri: Uri, onSuccess: () -> Unit, onError: (String) -> Unit) {
+    fun previewImportBackup(context: Context, uri: Uri, onResult: (BackupData?, String?) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val contentResolver = context.contentResolver
-                val inputStream = contentResolver.openInputStream(uri)
+                val inputStream = context.contentResolver.openInputStream(uri)
                 if (inputStream == null) {
-                    withContext(Dispatchers.Main) {
-                        onError("Unable to open backup file")
-                    }
+                    withContext(Dispatchers.Main) { onResult(null, "Unable to open backup file") }
                     return@launch
                 }
+
                 val jsonString = inputStream.bufferedReader().use { it.readText() }
-                
-                val gson = GsonBuilder().create()
-                val backupData = gson.fromJson(jsonString, BackupData::class.java)
-                
-                if (backupData == null || backupData.customers == null) {
-                    withContext(Dispatchers.Main) {
-                        onError("Invalid backup file structure")
-                    }
+
+                // Size guard: reject files over 10MB
+                if (jsonString.length > 10 * 1024 * 1024) {
+                    withContext(Dispatchers.Main) { onResult(null, "Backup file too large") }
                     return@launch
                 }
-                
-                dao.importBackup(
-                    customersList = backupData.customers,
-                    recordsList = backupData.transactions ?: emptyList(),
-                    paymentsList = backupData.payments ?: emptyList(),
-                    milkSourcesList = backupData.milkSources ?: emptyList()
-                )
-                
-                db.forceCheckpoint()
-                
-                withContext(Dispatchers.Main) {
-                    onSuccess()
+
+                val gson = GsonBuilder().create()
+                val backupData = try {
+                    gson.fromJson(jsonString, BackupData::class.java)
+                } catch (e: Exception) {
+                    null
                 }
+
+                if (backupData == null) {
+                    withContext(Dispatchers.Main) { onResult(null, "Unable to read backup file — it may be corrupted") }
+                    return@launch
+                }
+
+                val error = backupData.validate()
+                if (error != null) {
+                    withContext(Dispatchers.Main) { onResult(null, error) }
+                    return@launch
+                }
+
+                withContext(Dispatchers.Main) { onResult(backupData, null) }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                withContext(Dispatchers.Main) { onResult(null, "Error reading backup: ${e.localizedMessage}") }
+            }
+        }
+    }
+
+    fun executeImportBackup(context: Context, backupData: BackupData, onSuccess: () -> Unit, onError: (String) -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                // Reset all IDs to 0 so Room auto-generates new ones — avoids ID collisions
+                val cleanData = backupData.withResetIds()
+
+                dao.importBackup(
+                    customersList = cleanData.customers ?: emptyList(),
+                    recordsList = cleanData.transactions ?: emptyList(),
+                    paymentsList = cleanData.payments ?: emptyList(),
+                    milkSourcesList = cleanData.milkSources ?: emptyList()
+                )
+
+                db.forceCheckpoint()
+
+                withContext(Dispatchers.Main) { onSuccess() }
             } catch (e: Exception) {
                 e.printStackTrace()
                 withContext(Dispatchers.Main) {
-                    onError(e.localizedMessage ?: "Unknown error occurred during import")
+                    onError("Import failed: ${e.localizedMessage ?: "Unknown error"}")
                 }
             }
         }
