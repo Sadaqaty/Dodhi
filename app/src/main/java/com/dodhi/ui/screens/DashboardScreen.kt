@@ -606,7 +606,7 @@ fun ActionCard(
         ) {
             Box(
                 modifier = Modifier
-                    .size(80.dp)
+                    .size(96.dp)
                     .background(color.copy(alpha = 0.1f), CircleShape)
                     .padding(8.dp),
                 contentAlignment = Alignment.Center
@@ -614,7 +614,7 @@ fun ActionCard(
                 Image(
                     painter = painterResource(id = icon),
                     contentDescription = null,
-                    modifier = Modifier.size(64.dp)
+                    modifier = Modifier.size(80.dp)
                 )
             }
             Spacer(modifier = Modifier.height(12.dp))
