@@ -23,6 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.dodhi.BuildConfig
 import com.dodhi.R
 import com.dodhi.ui.theme.EarthBrown
 import com.dodhi.ui.theme.GrassGreen
@@ -87,7 +88,7 @@ fun AboutScreen(onBack: () -> Unit) {
                         color = Color.White
                     )
                     Text(
-                        text = stringResource(R.string.version_label),
+                        text = "Version ${BuildConfig.VERSION_NAME}",
                         fontSize = 14.sp,
                         color = Color.White.copy(alpha = 0.8f)
                     )
