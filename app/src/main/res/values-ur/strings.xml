@@ -153,6 +153,19 @@
     <string name="total_sales">کل فروخت</string>
     <string name="total_bought">کل خریداری</string>
     <string name="cash_flow">کیش فلو</string>
+    <string name="profit_banner_title">اس مہینے کا منافع</string>
+    <string name="loss_banner_title">اس مہینے کا نقصان</string>
+    <string name="sales_label">فروخت</string>
+    <string name="purchases_label">خریداری</string>
+    <string name="milk_sold">دودھ فروخت</string>
+    <string name="active_customers">گاہک</string>
+    <string name="off_days">ناگہ دن</string>
+    <string name="to_collect">وصول ہونا ہے</string>
+    <string name="from_customers">گاہکوں سے</string>
+    <string name="to_pay">ادا کرنا ہے</string>
+    <string name="to_providers">سپلائرز کو</string>
+    <string name="total_volume">کل</string>
+    <string name="days_label">دن</string>
 
     <string name="bill_label">بل</string>
     <string name="paid_label">ادائیگی</string>

@@ -153,6 +153,19 @@
     <string name="total_sales">Total Sales</string>
     <string name="total_bought">Total Bought</string>
     <string name="cash_flow">Cash Flow</string>
+    <string name="profit_banner_title">This Month\'s Profit</string>
+    <string name="loss_banner_title">This Month\'s Loss</string>
+    <string name="sales_label">Sales</string>
+    <string name="purchases_label">Purchases</string>
+    <string name="milk_sold">Milk Sold</string>
+    <string name="active_customers">Customers</string>
+    <string name="off_days">Off Days</string>
+    <string name="to_collect">To Collect</string>
+    <string name="from_customers">from customers</string>
+    <string name="to_pay">To Pay</string>
+    <string name="to_providers">to providers</string>
+    <string name="total_volume">total</string>
+    <string name="days_label">days</string>
 
     <string name="bill_label">Bill</string>
     <string name="paid_label">Paid</string>

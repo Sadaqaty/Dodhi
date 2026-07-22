@@ -140,7 +140,7 @@ fun ProfitBanner(summary: DashboardViewModel.CollectionSummary?) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = if (isProfit) "This Month's Profit" else "This Month's Loss",
+                text = stringResource(if (isProfit) R.string.profit_banner_title else R.string.loss_banner_title),
                 color = Color.White.copy(alpha = 0.85f),
                 fontSize = 13.sp,
                 fontWeight = FontWeight.SemiBold
@@ -154,7 +154,7 @@ fun ProfitBanner(summary: DashboardViewModel.CollectionSummary?) {
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Sales: ${(summary?.totalSales ?: 0.0).toInt()}  •  Purchases: ${(summary?.totalPurchases ?: 0.0).toInt()}",
+                text = "${stringResource(R.string.sales_label)}: ${(summary?.totalSales ?: 0.0).toInt()}  •  ${stringResource(R.string.purchases_label)}: ${(summary?.totalPurchases ?: 0.0).toInt()}",
                 color = Color.White.copy(alpha = 0.8f),
                 fontSize = 12.sp
             )
@@ -169,19 +169,19 @@ fun QuickStatsRow(summary: DashboardViewModel.CollectionSummary?) {
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         QuickStatCard(
-            label = "Milk Sold",
+            label = stringResource(R.string.milk_sold),
             value = "${summary?.totalLiters ?: 0.0} L",
             color = GrassGreen,
             modifier = Modifier.weight(1f)
         )
         QuickStatCard(
-            label = "Customers",
+            label = stringResource(R.string.active_customers),
             value = "${summary?.activeCustomers ?: 0}",
             color = HeritageOlive,
             modifier = Modifier.weight(1f)
         )
         QuickStatCard(
-            label = "Off Days",
+            label = stringResource(R.string.off_days),
             value = "${summary?.nagaCount ?: 0}",
             color = Color(0xFFD32F2F),
             modifier = Modifier.weight(1f)
@@ -227,8 +227,8 @@ fun CashFlowSection(summary: DashboardViewModel.CollectionSummary?) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column {
-                    Text("To Collect", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color.Gray)
-                    Text("from customers", fontSize = 10.sp, color = Color.Gray.copy(alpha = 0.6f))
+                    Text(stringResource(R.string.to_collect), fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color.Gray)
+                    Text(stringResource(R.string.from_customers), fontSize = 10.sp, color = Color.Gray.copy(alpha = 0.6f))
                 }
                 Text(
                     text = "${toCollect.toInt()} ${stringResource(R.string.rupees)}",
@@ -249,8 +249,8 @@ fun CashFlowSection(summary: DashboardViewModel.CollectionSummary?) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column {
-                    Text("To Pay", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color.Gray)
-                    Text("to providers", fontSize = 10.sp, color = Color.Gray.copy(alpha = 0.6f))
+                    Text(stringResource(R.string.to_pay), fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color.Gray)
+                    Text(stringResource(R.string.to_providers), fontSize = 10.sp, color = Color.Gray.copy(alpha = 0.6f))
                 }
                 Text(
                     text = "${toPay.toInt()} ${stringResource(R.string.rupees)}",
@@ -279,8 +279,8 @@ fun VolumeBarChart(data: List<DashboardViewModel.DayVolume>) {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 val totalVolume = data.sumOf { it.volume }
-                Text("${totalVolume} L total", fontSize = 13.sp, color = EarthBrown, fontWeight = FontWeight.Bold)
-                Text("${data.size} days", fontSize = 12.sp, color = Color.Gray)
+                Text("${totalVolume} L ${stringResource(R.string.total_volume)}", fontSize = 13.sp, color = EarthBrown, fontWeight = FontWeight.Bold)
+                Text("${data.size} ${stringResource(R.string.days_label)}", fontSize = 12.sp, color = Color.Gray)
             }
             Spacer(modifier = Modifier.height(12.dp))
             Row(
