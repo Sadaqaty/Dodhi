@@ -56,11 +56,20 @@ jobs:
           git commit -m "chore: bump version to ${{ env.NEW_TAG }} [skip ci]"
           git push
 
+      - name: Decode Keystore
+        run: |
+          echo "${{ secrets.FIXARE_KEYSTORE_BASE64 }}" | base64 -d > ${{ github.workspace }}/fixare-build-key.jks
+
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
       - name: Build with Gradle
         run: ./gradlew assembleDebug assembleRelease
+        env:
+          FIXARE_RELEASE_STORE_FILE: ${{ github.workspace }}/fixare-build-key.jks
+          FIXARE_RELEASE_STORE_PASSWORD: ${{ secrets.FIXARE_RELEASE_STORE_PASSWORD }}
+          FIXARE_RELEASE_KEY_ALIAS: ${{ secrets.FIXARE_RELEASE_KEY_ALIAS }}
+          FIXARE_RELEASE_KEY_PASSWORD: ${{ secrets.FIXARE_RELEASE_KEY_PASSWORD }}
 
       - name: Create Release & Tag
         uses: softprops/action-gh-release@v1

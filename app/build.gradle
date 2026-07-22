@@ -33,10 +33,14 @@ android {
 
     signingConfigs {
         release {
-            storeFile file(System.getenv("FIXARE_RELEASE_STORE_FILE") ?: project.properties["FIXARE_RELEASE_STORE_FILE"])
-            storePassword System.getenv("FIXARE_RELEASE_STORE_PASSWORD") ?: project.properties["FIXARE_RELEASE_STORE_PASSWORD"]
-            keyAlias System.getenv("FIXARE_RELEASE_KEY_ALIAS") ?: project.properties["FIXARE_RELEASE_KEY_ALIAS"]
-            keyPassword System.getenv("FIXARE_RELEASE_KEY_PASSWORD") ?: project.properties["FIXARE_RELEASE_KEY_PASSWORD"]
+            def storeFilePath = System.getenv("FIXARE_RELEASE_STORE_FILE") ?: project.properties["FIXARE_RELEASE_STORE_FILE"] ?: ""
+            def storeFileObj = file(storeFilePath)
+            if (storeFileObj.exists()) {
+                storeFile storeFileObj
+                storePassword System.getenv("FIXARE_RELEASE_STORE_PASSWORD") ?: project.properties["FIXARE_RELEASE_STORE_PASSWORD"]
+                keyAlias System.getenv("FIXARE_RELEASE_KEY_ALIAS") ?: project.properties["FIXARE_RELEASE_KEY_ALIAS"]
+                keyPassword System.getenv("FIXARE_RELEASE_KEY_PASSWORD") ?: project.properties["FIXARE_RELEASE_KEY_PASSWORD"]
+            }
         }
     }
 
@@ -44,7 +48,8 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.release
+            def storeFilePath = System.getenv("FIXARE_RELEASE_STORE_FILE") ?: project.properties["FIXARE_RELEASE_STORE_FILE"] ?: ""
+            signingConfig file(storeFilePath).exists() ? signingConfigs.release : signingConfigs.debug
         }
     }
 
