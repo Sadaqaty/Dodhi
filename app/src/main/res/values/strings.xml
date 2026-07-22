@@ -136,7 +136,6 @@
 
     <!-- About Screen -->
     <string name="about_dodhi">About Dodhi</string>
-    <string name="version_label">Version 1.2.0 (Stable)</string>
     <string name="innovation_title">Innovation in Farming</string>
     <string name="app_description">Dodhi is a premium dairy management suite designed to modernize traditional milk supply chains. Built for precision and ease, it empowers milkmen to manage their business with professional digital khata, real-time analytics, and secure history tracking.</string>
     <string name="crafted_by">Crafted by</string>
@@ -147,6 +146,18 @@
     <string name="contact">Contact</string>
     <string name="visit_website_msg">Visit fixare.studio for more premium experiences.</string>
     <string name="visit_website_btn">VISIT WEBSITE</string>
+
+    <!-- How to Use Guide -->
+    <string name="how_to_use_title">How to Use Dodhi</string>
+    <string name="features_title">Features</string>
+    <string name="step1_title">Add Customers &amp; Suppliers</string>
+    <string name="step1_desc">Start by adding people you sell milk to (Buyers) or buy milk from (Sellers). Set their daily quantity and rate per liter.</string>
+    <string name="step2_title">Record Daily Deliveries</string>
+    <string name="step2_desc">Every morning or evening, open Daily Run and tap Delivered or Naga for each customer. The app calculates your bill automatically.</string>
+    <string name="step3_title">Track Payments</string>
+    <string name="step3_desc">When customers pay or you pay suppliers, record the payment. Dodhi keeps track of who owes what.</string>
+    <string name="step4_title">View Reports &amp; Share</string>
+    <string name="step4_desc">Check your monthly profit, outstanding balances, and share professional PDF or text reports via WhatsApp.</string>
 
     <!-- Dashboard Reports -->
     <string name="monthly_overview">Monthly Overview</string>

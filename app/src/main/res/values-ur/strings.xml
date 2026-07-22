@@ -136,7 +136,6 @@
 
     <!-- About Screen -->
     <string name="about_dodhi">دودهی ایپ کے بارے میں</string>
-    <string name="version_label">ورژن 1.2.0 (Stable)</string>
     <string name="innovation_title">فارمنگ میں جدت</string>
     <string name="app_description">دودهی ایک پریمیم ڈیری مینجمنٹ ایپ ہے جو دودھ کی روایتی سپلائی چین کو جدید بنانے کے لیے بنائی گئی ہے۔ یہ دودھ بیچنے والوں کو ڈیجیٹل کھاتہ، رئیل ٹائم تجزیہ اور محفوظ ریکارڈ رکھنے کی سہولت فراہم کرتی ہے۔</string>
     <string name="crafted_by">تیار کردہ</string>
@@ -147,6 +146,18 @@
     <string name="contact">رابطہ</string>
     <string name="visit_website_msg">مزید پریمیم تجربات کے لیے fixare.studio ملاحظہ کریں۔</string>
     <string name="visit_website_btn">ویب سائٹ دیکھیں</string>
+
+    <!-- How to Use Guide -->
+    <string name="how_to_use_title">دودهی کیسے استعمال کریں</string>
+    <string name="features_title">خصوصیات</string>
+    <string name="step1_title">گاہک اور سپلائرز شامل کریں</string>
+    <string name="step1_desc">پہلے ان لوگوں کو شامل کریں جنہیں آپ دودھ بیچتے ہیں (خریدار) یا جن سے خریدتے ہیں (سپلائر)۔ ان کی روزانہ مقدار اور فی لیٹر قیمت مقرر کریں۔</string>
+    <string name="step2_title">روزانہ ڈلیوری درج کریں</string>
+    <string name="step2_desc">ہر صبح یا شام، ڈیلی رن کھولیں اور ہر گاہک کے لیے دیا گیا یا ناغہ دبائیں۔ ایپ خود بخود بل حساب کر لے گی۔</string>
+    <string name="step3_title">ادائیگیاں ریکارڈ کریں</string>
+    <string name="step3_desc">جب گاہک ادائیگی کریں یا آپ سپلائرز کو ادائیگی کریں، تو رقم درج کریں۔ دودهی رکھتا ہے کہ کس کو کتنا بنا ہے۔</string>
+    <string name="step4_title">رپورٹس دیکھیں اور شیئر کریں</string>
+    <string name="step4_desc">اپنا ماہانہ منافع، بقایا بیلنس دیکھیں اور واٹس ایپ کے ذریعے پی ڈی ایف یا ٹیکسٹ رپورٹ شیئر کریں۔</string>
 
     <!-- Dashboard Reports -->
     <string name="monthly_overview">ماہانہ خلاصہ</string>

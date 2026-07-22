@@ -60,184 +60,224 @@ fun AboutScreen(onBack: () -> Unit) {
                 .verticalScroll(scrollState)
                 .padding(padding)
         ) {
-            // Header Card
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp),
-                colors = CardDefaults.cardColors(containerColor = GrassGreen)
-            ) {
-                Column(
-                    modifier = Modifier.padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    // App Icon
-                    Box(
-                        modifier = Modifier
-                            .size(80.dp)
-                            .clip(CircleShape)
-                            .background(Color.White),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.mipmap.ic_launcher_foreground),
-                            contentDescription = null,
-                            modifier = Modifier.size(48.dp)
+            // Hero Section with Image
+            Box(modifier = Modifier.fillMaxWidth().height(320.dp)) {
+                Image(
+                    painter = painterResource(id = R.drawable.about_header),
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            Brush.verticalGradient(
+                                colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.7f)),
+                                startY = 100f
+                            )
                         )
-                    }
-                    Spacer(modifier = Modifier.height(16.dp))
+                )
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(24.dp)
+                ) {
                     Text(
                         text = "DODHI",
-                        fontSize = 32.sp,
+                        fontSize = 40.sp,
                         fontWeight = FontWeight.ExtraBold,
                         color = Color.White,
                         letterSpacing = 4.sp
                     )
-                    Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = "Version ${BuildConfig.VERSION_NAME}",
                         fontSize = 14.sp,
                         color = Color.White.copy(alpha = 0.8f)
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
+                }
+            }
+
+            // App Description
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                border = BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.3f))
+            ) {
+                Column(modifier = Modifier.padding(20.dp)) {
+                    Text(
+                        text = stringResource(R.string.innovation_title).uppercase(),
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = GrassGreen,
+                        letterSpacing = 1.sp
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
                     Text(
                         text = stringResource(R.string.app_description),
-                        fontSize = 13.sp,
-                        color = Color.White.copy(alpha = 0.85f),
-                        textAlign = TextAlign.Center,
-                        lineHeight = 20.sp,
-                        modifier = Modifier.padding(horizontal = 16.dp)
+                        fontSize = 14.sp,
+                        lineHeight = 22.sp,
+                        color = EarthBrown.copy(alpha = 0.8f)
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Features Section
-            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                Text(
-                    text = stringResource(R.string.innovation_title).uppercase(),
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = GrassGreen,
-                    letterSpacing = 1.sp,
-                    modifier = Modifier.padding(start = 4.dp, bottom = 12.dp)
-                )
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
-                    border = BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.3f))
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        FeatureItem(
-                            icon = R.drawable.ic_milk_collection_premium,
-                            title = stringResource(R.string.khata_records),
-                            subtitle = stringResource(R.string.khata_records_desc)
-                        )
-                        Divider(color = Color.LightGray.copy(alpha = 0.3f), modifier = Modifier.padding(vertical = 12.dp))
-                        FeatureItem(
-                            icon = R.drawable.ic_reports_premium,
-                            title = stringResource(R.string.reports),
-                            subtitle = stringResource(R.string.reports_desc)
-                        )
-                        Divider(color = Color.LightGray.copy(alpha = 0.3f), modifier = Modifier.padding(vertical = 12.dp))
-                        FeatureItem(
-                            icon = R.drawable.ic_add_customer_premium,
-                            title = stringResource(R.string.add_customer),
-                            subtitle = stringResource(R.string.add_customer_desc)
-                        )
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Developer Section
-            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                Text(
-                    text = stringResource(R.string.developer_lab).uppercase(),
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = GrassGreen,
-                    letterSpacing = 1.sp,
-                    modifier = Modifier.padding(start = 4.dp, bottom = 12.dp)
-                )
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
-                    border = BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.3f))
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Box(
-                                modifier = Modifier
-                                    .size(48.dp)
-                                    .background(PastelGreen, CircleShape),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(Icons.Default.Info, contentDescription = null, tint = GrassGreen)
-                            }
-                            Spacer(modifier = Modifier.width(16.dp))
-                            Column {
-                                Text("Sadaqat Ali", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = EarthBrown)
-                                Text(stringResource(R.string.lead_developer), fontSize = 12.sp, color = Color.Gray)
-                            }
-                        }
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Box(
-                                modifier = Modifier
-                                    .size(48.dp)
-                                    .background(Color(0xFFE3F2FD), CircleShape),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(Icons.Default.Email, contentDescription = null, tint = Color(0xFF1976D2))
-                            }
-                            Spacer(modifier = Modifier.width(16.dp))
-                            Column {
-                                Text(stringResource(R.string.contact), fontWeight = FontWeight.Bold, fontSize = 16.sp, color = EarthBrown)
-                                Text("hi.sadaqat@gmail.com", fontSize = 12.sp, color = Color.Gray)
-                            }
-                        }
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Studio Section
-            Column(
+            // How to Use Section
+            Card(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = GrassGreen)
             ) {
-                Text(
-                    text = stringResource(R.string.crafted_by),
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = GrassGreen,
-                    letterSpacing = 2.sp
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = stringResource(R.string.fixare_studio),
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    color = EarthBrown,
-                    letterSpacing = 3.sp
-                )
-                Text(
-                    text = stringResource(R.string.studio_tagline),
-                    fontSize = 10.sp,
-                    color = Color.Gray
-                )
+                Column(modifier = Modifier.padding(20.dp)) {
+                    Text(
+                        text = stringResource(R.string.how_to_use_title),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Step 1
+                    HowToUseStep(
+                        stepNumber = "1",
+                        title = stringResource(R.string.step1_title),
+                        description = stringResource(R.string.step1_desc)
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // Step 2
+                    HowToUseStep(
+                        stepNumber = "2",
+                        title = stringResource(R.string.step2_title),
+                        description = stringResource(R.string.step2_desc)
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // Step 3
+                    HowToUseStep(
+                        stepNumber = "3",
+                        title = stringResource(R.string.step3_title),
+                        description = stringResource(R.string.step3_desc)
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // Step 4
+                    HowToUseStep(
+                        stepNumber = "4",
+                        title = stringResource(R.string.step4_title),
+                        description = stringResource(R.string.step4_desc)
+                    )
+                }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-            // Website Button
+            // Features Section
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                border = BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.3f))
+            ) {
+                Column(modifier = Modifier.padding(20.dp)) {
+                    Text(
+                        text = stringResource(R.string.features_title).uppercase(),
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = GrassGreen,
+                        letterSpacing = 1.sp
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    FeatureItem(
+                        icon = R.drawable.ic_milk_collection_premium,
+                        title = stringResource(R.string.khata_records),
+                        subtitle = stringResource(R.string.khata_records_desc)
+                    )
+                    Divider(color = Color.LightGray.copy(alpha = 0.3f), modifier = Modifier.padding(vertical = 12.dp))
+                    FeatureItem(
+                        icon = R.drawable.ic_reports_premium,
+                        title = stringResource(R.string.reports),
+                        subtitle = stringResource(R.string.reports_desc)
+                    )
+                    Divider(color = Color.LightGray.copy(alpha = 0.3f), modifier = Modifier.padding(vertical = 12.dp))
+                    FeatureItem(
+                        icon = R.drawable.ic_add_customer_premium,
+                        title = stringResource(R.string.add_customer),
+                        subtitle = stringResource(R.string.add_customer_desc)
+                    )
+                    Divider(color = Color.LightGray.copy(alpha = 0.3f), modifier = Modifier.padding(vertical = 12.dp))
+                    FeatureItem(
+                        icon = R.drawable.cow_illustration,
+                        title = stringResource(R.string.daily_run),
+                        subtitle = stringResource(R.string.daily_run_desc)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Developer Section
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                border = BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.3f))
+            ) {
+                Column(modifier = Modifier.padding(20.dp)) {
+                    Text(
+                        text = stringResource(R.string.developer_lab).uppercase(),
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = GrassGreen,
+                        letterSpacing = 1.sp
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            modifier = Modifier
+                                .size(48.dp)
+                                .background(PastelGreen, CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(Icons.Default.Info, contentDescription = null, tint = GrassGreen)
+                        }
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Column {
+                            Text("Sadaqat Ali", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = EarthBrown)
+                            Text(stringResource(R.string.lead_developer), fontSize = 12.sp, color = Color.Gray)
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            modifier = Modifier
+                                .size(48.dp)
+                                .background(Color(0xFFE3F2FD), CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(Icons.Default.Email, contentDescription = null, tint = Color(0xFF1976D2))
+                        }
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Column {
+                            Text(stringResource(R.string.contact), fontWeight = FontWeight.Bold, fontSize = 16.sp, color = EarthBrown)
+                            Text("hi.sadaqat@gmail.com", fontSize = 12.sp, color = Color.Gray)
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Studio & Website
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -250,10 +290,24 @@ fun AboutScreen(onBack: () -> Unit) {
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = stringResource(R.string.visit_website_msg),
+                        text = stringResource(R.string.crafted_by),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
                         color = Color.White.copy(alpha = 0.8f),
-                        fontSize = 13.sp,
-                        textAlign = TextAlign.Center
+                        letterSpacing = 2.sp
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = stringResource(R.string.fixare_studio),
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = Color.White,
+                        letterSpacing = 3.sp
+                    )
+                    Text(
+                        text = stringResource(R.string.studio_tagline),
+                        fontSize = 10.sp,
+                        color = Color.White.copy(alpha = 0.6f)
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                     Button(
@@ -267,6 +321,41 @@ fun AboutScreen(onBack: () -> Unit) {
             }
 
             Spacer(modifier = Modifier.height(32.dp))
+        }
+    }
+}
+
+@Composable
+fun HowToUseStep(stepNumber: String, title: String, description: String) {
+    Row(verticalAlignment = Alignment.Top) {
+        Box(
+            modifier = Modifier
+                .size(28.dp)
+                .clip(CircleShape)
+                .background(Color.White.copy(alpha = 0.2f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = stepNumber,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
+        }
+        Spacer(modifier = Modifier.width(12.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
+            Text(
+                text = description,
+                fontSize = 12.sp,
+                color = Color.White.copy(alpha = 0.8f),
+                lineHeight = 18.sp
+            )
         }
     }
 }
