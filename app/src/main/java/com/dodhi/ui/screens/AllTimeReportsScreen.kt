@@ -193,7 +193,7 @@ fun MonthReportCard(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        StatChip("${summary.totalLiters.toInt()} L", HeritageOlive)
+                        StatChip("${summary.totalLiters} L", HeritageOlive)
                         StatChip("${summary.customerCount} customers", Color.Gray)
                         
                         if (summary.nagaCount > 0) {
@@ -271,7 +271,7 @@ fun MonthReportCard(
                     Text(monthLabel, fontWeight = FontWeight.Bold, fontSize = 18.sp, color = ClayTerracotta)
                     Spacer(modifier = Modifier.height(6.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                        StatChip("${totalLiters.toInt()} L", HeritageOlive)
+                        StatChip("${totalLiters} L", HeritageOlive)
                         if (nagas > 0) {
                             Box(
                                 modifier = Modifier
@@ -347,7 +347,7 @@ fun MonthDetailView(
                         Text(monthLabel, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 20.sp)
                         Spacer(modifier = Modifier.height(12.dp))
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            SummaryStatColumn(stringResource(R.string.total_liters), "${summary.totalLiters.toInt()} L", GrassGreen)
+                            SummaryStatColumn(stringResource(R.string.total_liters), "${summary.totalLiters} L", GrassGreen)
                             SummaryStatColumn(stringResource(R.string.total_bill), "${summary.totalAmount.toInt()} ${stringResource(R.string.rupees)}", Color.White)
                             SummaryStatColumn(stringResource(R.string.collected), "${summary.totalPaid.toInt()} ${stringResource(R.string.rupees)}", Color(0xFF80CBC4))
                         }
@@ -395,7 +395,7 @@ fun MonthDetailView(
                                 Text(customer.name, fontWeight = FontWeight.Bold, color = ClayTerracotta)
                                 Text("${delivered.sumOf { it.amount }.toInt()} ${stringResource(R.string.rupees)}", fontWeight = FontWeight.Bold, color = HeritageOlive)
                             }
-                            Text("${delivered.sumOf { it.quantity }.toInt()} L${if (nagas > 0) "  •  $nagas Naga" else ""}",
+                            Text("${delivered.sumOf { it.quantity }} L${if (nagas > 0) "  •  $nagas Naga" else ""}",
                                 fontSize = 13.sp, color = Color.Gray)
                             Spacer(modifier = Modifier.height(8.dp))
                             // PDF share for individual customer
@@ -436,7 +436,7 @@ fun MonthDetailView(
                         val delivered = records.filter { it.type != "Naga" }
                         val nagas = records.count { it.type == "Naga" }
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            SummaryStatColumn(stringResource(R.string.total_liters), "${delivered.sumOf { it.quantity }.toInt()} L", GrassGreen)
+                            SummaryStatColumn(stringResource(R.string.total_liters), "${delivered.sumOf { it.quantity }} L", GrassGreen)
                             SummaryStatColumn(stringResource(R.string.total_bill), "${delivered.sumOf { it.amount }.toInt()} ${stringResource(R.string.rupees)}", Color.White)
                             SummaryStatColumn(stringResource(R.string.naga_days), "$nagas", Color(0xFFFFCC80))
                         }

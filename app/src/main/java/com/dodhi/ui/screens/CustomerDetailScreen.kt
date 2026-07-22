@@ -209,7 +209,7 @@ fun PremiumBillHeader(customer: Customer, viewModel: DashboardViewModel) {
                 // Column 1: Milk
                 Column {
                     Text("Monthly Milk", color = Color.Gray, fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                    Text("${monthlyLiters.toInt()} L", fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = EarthBrown)
+                    Text("${monthlyLiters} L", fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = EarthBrown)
                 }
                 // Column 2: Bill
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {

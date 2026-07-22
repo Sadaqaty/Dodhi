@@ -788,7 +788,7 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
                 val paid = custPayments.sumOf { it.amount }
                 val liters = custRecords.sumOf { it.quantity }
                 sb.append("👤 *${customer.name}*\n")
-                sb.append("   ${liters.toInt()} L  •  Bill: ${bill.toInt()} Rs.  •  Paid: ${paid.toInt()} Rs.  •  Due: ${(bill - paid).toInt()} Rs.\n\n")
+                sb.append("   ${liters} L  •  Bill: ${bill.toInt()} Rs.  •  Paid: ${paid.toInt()} Rs.  •  Due: ${(bill - paid).toInt()} Rs.\n\n")
             }
             val totalBill = records.filter { it.type != "Naga" }.sumOf { it.amount }
             val totalPaid = payments.sumOf { it.amount }

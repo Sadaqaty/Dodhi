@@ -69,6 +69,15 @@ fun DailyRunScreen(viewModel: DashboardViewModel, onBack: () -> Unit) {
     val providers = customers.filter { it.isProvider }
     val consumers = customers.filter { !it.isProvider }
 
+    // Sort: unmarked first, then marked (completed) at the bottom
+    val dailyRecords by viewModel.dailyRecords.collectAsState()
+    val sortedProviders = remember(providers, dailyRecords) {
+        providers.sortedBy { customer -> dailyRecords.any { it.customerId == customer.id } }
+    }
+    val sortedConsumers = remember(consumers, dailyRecords) {
+        consumers.sortedBy { customer -> dailyRecords.any { it.customerId == customer.id } }
+    }
+
     var selectedTabIndex by remember { mutableStateOf(0) }
     val tabs = listOf(stringResource(R.string.providers), stringResource(R.string.consumers))
 
@@ -143,7 +152,7 @@ fun DailyRunScreen(viewModel: DashboardViewModel, onBack: () -> Unit) {
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(bottom = 16.dp)
             ) {
-                val currentList = if (selectedTabIndex == 0) providers else consumers
+                val currentList = if (selectedTabIndex == 0) sortedProviders else sortedConsumers
                 
                 items(currentList) { customer ->
                     RouteCustomerRow(customer, viewModel)
