@@ -118,8 +118,6 @@
     <!-- Language Selection -->
     <string name="choose_language">Choose Your Language</string>
     <string name="choose_language_desc">Select your preferred language for the app</string>
-    <string name="english">English</string>
-    <string name="urdu">اردو (Urdu)</string>
 
     <!-- Tour Strings -->
     <string name="tour_welcome_title">Welcome to Dodhi!</string>

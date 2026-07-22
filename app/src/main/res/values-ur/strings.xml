@@ -118,8 +118,6 @@
     <!-- Language Selection -->
     <string name="choose_language">اپنی زبان منتخب کریں</string>
     <string name="choose_language_desc">ایپ کے لیے اپنی پسندیدہ زبان منتخب کریں</string>
-    <string name="english">English</string>
-    <string name="urdu">اردو</string>
 
     <!-- Tour Strings -->
     <string name="tour_welcome_title">دودهی ایپ میں خوش آمدید!</string>
