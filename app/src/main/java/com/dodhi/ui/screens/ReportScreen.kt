@@ -220,44 +220,72 @@ fun CashFlowSection(summary: DashboardViewModel.CollectionSummary?) {
         border = BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.3f))
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            // To Collect
-            Row(
+            // To Collect — Red means money pending from customers
+            Card(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column {
-                    Text(stringResource(R.string.to_collect), fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color.Gray)
-                    Text(stringResource(R.string.from_customers), fontSize = 10.sp, color = Color.Gray.copy(alpha = 0.6f))
-                }
-                Text(
-                    text = "${toCollect.toInt()} ${stringResource(R.string.rupees)}",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    color = if (toCollect > 0) Color(0xFFD32F2F) else GrassGreen
+                shape = RoundedCornerShape(10.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = if (toCollect > 0) Color(0xFFFFEBEE) else Color(0xFFE8F5E9)
                 )
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(14.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column {
+                        Text(
+                            stringResource(R.string.to_collect),
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = if (toCollect > 0) Color(0xFFD32F2F) else GrassGreen
+                        )
+                        Text(stringResource(R.string.from_customers), fontSize = 10.sp, color = Color.Gray)
+                    }
+                    Text(
+                        text = "${toCollect.toInt()} ${stringResource(R.string.rupees)}",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = if (toCollect > 0) Color(0xFFD32F2F) else GrassGreen
+                    )
+                }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
-            Divider(color = Color.LightGray.copy(alpha = 0.3f))
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
-            // To Pay
-            Row(
+            // To Pay — Red means money pending to providers
+            Card(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column {
-                    Text(stringResource(R.string.to_pay), fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color.Gray)
-                    Text(stringResource(R.string.to_providers), fontSize = 10.sp, color = Color.Gray.copy(alpha = 0.6f))
-                }
-                Text(
-                    text = "${toPay.toInt()} ${stringResource(R.string.rupees)}",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    color = if (toPay > 0) ClayTerracotta else GrassGreen
+                shape = RoundedCornerShape(10.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = if (toPay > 0) Color(0xFFFFF3E0) else Color(0xFFE8F5E9)
                 )
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(14.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column {
+                        Text(
+                            stringResource(R.string.to_pay),
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = if (toPay > 0) ClayTerracotta else GrassGreen
+                        )
+                        Text(stringResource(R.string.to_providers), fontSize = 10.sp, color = Color.Gray)
+                    }
+                    Text(
+                        text = "${toPay.toInt()} ${stringResource(R.string.rupees)}",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = if (toPay > 0) ClayTerracotta else GrassGreen
+                    )
+                }
             }
         }
     }

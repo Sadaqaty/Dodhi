@@ -321,7 +321,16 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
             val paid = payments.filter { it.customerId in providerIds }.sumOf { it.amount }
 
             val totalLiters = consumerRecords.sumOf { it.quantity }
-            val nagaCount = records.count { it.type == "Naga" }
+
+            // Count off days: a day is "off" only if ALL customers are Naga or no records exist
+            val totalCustomerCount = customerList.size
+            val recordsByDate = records.groupBy { it.date }
+            val nagaCount = if (totalCustomerCount > 0) {
+                recordsByDate.count { (_, dayRecords) ->
+                    dayRecords.all { it.type == "Naga" }
+                }
+            } else 0
+
             val activeCustomerIds = records.filter { it.type != "Naga" }.map { it.customerId }.distinct()
             val activeCustomers = activeCustomerIds.size
 
