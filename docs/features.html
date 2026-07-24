@@ -14,17 +14,30 @@
   <meta property="og:url" content="https://dodhi.fixare.studio/features.html">
   <meta property="og:title" content="Features — Dodhi Dairy Management App">
   <meta property="og:description" content="One-tap delivery tracking, automatic billing, PDF and WhatsApp reports, bilingual support, and secure backup.">
-  <meta property="og:image" content="https://dodhi.fixare.studio/assets/1.png">
+  <meta property="og:image" content="https://dodhi.fixare.studio/assets/3.png">
 
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Features — Dodhi Dairy Management App">
   <meta name="twitter:description" content="One-tap delivery tracking, automatic billing, PDF and WhatsApp reports, bilingual support, and secure backup.">
-  <meta name="twitter:image" content="https://dodhi.fixare.studio/assets/1.png">
+  <meta name="twitter:image" content="https://dodhi.fixare.studio/assets/3.png">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./style.css">
+  <style>
+    .promo-image {
+      width: 100%;
+      max-width: 360px;
+      height: auto;
+      border-radius: var(--radius-lg);
+    }
+    .feature-detail-card .visual {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  </style>
 </head>
 <body>
 
@@ -55,64 +68,85 @@
   <section class="section">
     <div class="container">
 
+      <!-- Daily Run — image 3.png shows Daily Run screen -->
       <div class="feature-detail-card reveal">
         <div class="text">
           <h3>One-Tap Daily Run</h3>
           <p>Open the daily run screen and tap Delivered or Naga for each customer. Default quantities are pre-filled based on each customer's usual amount. Complete your entire route in under a minute. No keyboards needed.</p>
+          <ul class="split-list" style="margin-top: 20px;">
+            <li><span class="check">✓</span> Default quantities per customer</li>
+            <li><span class="check">✓</span> Edit custom quantities when needed</li>
+            <li><span class="check">✓</span> Completed customers move to bottom</li>
+            <li><span class="check">✓</span> Progress bar shows daily completion</li>
+          </ul>
         </div>
         <div class="visual">
-          <div class="screenshot-card">
-            <img src="./assets/2.png" alt="Daily run screen with one-tap delivery tracking" width="400" height="600" loading="lazy">
-          </div>
+          <img src="./assets/3.png" alt="Dodhi Daily Run screen — tap Delivered or Naga for each customer" class="promo-image" width="360" height="640" loading="lazy">
         </div>
       </div>
 
+      <!-- Customer Management — image 2.png shows Add Customer screen -->
       <div class="feature-detail-card reveal">
         <div class="visual">
-          <div class="screenshot-card">
-            <img src="./assets/3.png" alt="Reports dashboard with profit and cash flow" width="400" height="600" loading="lazy">
-          </div>
+          <img src="./assets/2.png" alt="Dodhi Add Customer screen — set name, locality, and rate per liter" class="promo-image" width="360" height="640" loading="lazy">
         </div>
         <div class="text">
-          <h3>Business Reports Dashboard</h3>
-          <p>See your monthly profit, sales vs purchases, cash flow (to collect vs to pay), milk volume chart, and active customer count — all on one screen. Color-coded cards make it easy to understand at a glance.</p>
+          <h3>Customer Management</h3>
+          <p>Add customers and suppliers with their name, locality, daily quantity, and rate per liter. Track who you sell to (Buyers) and who you buy from (Sellers). Each customer has their own rate and default quantity.</p>
+          <ul class="split-list" style="margin-top: 20px;">
+            <li><span class="check">✓</span> Separate buyers and sellers</li>
+            <li><span class="check">✓</span> Custom rate per customer</li>
+            <li><span class="check">✓</span> Locality tracking</li>
+            <li><span class="check">✓</span> Default daily quantity</li>
+          </ul>
         </div>
       </div>
 
+      <!-- Reports — image 4.png shows Reports screen -->
       <div class="feature-detail-card reveal">
         <div class="text">
-          <h3>Customer Ledger & Payments</h3>
-          <p>Tap any customer to see their complete history. View monthly bill, total liters, and outstanding balance. Record payments instantly. The app tracks who owes what, so you never lose count.</p>
+          <h3>Reports & Financial Overview</h3>
+          <p>See your monthly profit, sales vs purchases, cash flow, delivery volume, and customer balances — all on one screen. Color-coded cards make it easy to understand at a glance.</p>
+          <ul class="split-list" style="margin-top: 20px;">
+            <li><span class="check">✓</span> Net profit with sales vs purchases</li>
+            <li><span class="check">✓</span> Cash flow: to collect and to pay</li>
+            <li><span class="check">✓</span> Daily volume chart for the month</li>
+            <li><span class="check">✓</span> Per-customer balance breakdown</li>
+          </ul>
         </div>
         <div class="visual">
-          <div class="screenshot-card">
-            <img src="./assets/4.png" alt="Customer detail screen with ledger and payment history" width="400" height="600" loading="lazy">
-          </div>
+          <img src="./assets/4.png" alt="Dodhi Reports screen — monthly overview with profit, sales, and cash flow" class="promo-image" width="360" height="640" loading="lazy">
         </div>
       </div>
 
+      <!-- Bilingual — image 5.png shows English/Urdu split -->
       <div class="feature-detail-card reveal">
         <div class="visual">
-          <div class="screenshot-card">
-            <img src="./assets/5.png" alt="PDF report generation and sharing" width="400" height="600" loading="lazy">
-          </div>
+          <img src="./assets/5.png" alt="Dodhi bilingual interface — English and Urdu side by side" class="promo-image" width="360" height="640" loading="lazy">
         </div>
         <div class="text">
-          <h3>PDF & WhatsApp Reports</h3>
-          <p>Generate professional PDF statements with monthly summaries, previous balance, and total payable. Or send a text summary directly to customers via WhatsApp in Urdu or English. Settle accounts in seconds.</p>
+          <h3>Bilingual English & Urdu</h3>
+          <p>Every screen, button, and report works in both English and Urdu. The app adapts to your phone's language setting automatically. Reports can be generated in either language for your customers.</p>
+          <ul class="split-list" style="margin-top: 20px;">
+            <li><span class="check">✓</span> Full UI in English and Urdu</li>
+            <li><span class="check">✓</span> Auto-detects phone language</li>
+            <li><span class="check">✓</span> Reports in Urdu or English</li>
+            <li><span class="check">✓</span> WhatsApp messages in Urdu</li>
+          </ul>
         </div>
       </div>
 
+      <!-- Extra feature cards -->
       <div class="features-grid" style="margin-top: 60px;">
         <div class="feature-card reveal">
-          <div class="feature-icon">🗣️</div>
-          <h3>Bilingual (English & Urdu)</h3>
-          <p>Every screen, button, and report works in both English and Urdu. The app adapts to your phone's language setting automatically.</p>
+          <div class="feature-icon">📄</div>
+          <h3>PDF & WhatsApp Reports</h3>
+          <p>Generate professional PDF statements or send text summaries directly to customers via WhatsApp in Urdu or English. Settle accounts in seconds.</p>
         </div>
         <div class="feature-card reveal">
           <div class="feature-icon">💰</div>
-          <h3>Custom Rates Per Customer</h3>
-          <p>Set individual rates for each customer. The app captures the rate at the time of delivery, so old records stay accurate even if you change rates later.</p>
+          <h3>Payment Tracking</h3>
+          <p>Record payments from customers and to suppliers. See who owes what at any time with clear balance view. Track both cash received and cash paid.</p>
         </div>
         <div class="feature-card reveal">
           <div class="feature-icon">🔔</div>
