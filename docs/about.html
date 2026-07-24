@@ -1,236 +1,183 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About Dodhi App | Handcrafted Software by Fixare Studio</title>
-    <meta name="description" content="Discover the story behind Dodhi. Handcrafted by Fixare Studio to preserve the sacred trust of traditional milkmen through digital-first offline engineering.">
-    <meta name="keywords" content="about dodhi, fixare studio, pakistani dairy tech, milk khata history, traditional milkmen, offline room database, software craftsmanship">
-    <meta name="author" content="Fixare Studio">
-    <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://dodhi.fixare.studio/about.html">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About Dodhi — Our Story | Fixare Studio</title>
+  <meta name="description" content="The story behind Dodhi. Built by Fixare Studio to help Pakistani milkmen manage their dairy business with a simple, offline-first app.">
+  <meta name="keywords" content="about dodhi, fixare studio, dairy app Pakistan, milkman technology, offline dairy management">
+  <meta name="author" content="Fixare Studio">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://dodhi.fixare.studio/about.html">
 
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://dodhi.fixare.studio/about.html">
-    <meta property="og:title" content="About Dodhi App | Handcrafted Software by Fixare Studio">
-    <meta property="og:description" content="Discover the story behind Dodhi. Handcrafted by Fixare Studio to preserve the sacred trust of traditional milkmen through digital-first offline engineering.">
-    <meta property="og:image" content="https://dodhi.fixare.studio/assets/og-image.jpg">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://dodhi.fixare.studio/about.html">
+  <meta property="og:title" content="About Dodhi — Our Story">
+  <meta property="og:description" content="Built by Fixare Studio to help Pakistani milkmen manage their dairy business with a simple, offline-first app.">
+  <meta property="og:image" content="https://dodhi.fixare.studio/assets/1.png">
 
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://dodhi.fixare.studio/about.html">
-    <meta property="twitter:title" content="About Dodhi App | Handcrafted Software by Fixare Studio">
-    <meta property="twitter:description" content="Discover the story behind Dodhi. Handcrafted by Fixare Studio to preserve the sacred trust of traditional milkmen through digital-first offline engineering.">
-    <meta property="twitter:image" content="https://dodhi.fixare.studio/assets/og-image.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="About Dodhi — Our Story">
+  <meta name="twitter:description" content="Built by Fixare Studio to help Pakistani milkmen manage their dairy business with a simple, offline-first app.">
+  <meta name="twitter:image" content="https://dodhi.fixare.studio/assets/1.png">
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
-    <link rel="stylesheet" href="./style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
-    <style>
-        body {
-            background: var(--bg-offset);
-            color: var(--text);
-            overflow-y: auto !important;
-        }
-
-        .about-section {
-            padding: clamp(60px, 8vw, 100px) 0;
-        }
-
-        .about-grid {
-            display: grid;
-            grid-template-columns: 1fr 1.2fr;
-            gap: 60px;
-            align-items: center;
-        }
-
-        @media (max-width: 900px) {
-            .about-grid {
-                grid-template-columns: 1fr;
-                gap: 40px;
-                text-align: center;
-            }
-            .about-grid .visual {
-                order: -1;
-            }
-        }
-
-        .culture-quote-card {
-            background: linear-gradient(135deg, var(--primary), var(--primary-light));
-            border-radius: 24px;
-            padding: clamp(30px, 5vw, 50px);
-            color: #fff;
-            box-shadow: var(--shadow-premium);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .culture-quote-card::before {
-            content: "“";
-            position: absolute;
-            font-size: 200px;
-            font-family: 'Playfair Display', serif;
-            color: rgba(255, 255, 255, 0.05);
-            top: -50px;
-            left: 20px;
-            line-height: 1;
-        }
-
-        .culture-quote-card h3 {
-            font-family: 'Playfair Display', serif;
-            font-size: 28px;
-            font-weight: 800;
-            color: var(--accent);
-            margin-bottom: 20px;
-            line-height: 1.3;
-        }
-
-        .culture-quote-card p {
-            font-size: 16px;
-            line-height: 1.8;
-            color: rgba(255, 255, 255, 0.8);
-            margin-bottom: 0;
-        }
-
-        .studio-highlight {
-            background: #fff;
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            padding: 40px;
-            margin-top: 60px;
-        }
-
-        .studio-highlight h3 {
-            font-family: 'Playfair Display', serif;
-            font-size: 24px;
-            font-weight: 800;
-            color: var(--primary);
-            margin-bottom: 15px;
-        }
-
-        .studio-highlight p {
-            font-size: 15px;
-            line-height: 1.7;
-            color: var(--text-light);
-            margin-bottom: 0;
-        }
-    </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./style.css">
 </head>
-<body class="normal-scroll">
+<body>
 
-    <!-- Navigation Header -->
-    <header class="nav-header">
-        <div class="nav-container">
-            <a href="./index.html" id="nav-logo" class="nav-logo">
-                🍶 Dodhi <span>App</span>
-            </a>
-            <button id="nav-toggle-btn" class="nav-toggle" aria-label="Toggle navigation">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
-            <nav class="nav-navigation" aria-label="Main Navigation">
-                <ul class="nav-links">
-                    <li><a href="./index.html" id="nav-link-home">Home</a></li>
-                    <li><a href="./features.html" id="nav-link-features">Features</a></li>
-                    <li><a href="./about.html" id="nav-link-about" class="active">About</a></li>
-                    <li><a href="./privacy.html" id="nav-link-privacy">Privacy</a></li>
-                    <li><a href="./index.html#about-fixare" id="nav-link-studio" class="nav-cta">Studio</a></li>
-                </ul>
-            </nav>
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="./index.html" class="nav-logo">Dodhi<span class="dot">.</span></a>
+      <button class="nav-toggle" aria-label="Menu" onclick="document.querySelector('.nav-links').classList.toggle('active')">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links">
+        <li><a href="./index.html">Home</a></li>
+        <li><a href="./features.html">Features</a></li>
+        <li><a href="./about.html" class="active">About</a></li>
+        <li><a href="./privacy.html">Privacy</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=com.fixare.dodhi" class="nav-cta" target="_blank" rel="noopener">Get the App</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <section class="subpage-hero">
+    <div class="container">
+      <div class="section-badge" style="color: #4ade80;">OUR STORY</div>
+      <h1>Built for the people who feed us</h1>
+      <p>Dodhi started from a simple observation: milkmen do vital work but have no tools built for them.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="about-story">
+        <div class="text">
+          <h3 class="split-title">The problem</h3>
+          <p class="split-desc">In Pakistan, millions of families depend on local milkmen — known as <em>Dodhis</em> — who deliver fresh milk every morning and evening. These milkmen keep track of who got how much milk and who paid, usually on paper slips or in notebooks.</p>
+          <p class="split-desc">The problem? Paper gets wet, lost, torn. Memory fails. At the end of the month, there's confusion about money. Customers and milkmen argue about how much was delivered. There's no history, no proof, no reports.</p>
+          <p class="split-desc">We wanted to fix that — without making things complicated.</p>
         </div>
-    </header>
-
-    <!-- Subpage Hero -->
-    <section class="subpage-hero">
-        <div class="hero-glow-1"></div>
-        <div class="hero-glow-2"></div>
-        <div class="container">
-            <div class="badge" style="color: var(--accent);">OUR MISSION</div>
-            <h1>Blending Heritage & Tech</h1>
-            <p>We believe technology should serve cultural values. Dodhi preserves the traditional trust of Pakistani dairy routes while offering state-of-the-art offline engineering.</p>
+        <div class="visual">
+          <div class="about-quote">
+            <blockquote>"صاف حساب، لمبی یاری"</blockquote>
+            <p>A clean ledger leads to a long partnership. This old saying is the heart of Dodhi. When accounts are clear, relationships stay strong.</p>
+          </div>
         </div>
-    </section>
+      </div>
+    </div>
+  </section>
 
-    <!-- About Content -->
-    <section class="about-section">
-        <div class="container">
-            <div class="about-grid">
-                
-                <div class="text">
-                    <h2 class="premium-heading-small">Preserving the Trust system</h2>
-                    <p class="premium-p" style="margin-bottom: 25px;">
-                        In Pakistan, millions rely on local milkmen (known as *Dodhis*) who visit houses daily. For decades, transactions have been recorded on small paper slips (*Parchis*) or wall scratchings. However, paper slips easily get wet, lost, or torn. 
-                    </p>
-                    <p class="premium-p" style="margin-bottom: 25px;">
-                        Dodhi was created to modernize this ledger system without introducing unnecessary complexity. By utilizing a "default delivery" single-tap mechanism, milkmen don't have to deal with complicated keyboard inputs while riding their routes.
-                    </p>
-                    <p class="premium-p">
-                        With support for localized languages, Roman Urdu text reports, and customizable rate structures, Dodhi honors local traditions while providing professional-grade accounting and billing tools.
-                    </p>
-                </div>
-
-                <div class="visual">
-                    <div class="culture-quote-card">
-                        <h3>صاف حساب، لمبی یاری<br>(Clean ledger, long partnership)</h3>
-                        <p>
-                            "Our motto is rooted in the traditional wisdom of Pakistani local business. Trust is built on clear accounting. By generating instant reports and ledger files in Urdu, Dodhi establishes crystal-clear transparency between milkmen and households, ensuring a lifetime of friendly relationships."
-                        </p>
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- Studio Spotlight -->
-            <div class="studio-highlight">
-                <h3>Handcrafted in Fixare Studio</h3>
-                <p>
-                    Fixare Studio is an independent digital laboratory. We focus on building tools for industries that are often overlooked by major software corporations. By pairing premium, high-fidelity UI design with lightweight, offline-first architectures, we create software that people love using. We built Dodhi with a warm inner-child focus—incorporating cultural proverbs, tea jokes, and localized encouraging quotes to turn a daily chore into a moment of joy.
-                </p>
-            </div>
-
+  <section class="section section-alt">
+    <div class="container">
+      <div class="about-story">
+        <div class="visual">
+          <div class="screenshot-card">
+            <img src="./assets/1.png" alt="Dodhi app dashboard" width="400" height="600" loading="lazy">
+          </div>
         </div>
-    </section>
-
-    <!-- Unified Premium Footer -->
-    <footer class="footer-static">
-        <div class="container">
-            <div class="grid-footer">
-                <div>
-                    <h4>🍶 Dodhi App</h4>
-                    <p style="margin-top: 10px;">
-                        Handcrafted by Fixare Studio, combining agricultural heritage with high-performance digital precision. Settle accounts instantly, and record milk deliveries with one-tap ease.
-                    </p>
-                </div>
-                <div>
-                    <h4>Navigation</h4>
-                    <ul>
-                        <li><a href="./index.html">Home</a></li>
-                        <li><a href="./features.html">Features</a></li>
-                        <li><a href="./about.html">About Developer</a></li>
-                        <li><a href="./privacy.html">Privacy Policy</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4>Connect</h4>
-                    <ul>
-                        <li><a href="https://fixare.studio">Fixare Studio</a></li>
-                        <li><a href="mailto:info@fixare.studio">Email Support</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <div>© 2026 Fixare Studio. All Rights Reserved.</div>
-                <div>
-                    <a href="./privacy.html">Privacy</a>
-                    <a href="https://fixare.studio">Terms of Service</a>
-                </div>
-            </div>
+        <div class="text">
+          <h3 class="split-title">What we built</h3>
+          <p class="split-desc">Dodhi is a simple Android app that replaces paper records with a digital system. A milkman opens the app, taps who got milk and who didn't, and the app handles the rest — billing, balances, reports.</p>
+          <p class="split-desc">It works in both English and Urdu because the people using it live in Pakistan, not Silicon Valley. It works offline because internet isn't always available in rural areas. And it sends reports via WhatsApp because that's how people communicate.</p>
+          <p class="split-desc">The app also backs up data automatically to Google Drive, so even if the phone is lost, the data isn't.</p>
         </div>
-    </footer>
-    <script src="./script.js"></script>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-badge">BY THE NUMBERS</div>
+        <h2 class="section-title">What Dodhi handles</h2>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value">4</div>
+          <div class="stat-label">Data tables tracked</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">52+</div>
+          <div class="stat-label">Unique reminder messages</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">2</div>
+          <div class="stat-label">Report formats (PDF & Text)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">0</div>
+          <div class="stat-label">Servers — fully offline</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-alt">
+    <div class="container">
+      <div class="about-story">
+        <div class="text">
+          <h3 class="split-title">About Fixare Studio</h3>
+          <p class="split-desc">Fixare Studio is an independent software studio. We build tools for industries that are often overlooked by big tech companies. Our focus is on creating software that people actually enjoy using — with clean design, local language support, and attention to the small details that make daily work easier.</p>
+          <p class="split-desc">Dodhi is one of our products. We built it with care, and we continue to improve it based on feedback from real milkmen.</p>
+        </div>
+        <div class="visual">
+          <div class="about-quote">
+            <blockquote>Technology should serve people, not the other way around.</blockquote>
+            <p>We believe software should adapt to the user's world — not force the user to adapt to the software. That's why Dodhi speaks Urdu, works offline, and sends reports via WhatsApp.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-section">
+    <div class="container">
+      <h2>Try Dodhi today</h2>
+      <p>Free on Google Play Store. Works offline. Available in English and Urdu.</p>
+      <a href="https://play.google.com/store/apps/details?id=com.fixare.dodhi" class="btn btn-primary" target="_blank" rel="noopener">Download Dodhi</a>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <h4>Dodhi</h4>
+          <p>A dairy management app built for milkmen in Pakistan. Track deliveries, manage accounts, and generate reports.</p>
+        </div>
+        <div>
+          <h4>Product</h4>
+          <ul>
+            <li><a href="./features.html">Features</a></li>
+            <li><a href="https://play.google.com/store/apps/details?id=com.fixare.dodhi" target="_blank" rel="noopener">Google Play</a></li>
+            <li><a href="./privacy.html">Privacy Policy</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Studio</h4>
+          <ul>
+            <li><a href="https://fixare.studio" target="_blank" rel="noopener">Fixare Studio</a></li>
+            <li><a href="mailto:hi.sadaqat@gmail.com">Contact</a></li>
+            <li><a href="./about.html">About</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 Fixare Studio. All rights reserved.</span>
+        <span>Built with care in Pakistan</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  </script>
 </body>
 </html>
