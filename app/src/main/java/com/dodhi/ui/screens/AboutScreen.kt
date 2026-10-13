@@ -311,7 +311,7 @@ fun AboutScreen(onBack: () -> Unit) {
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                     Button(
-                        onClick = { uriHandler.openUri("https://fixare.studio") },
+                        onClick = { uriHandler.openUri("https://fixarestudio.com") },
                         colors = ButtonDefaults.buttonColors(containerColor = NatureGreen),
                         shape = RoundedCornerShape(8.dp)
                     ) {

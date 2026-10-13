@@ -3,8 +3,8 @@
 Dodhi is Pakistan’s first high-performance, bilingual digital register designed specifically for milkmen (Dodhis) and dairy distributors.
 
 ## Project Information
-- **Developer**: Fixare Studio (https://fixare.studio)
-- **Domain**: https://dodhi.fixare.studio
+- **Developer**: Fixare Studio (https://fixarestudio.com)
+- **Domain**: https://dodhi.fixarestudio.com
 - **License**: Proprietary / Handcrafted
 
 ## Web Portal Pages

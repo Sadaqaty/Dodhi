@@ -1,3 +1,3 @@
 User-agent: *
 Allow: /
-Sitemap: https://dodhi.fixare.studio/sitemap.xml
+Sitemap: https://dodhi.fixarestudio.com/sitemap.xml
